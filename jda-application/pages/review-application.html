@@ -36,24 +36,7 @@
 
         <div class="card-body">
 
-          <div class="summary-card">
-            <h3><svg class="ic"><use href="#i-list"/></svg> Service Selection</h3>
-            <dl class="summary-grid">
-              <div class="summary-row"><dt>Service</dt><dd id="rvService">—</dd></div>
-              <div class="summary-row"><dt>Sub Service</dt><dd id="rvSubService">—</dd></div>
-              <div class="summary-row"><dt>Based On</dt><dd id="rvBasedOn">—</dd></div>
-            </dl>
-          </div>
-
-          <div class="summary-card">
-            <h3><svg class="ic"><use href="#i-list"/></svg> Applicant Profile</h3>
-            <dl class="summary-grid">
-              <div class="summary-row"><dt>Applicant Type</dt><dd id="rvApplicantType">—</dd></div>
-              <div class="summary-row"><dt>Patta Type</dt><dd id="rvPattaType">—</dd></div>
-              <div class="summary-row"><dt>Property</dt><dd id="rvProperty">—</dd></div>
-              <div class="summary-row"><dt>Documents</dt><dd id="rvDocuments">—</dd></div>
-            </dl>
-          </div>
+          <div id="reviewSummary"></div>
 
           <div class="package-note">
             <svg class="ic"><use href="#i-check"/></svg>
@@ -64,7 +47,10 @@
 
         <div class="card-foot">
           <a class="btn btn-outline" href="document-section.html"><svg class="ic"><use href="#i-arrL"/></svg> Back</a>
-          <a class="btn btn-primary" href="final-submission.html">Proceed to Final Submission <svg class="ic"><use href="#i-arrR"/></svg></a>
+          <div class="foot-actions">
+            <button class="btn btn-outline" type="button" id="printReview">Print</button>
+            <a class="btn btn-primary" href="final-submission.html">Proceed to Final Submission <svg class="ic"><use href="#i-arrR"/></svg></a>
+          </div>
         </div>
       </div>
     </main>

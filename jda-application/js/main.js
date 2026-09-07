@@ -453,6 +453,45 @@ const DOCS = [
   { req: 'Receipt(s) of amount deposited in JDA', type: 'applicable', uploaded: false }
 ];
 
+/* Mock lookup pools for the "Get Detail" buttons (Registry / Electricity).
+   Replace with the live registry & DISCOM integrations. */
+const NAME_POOL   = ['ARUN KUMAR SHARMA', 'SUNITA DEVI', 'RAJESH AGARWAL', 'MOHAMMED IQBAL', 'PRIYA MEENA'];
+const FATHER_POOL = ['RAKESH KUMAR SHARMA', 'GOPAL DAS', 'BANWARI LAL AGARWAL', 'ABDUL RAHMAN', 'HARI SINGH MEENA'];
+const ADDR_POOL   = ['12, Vidhyadhar Nagar, Jaipur', '45-B, Malviya Nagar, Jaipur', 'Plot 7, Mansarovar, Jaipur', '3, Bani Park, Jaipur'];
+const TEHSIL_POOL = ['Jaipur', 'Amber', 'Sanganer', 'Bassi'];
+
+function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+function randDigits(n) { let s = ''; for (let i = 0; i < n; i++) s += Math.floor(Math.random() * 10); return s; }
+function randDate() {
+  const d = new Date(2015 + Math.floor(Math.random() * 10), Math.floor(Math.random() * 12), 1 + Math.floor(Math.random() * 28));
+  return String(d.getDate()).padStart(2, '0') + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + d.getFullYear();
+}
+
+function fillDetailTable(panel, topic, refValue) {
+  const table = panel.querySelector('.tbl');
+  const tbody = table && table.querySelector('tbody');
+  if (!tbody) return;
+
+  let cells;
+  if (topic === 'Registry Number') {
+    cells = [
+      '1', pick(NAME_POOL), pick(FATHER_POOL), pick(ADDR_POOL),
+      randDigits(4) + '/' + (2015 + Math.floor(Math.random() * 10)),
+      esc(refValue), randDate(), 'Jaipur', pick(TEHSIL_POOL), 'Registered'
+    ];
+  } else {
+    cells = [
+      '1', esc(refValue), pick(NAME_POOL), pick(FATHER_POOL), pick(ADDR_POOL),
+      pick(['Domestic', 'Commercial']), randDate()
+    ];
+  }
+
+  tbody.classList.remove('empty-state');
+  tbody.innerHTML =
+    '<tr>' + cells.map((c) => '<td>' + c + '</td>').join('') +
+    '<td><button type="button" class="tbtn tbtn-del remove-detail">delete</button></td></tr>';
+}
+
 function renderDocTable() {
   const tbody = $('#docRows');
   if (!tbody) return;
@@ -531,8 +570,21 @@ function initDocumentsPage() {
         return;
       }
       clearFieldError(input.closest('.field'));
+      fillDetailTable(btn.closest('.block-panel'), btn.dataset.topic, input.value.trim());
       toast('Details fetched successfully (mock \u2014 connect live API).', true);
     });
+  });
+
+  // remove a fetched Registry / Connection detail row
+  document.addEventListener('click', (e) => {
+    const rm = e.target.closest('.remove-detail');
+    if (!rm) return;
+    const table = rm.closest('.tbl');
+    const tbody = table && table.querySelector('tbody');
+    if (!tbody) return;
+    const cols = table.querySelectorAll('thead th').length;
+    tbody.classList.add('empty-state');
+    tbody.innerHTML = '<tr><td colspan="' + cols + '">No data available in table</td></tr>';
   });
 
   $$('.help').forEach((h) => {
@@ -575,20 +627,11 @@ const TYPE_LABELS = {
 };
 
 function initReviewPage() {
-  const flow = getFlow();
-  const map = {
-    rvService: flow.service || '\u2014',
-    rvSubService: flow.subService || '\u2014',
-    rvBasedOn: flow.basedOn || '\u2014',
-    rvApplicantType: TYPE_LABELS[flow.applicantType] || '\u2014',
-    rvPattaType: flow.pattaType ? (flow.pattaType === 'freeHold' ? 'Free Hold' : 'Lease Hold') : '\u2014',
-    rvProperty: flow.propertyCount ? flow.propertyCount + ' record(s) found' : 'No property added',
-    rvDocuments: flow.documentsVerified ? 'Verified' : 'Pending'
-  };
-  Object.keys(map).forEach((id) => {
-    const el = $('#' + id);
-    if (el) el.textContent = map[id];
-  });
+  const root = $('#reviewSummary');
+  if (root) root.innerHTML = buildSummaryHtml();
+
+  const print = $('#printReview');
+  if (print) print.addEventListener('click', () => window.print());
 }
 
 /* ------------------------------------------------------------------ */
@@ -601,10 +644,8 @@ function finalSection(title, rows) {
   return '<div class="summary-card"><h3>' + esc(title) + '</h3><dl class="summary-grid">' + body + '</dl></div>';
 }
 
-function renderFinalSummary() {
-  const root = $('#finalSummary');
-  if (!root) return;
-
+/* Shared summary markup used by both Review Application and Final Submission */
+function buildSummaryHtml() {
   const flow = getFlow();
   let html = '';
 
@@ -631,7 +672,12 @@ function renderFinalSummary() {
   (flow.uploadedDocNames || []).forEach((n, i) => docRows.push(['Document ' + (i + 1), n]));
   html += finalSection('Property & Documents', docRows);
 
-  root.innerHTML = html;
+  return html;
+}
+
+function renderFinalSummary() {
+  const root = $('#finalSummary');
+  if (root) root.innerHTML = buildSummaryHtml();
 }
 
 function initFinalPage() {

@@ -127,7 +127,8 @@ a { text-decoration: none; color: inherit; }
   border: 1px solid var(--line);
   border-radius: var(--r-card);
   box-shadow: var(--shadow-card);
-  overflow: hidden;
+  /* not "hidden": that would clip searchable-select dropdowns near a card edge */
+  overflow: visible;
 }
 
 .form-card + .form-card { margin-top: 18px; }
@@ -141,6 +142,7 @@ a { text-decoration: none; color: inherit; }
   padding: 20px 24px 16px;
   border-bottom: 1px solid #edf2f9;
   background: linear-gradient(180deg, #fff 0%, #fbfdff 100%);
+  border-radius: var(--r-card) var(--r-card) 0 0;
 }
 
 .head-icon {
@@ -171,6 +173,7 @@ a { text-decoration: none; color: inherit; }
   border-top: 1px solid #e7edf6;
   background: #fcfdff;
   flex-wrap: wrap;
+  border-radius: 0 0 var(--r-card) var(--r-card);
 }
 
 /* =====================================================================
@@ -182,6 +185,7 @@ a { text-decoration: none; color: inherit; }
   gap: 16px;
   padding: 20px 24px 16px;
   border-bottom: 1px solid #e7edf6;
+  border-radius: var(--r-card) var(--r-card) 0 0;
 }
 
 .hero-badge {
@@ -749,4 +753,23 @@ a { text-decoration: none; color: inherit; }
   font-size: 16px;
   font-weight: 700;
   letter-spacing: .5px;
+}
+
+/* card-foot: keep secondary + primary actions grouped on the right */
+.foot-actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+
+/* =====================================================================
+   Print (Review Application / Final Submission receipt)
+   ===================================================================== */
+@media print {
+  body { background: #fff; }
+  .page { max-width: none; padding: 0; }
+  .stepper-card,
+  .card-foot,
+  .package-note,
+  .toast { display: none !important; }
+  .form-card { border: 0; box-shadow: none; }
+  .card-head, .page-hero { border-bottom: 1px solid #cbd5e1; }
+  .summary-card { break-inside: avoid; box-shadow: none; }
+  .summary-card h3 { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }

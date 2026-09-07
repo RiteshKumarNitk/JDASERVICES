@@ -308,25 +308,32 @@ input[type="date"].input-plain { color: var(--ink); }
 .type-group { border: 0; }
 .type-group legend.f-label { margin-bottom: 12px; }
 
-/* ---------- fetch row / OR divider / joint panel ---------- */
+/* ---------- applicant-profile: separate the type selector from the detail cards ---------- */
+.card-body > .type-group {
+  padding-bottom: 22px;
+  border-bottom: 1px solid #e7edf6;
+}
+
+#sectionsRoot {
+  margin-top: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+#sectionsRoot .form-card.section {
+  margin-top: 0;
+  border: 1px solid var(--blue-100);
+  border-left: 4px solid var(--blue-600);
+  border-radius: var(--r-card);
+}
+
+/* ---------- fetch row / joint panel ---------- */
 .fetch-row { display: flex; gap: 12px; align-items: stretch; }
 .fetch-row .input { flex: 1; min-width: 0; }
 .fetch-btn { flex: none; }
 .fetch-btn.is-loading { opacity: .75; pointer-events: none; }
 
-.or-divider {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  margin: 22px 0;
-  color: var(--muted-2);
-  font-size: 13px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-.or-divider::before, .or-divider::after { content: ""; flex: 1; height: 1px; background: #e6ecf5; }
-.or-divider span { background: #fff; padding: 0 4px; }
+.fetch-block { padding-bottom: 18px; border-bottom: 1px solid #e6ecf5; }
 
 .joint-panel {
   border: 1px solid var(--blue-100);
