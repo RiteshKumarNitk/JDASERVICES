@@ -1,0 +1,84 @@
+<!-- Company Details — reusable form fragment -->
+<section class="form-card section">
+  <header class="card-head">
+    <span class="head-icon"><svg class="ic"><use href="#i-building"/></svg></span>
+    <div class="head-txt">
+      <h2>Company Details</h2>
+      <p>Fill in the company information as per your documents.</p>
+    </div>
+  </header>
+
+  <div class="card-body">
+    <div class="form-grid">
+      <div class="field span-2">
+        <div class="field-head"><label class="f-label" for="coName">Company Name <i>*</i></label></div>
+        <div class="input-group">
+          <span class="ig-icon"><svg class="ic"><use href="#i-building"/></svg></span>
+          <input class="input-plain" type="text" id="coName" placeholder="Enter company name" required />
+        </div>
+      </div>
+      <div class="field span-2">
+        <div class="field-head"><label class="f-label" for="coIceName">ICE Company Name (If any)</label></div>
+        <div class="input-group">
+          <span class="ig-icon"><svg class="ic"><use href="#i-doc"/></svg></span>
+          <input class="input-plain" type="text" id="coIceName" placeholder="Enter ICE company name (if applicable)" />
+        </div>
+      </div>
+      <div class="field span-2">
+        <div class="field-head"><label class="f-label" for="coAddress">Address of Company <i>*</i></label></div>
+        <div class="ta-wrap has-icon">
+          <span class="ta-icon"><svg class="ic"><use href="#i-pin"/></svg></span>
+          <textarea class="textarea" id="coAddress" placeholder="Enter complete address of company" maxlength="500" required data-count></textarea>
+          <span class="char-count">0/500</span>
+        </div>
+      </div>
+      <div class="field">
+        <div class="field-head"><label class="f-label" for="coOwner">Owner / Director / Representative Name <i>*</i></label></div>
+        <div class="input-group">
+          <span class="ig-icon"><svg class="ic"><use href="#i-user"/></svg></span>
+          <input class="input-plain" type="text" id="coOwner" placeholder="Enter owner / director / representative name" required />
+        </div>
+      </div>
+      <div class="field">
+        <div class="field-head"><label class="f-label" for="coMobile">Mobile No <i>*</i></label></div>
+        <div class="input-group">
+          <span class="ig-icon"><svg class="ic"><use href="#i-phone"/></svg></span>
+          <span class="ig-prefix">+91</span>
+          <input class="input-plain" type="text" id="coMobile" placeholder="Enter mobile number" inputmode="numeric" maxlength="10" required data-vtype="mobile" />
+        </div>
+      </div>
+      <div class="field">
+        <div class="field-head"><label class="f-label" for="coFather">Father / Husband Name</label></div>
+        <div class="input-group">
+          <span class="ig-icon"><svg class="ic"><use href="#i-user"/></svg></span>
+          <input class="input-plain" type="text" id="coFather" placeholder="Enter father / husband name" />
+        </div>
+      </div>
+      <div class="field">
+        <div class="field-head"><label class="f-label" for="relCompany">Relation</label></div>
+        <select class="ss-native" id="relCompany" data-placeholder="Select relation" hidden>
+          <option value="Father">Father</option>
+          <option value="Husband">Husband</option>
+          <option value="Mother">Mother</option>
+          <option value="Guardian">Guardian</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+      <div class="field">
+        <div class="field-head"><label class="f-label" for="coEmail">Email Id</label></div>
+        <div class="input-group">
+          <span class="ig-icon"><svg class="ic"><use href="#i-mail"/></svg></span>
+          <input class="input-plain" type="text" id="coEmail" placeholder="Enter email id" data-vtype="email" />
+        </div>
+      </div>
+      <div class="field">
+        <div class="field-head"><label class="f-label" for="coWhatsapp">WhatsApp No.</label></div>
+        <div class="input-group">
+          <span class="ig-icon wa-ic"><svg class="ic"><use href="#i-wa"/></svg></span>
+          <span class="ig-prefix">+91</span>
+          <input class="input-plain" type="text" id="coWhatsapp" placeholder="Enter WhatsApp number" inputmode="numeric" maxlength="10" data-vtype="mobile" />
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

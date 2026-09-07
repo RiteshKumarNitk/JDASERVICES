@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Final Submission — JDA Property Services</title>
+  <link rel="stylesheet" href="../css/main.css" />
+  <link rel="stylesheet" href="../css/forms.css" />
+  <link rel="stylesheet" href="../css/responsive.css" />
+  <script src="../js/navigation.js" defer></script>
+  <script src="../js/main.js" defer></script>
+</head>
+<body data-page="final" data-step="4">
+
+  <svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
+    <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></symbol>
+    <symbol id="i-arrL" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="20" y1="12" x2="4" y2="12"/><polyline points="11 5 4 12 11 19"/></symbol>
+    <symbol id="i-home" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></symbol>
+  </svg>
+
+  <div class="page">
+    <nav class="stepper-card" aria-label="Application progress">
+      <ol class="stepper" id="stepper"></ol>
+    </nav>
+
+    <main>
+      <div class="form-card">
+
+        <!-- Submit form -->
+        <div id="finalForm">
+          <div class="page-hero">
+            <span class="hero-badge">FS</span>
+            <div>
+              <h1>Final Submission</h1>
+              <p>Submit your application after confirming the declaration</p>
+            </div>
+          </div>
+
+          <div class="card-body">
+            <!-- Filled details rendered here in section format by main.js -->
+            <div id="finalSummary"></div>
+
+            <div class="declaration" id="declarationBox">
+              <h3>Declaration <i style="color:var(--err)">*</i></h3>
+              <p>I hereby declare that the information provided in this application is true and correct to the best of my knowledge. I understand that any false or incorrect information may lead to rejection of this application and legal action as per the applicable rules of the Jaipur Development Authority.</p>
+
+              <label class="check-row">
+                <input type="checkbox" name="declaration" value="accepted" />
+                <span class="cb"><svg class="ic"><use href="#i-check"/></svg></span>
+                <span class="cb-label">I accept the declaration and confirm that all details and documents are correct.</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="card-foot">
+            <a class="btn btn-outline" href="review-application.html"><svg class="ic"><use href="#i-arrL"/></svg> Back</a>
+            <button class="btn btn-success" type="button" id="submitFinal">Submit Application</button>
+          </div>
+        </div>
+
+        <!-- Success -->
+        <div id="finalSuccess" hidden>
+          <div class="success-card">
+            <span class="success-ic"><svg class="ic"><use href="#i-check"/></svg></span>
+            <h2>Application Submitted Successfully</h2>
+            <p>Your application has been received by the Jaipur Development Authority. Keep the application number for future reference.</p>
+            <div class="app-no" id="applicationNo">JDA/2026/00000</div>
+            <div style="margin-top:28px; display:flex; gap:12px; justify-content:center; flex-wrap:wrap">
+              <a class="btn btn-primary" href="../index.html">Go to Home</a>
+              <button class="btn btn-outline" type="button" onclick="window.print()">Print Receipt</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+</body>
+</html>

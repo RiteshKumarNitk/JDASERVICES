@@ -1,0 +1,70 @@
+<!-- Guardian Details — reusable form fragment (follows Minor Details) -->
+<section class="form-card section">
+  <header class="card-head">
+    <span class="head-icon"><svg class="ic"><use href="#i-users"/></svg></span>
+    <div class="head-txt">
+      <h2>Guardian Details</h2>
+      <p>Fill in the details of the guardian acting for the minor applicant.</p>
+    </div>
+  </header>
+
+  <div class="card-body">
+    <div class="radio-cards">
+      <label class="radio-card">
+        <input type="radio" name="aadhaar-guardian" value="with" checked />
+        <span class="radio-dot"></span>
+        <span class="radio-text">With Aadhaar</span>
+      </label>
+      <label class="radio-card">
+        <input type="radio" name="aadhaar-guardian" value="without" />
+        <span class="radio-dot"></span>
+        <span class="radio-text">Without Aadhaar</span>
+      </label>
+    </div>
+
+    <div class="fetch-block" data-block="guardian">
+      <div class="field">
+        <div class="field-head"><label class="f-label" for="guardianAadhaar">Guardian Aadhaar Number <i>*</i></label></div>
+        <div class="fetch-row">
+          <input class="input" type="text" id="guardianAadhaar" data-aadhaar placeholder="Enter 12 digit Aadhaar number" inputmode="numeric" maxlength="14" autocomplete="off" required data-vtype="aadhaar" />
+          <button class="btn btn-primary fetch-btn" type="button" data-fetch>
+            <svg class="ic"><use href="#i-search"/></svg> Fetch Detail
+          </button>
+        </div>
+      </div>
+      <div class="or-divider"><span>OR</span></div>
+    </div>
+
+    <div class="form-grid">
+      <div class="field">
+        <div class="field-head"><label class="f-label" for="guardianName">Name of Guardian <i>*</i></label></div>
+        <input class="input" type="text" id="guardianName" data-auto="name" placeholder="Enter name of guardian" required />
+      </div>
+      <div class="field">
+        <div class="field-head"><label class="f-label" for="relGuardian">Relation to Minor <i>*</i></label></div>
+        <select class="ss-native" id="relGuardian" data-placeholder="Select relation" hidden required>
+          <option value="Father">Father</option>
+          <option value="Mother">Mother</option>
+          <option value="Grandfather">Grandfather</option>
+          <option value="Grandmother">Grandmother</option>
+          <option value="Legal Guardian">Legal Guardian</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+      <div class="field">
+        <div class="field-head"><label class="f-label" for="guardianMobile">Mobile Number <i>*</i></label></div>
+        <div class="input-group">
+          <span class="ig-prefix">+91</span>
+          <input class="input-plain" type="text" id="guardianMobile" placeholder="Enter mobile number" inputmode="numeric" maxlength="10" required data-vtype="mobile" />
+        </div>
+      </div>
+      <div class="field">
+        <div class="field-head"><label class="f-label" for="guardianEmail">Email Id</label></div>
+        <div class="input-group">
+          <span class="ig-icon"><svg class="ic"><use href="#i-mail"/></svg></span>
+          <input class="input-plain" type="text" id="guardianEmail" placeholder="Enter email address" data-vtype="email" />
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

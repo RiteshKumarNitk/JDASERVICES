@@ -1,0 +1,67 @@
+<!-- Company POA Details — reusable form fragment (follows Company Details) -->
+<section class="form-card section">
+  <header class="card-head">
+    <span class="head-icon"><svg class="ic"><use href="#i-doc"/></svg></span>
+    <div class="head-txt">
+      <h2>Company POA Details</h2>
+      <p>Fill in the details of the Power of Attorney holder authorised by the company.</p>
+    </div>
+  </header>
+
+  <div class="card-body">
+    <div class="radio-cards">
+      <label class="radio-card">
+        <input type="radio" name="aadhaar-companyPoa" value="with" checked />
+        <span class="radio-dot"></span>
+        <span class="radio-text">With Aadhaar</span>
+      </label>
+      <label class="radio-card">
+        <input type="radio" name="aadhaar-companyPoa" value="without" />
+        <span class="radio-dot"></span>
+        <span class="radio-text">Without Aadhaar</span>
+      </label>
+    </div>
+
+    <div class="fetch-block" data-block="companyPoa">
+      <div class="field">
+        <div class="field-head"><label class="f-label" for="cpoaAadhaar">Aadhaar Number <i>*</i></label></div>
+        <div class="fetch-row">
+          <input class="input" type="text" id="cpoaAadhaar" data-aadhaar placeholder="Enter 12 digit Aadhaar number" inputmode="numeric" maxlength="14" autocomplete="off" required data-vtype="aadhaar" />
+          <button class="btn btn-primary fetch-btn" type="button" data-fetch>
+            <svg class="ic"><use href="#i-search"/></svg> Fetch Detail
+          </button>
+        </div>
+      </div>
+      <div class="or-divider"><span>OR</span></div>
+    </div>
+
+    <div class="form-grid">
+      <div class="field">
+        <div class="field-head"><label class="f-label" for="cpoaName">Name of POA Holder <i>*</i></label></div>
+        <input class="input" type="text" id="cpoaName" data-auto="name" placeholder="Enter name of POA holder" required />
+      </div>
+      <div class="field">
+        <div class="field-head"><label class="f-label" for="cpoaDesig">Designation in Company <i>*</i></label></div>
+        <input class="input" type="text" id="cpoaDesig" placeholder="Enter designation (e.g. Director, Authorised Signatory)" required />
+      </div>
+      <div class="field">
+        <div class="field-head"><label class="f-label" for="cpoaFather">Father / Husband Name</label></div>
+        <input class="input" type="text" id="cpoaFather" data-auto="father" placeholder="Enter father / husband name" />
+      </div>
+      <div class="field">
+        <div class="field-head"><label class="f-label" for="cpoaMobile">Mobile No <i>*</i></label></div>
+        <div class="input-group">
+          <span class="ig-prefix">+91</span>
+          <input class="input-plain" type="text" id="cpoaMobile" placeholder="Enter mobile number" inputmode="numeric" maxlength="10" required data-vtype="mobile" />
+        </div>
+      </div>
+      <div class="field span-2">
+        <div class="field-head"><label class="f-label" for="cpoaAddress">Address</label></div>
+        <div class="ta-wrap">
+          <textarea class="textarea" id="cpoaAddress" data-count placeholder="Enter address" maxlength="500"></textarea>
+          <span class="char-count">0/500</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

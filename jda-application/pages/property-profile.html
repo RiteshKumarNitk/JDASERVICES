@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Property Profile — JDA Property Services</title>
+  <link rel="stylesheet" href="../css/main.css" />
+  <link rel="stylesheet" href="../css/forms.css" />
+  <link rel="stylesheet" href="../css/responsive.css" />
+  <script src="../js/navigation.js" defer></script>
+  <script src="../js/main.js" defer></script>
+</head>
+<body data-page="property" data-step="2">
+
+  <svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
+    <symbol id="i-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></symbol>
+    <symbol id="i-doc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></symbol>
+    <symbol id="i-arrR" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="12" x2="20" y2="12"/><polyline points="13 5 20 12 13 19"/></symbol>
+    <symbol id="i-arrL" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="20" y1="12" x2="4" y2="12"/><polyline points="11 5 4 12 11 19"/></symbol>
+  </svg>
+
+  <div class="page">
+    <nav class="stepper-card" aria-label="Application progress">
+      <ol class="stepper" id="stepper"></ol>
+    </nav>
+
+    <main>
+      <div class="form-card">
+        <div class="page-hero">
+          <span class="hero-badge">PP</span>
+          <div>
+            <h1>Property Profile</h1>
+            <p>Provide and verify property, land and ownership details</p>
+          </div>
+        </div>
+
+        <div class="card-body">
+          <div class="block-card">
+            <div class="block-bar" style="cursor:default">
+              <span class="block-title">(A) Property Details <em>/ प्रॉपर्टी का विवरण</em></span>
+            </div>
+
+            <div class="block-panel">
+              <div class="patta-card">
+                <div class="sc-head" style="cursor:default">
+                  <span class="sc-title">Select Patta Type</span>
+                </div>
+                <div class="block-panel patta-body">
+                  <div class="radio-cards">
+                    <label class="radio-card">
+                      <input type="radio" name="pattaType" value="freeHold" checked />
+                      <span class="radio-dot"></span><span class="radio-text">Free Hold</span>
+                    </label>
+                    <label class="radio-card">
+                      <input type="radio" name="pattaType" value="leaseHold" />
+                      <span class="radio-dot"></span><span class="radio-text">Lease Hold</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <div class="find-card">
+                <div class="tabs" role="tablist" aria-label="Find property">
+                  <button type="button" class="tab-btn is-active" data-tab="0"><svg class="ic"><use href="#i-info"/></svg> (i) Find Through Scheme Name</button>
+                  <button type="button" class="tab-btn" data-tab="1"><svg class="ic"><use href="#i-info"/></svg> (i) Find Through Property ID</button>
+                  <button type="button" class="tab-btn" data-tab="2"><svg class="ic"><use href="#i-doc"/></svg> Advance Search</button>
+                </div>
+
+                <div class="tab-panes">
+                  <div class="tab-panel is-active" data-panel="0">
+                    <div class="find-box">
+                      <label class="f-label" for="ppScheme">scheme name</label>
+                      <div class="find-row">
+                        <input class="input" type="text" id="ppScheme" data-k="scheme" placeholder="Enter Scheme Name" />
+                        <button class="btn btn-success find-search" type="button">Search</button>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="tab-panel" data-panel="1">
+                    <div class="find-box">
+                      <label class="f-label" for="ppId">Property ID</label>
+                      <div class="find-row">
+                        <input class="input" type="text" id="ppId" data-k="id" placeholder="Enter Property ID" />
+                        <button class="btn btn-success find-search" type="button">Search</button>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="tab-panel" data-panel="2">
+                    <div class="find-box find-box-adv">
+                      <div class="form-grid">
+                        <div class="field">
+                          <label class="f-label" for="ppAdvZone">Zone</label>
+                          <input class="input" type="text" id="ppAdvZone" data-k="zone" placeholder="Enter Zone" />
+                        </div>
+                        <div class="field">
+                          <label class="f-label" for="ppAdvScheme">Scheme</label>
+                          <input class="input" type="text" id="ppAdvScheme" data-k="scheme" placeholder="Enter Scheme Name" />
+                        </div>
+                        <div class="field">
+                          <label class="f-label" for="ppAdvSector">Sector</label>
+                          <input class="input" type="text" id="ppAdvSector" data-k="sector" placeholder="Enter Sector" />
+                        </div>
+                        <div class="field">
+                          <label class="f-label" for="ppAdvPlot">Plot No</label>
+                          <input class="input" type="text" id="ppAdvPlot" data-k="plot" placeholder="Enter Plot No" />
+                        </div>
+                      </div>
+                      <div class="find-row">
+                        <span></span>
+                        <button class="btn btn-success find-search" type="button">Search</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="table-wrap">
+                  <table class="tbl">
+                    <thead>
+                      <tr>
+                        <th>Property ID</th><th>Zone</th><th>Scheme</th><th>Sector &amp; Plot No</th>
+                        <th>Area</th><th>Area Unit</th><th>Owner Name</th><th>#</th>
+                      </tr>
+                    </thead>
+                    <tbody id="ppResults"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-foot">
+          <a class="btn btn-outline" href="applicant-profile.html"><svg class="ic"><use href="#i-arrL"/></svg> Back</a>
+          <button class="btn btn-success" type="button" id="proceedProperty">Proceed</button>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+</body>
+</html>

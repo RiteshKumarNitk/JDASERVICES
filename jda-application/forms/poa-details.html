@@ -1,0 +1,70 @@
+<!-- POA Details — reusable form fragment (loaded after Applicant Details) -->
+<section class="form-card section">
+  <header class="card-head">
+    <span class="head-icon"><svg class="ic"><use href="#i-doc"/></svg></span>
+    <div class="head-txt">
+      <h2>POA Details</h2>
+      <p>Fill in the Power of Attorney (POA) holder details as per the registered deed.</p>
+    </div>
+  </header>
+
+  <div class="card-body">
+    <div class="radio-cards">
+      <label class="radio-card">
+        <input type="radio" name="aadhaar-poa" value="with" checked />
+        <span class="radio-dot"></span>
+        <span class="radio-text">With Aadhaar</span>
+      </label>
+      <label class="radio-card">
+        <input type="radio" name="aadhaar-poa" value="without" />
+        <span class="radio-dot"></span>
+        <span class="radio-text">Without Aadhaar</span>
+      </label>
+    </div>
+
+    <div class="fetch-block" data-block="poa">
+      <div class="field">
+        <div class="field-head"><label class="f-label" for="poaAadhaar">Aadhaar No</label></div>
+        <div class="fetch-row">
+          <input class="input" type="text" id="poaAadhaar" data-aadhaar placeholder="Enter Aadhaar No" inputmode="numeric" maxlength="14" autocomplete="off" data-vtype="aadhaar" />
+          <button class="btn btn-primary fetch-btn" type="button" data-fetch>
+            <svg class="ic"><use href="#i-search"/></svg> Fetch Detail
+          </button>
+        </div>
+      </div>
+      <div class="or-divider"><span>OR</span></div>
+    </div>
+
+    <div class="form-grid">
+      <div class="field">
+        <div class="field-head"><label class="f-label" for="poaName">Name of POA</label></div>
+        <input class="input" type="text" id="poaName" data-auto="name" placeholder="Enter name of POA" />
+      </div>
+      <div class="field">
+        <div class="field-head"><label class="f-label" for="poaMobile">Mobile No</label></div>
+        <input class="input" type="text" id="poaMobile" placeholder="Enter mobile no" inputmode="numeric" maxlength="10" data-vtype="mobile" />
+      </div>
+      <div class="field">
+        <div class="field-head"><label class="f-label" for="poaFather">Father Name / Husband Name</label></div>
+        <input class="input" type="text" id="poaFather" data-auto="father" placeholder="Enter father name / husband name" />
+      </div>
+      <div class="field">
+        <div class="field-head"><label class="f-label" for="relPoa">Relation</label></div>
+        <select class="ss-native" id="relPoa" data-placeholder="Select relation" hidden>
+          <option value="Father">Father</option>
+          <option value="Husband">Husband</option>
+          <option value="Mother">Mother</option>
+          <option value="Guardian">Guardian</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+      <div class="field span-2">
+        <div class="field-head"><label class="f-label" for="poaAddress">Address</label></div>
+        <div class="ta-wrap">
+          <textarea class="textarea" id="poaAddress" data-count placeholder="Enter address" maxlength="500"></textarea>
+          <span class="char-count">0/500</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

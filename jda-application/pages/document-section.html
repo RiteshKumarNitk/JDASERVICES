@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Document Section — JDA Property Services</title>
+  <link rel="stylesheet" href="../css/main.css" />
+  <link rel="stylesheet" href="../css/forms.css" />
+  <link rel="stylesheet" href="../css/responsive.css" />
+  <script src="../js/navigation.js" defer></script>
+  <script src="../js/main.js" defer></script>
+</head>
+<body data-page="documents" data-step="3">
+
+  <svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
+    <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></symbol>
+    <symbol id="i-arrL" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="20" y1="12" x2="4" y2="12"/><polyline points="11 5 4 12 11 19"/></symbol>
+  </svg>
+
+  <div class="page">
+    <nav class="stepper-card" aria-label="Application progress">
+      <ol class="stepper" id="stepper"></ol>
+    </nav>
+
+    <main>
+      <div class="form-card">
+        <div class="page-hero">
+          <span class="hero-badge">DS</span>
+          <div>
+            <h1>Document Section</h1>
+            <p>Upload the required documents to support your application</p>
+          </div>
+        </div>
+
+        <div class="card-body">
+
+          <!-- (B) Registry Details -->
+          <div class="block-card">
+            <div class="block-bar" style="cursor:default">
+              <span class="block-title">(B) Registry Details</span>
+            </div>
+            <div class="block-panel">
+              <div class="detail-card">
+                <div class="field detail-field">
+                  <label class="f-label" for="regNo">Registry Number</label>
+                  <input class="input" type="text" id="regNo" placeholder="Enter Registry Number" />
+                </div>
+                <button class="help" type="button"><span class="help-ic">?</span> Where can I find my Registry Number?</button>
+                <button class="btn btn-success get-detail" type="button" data-topic="Registry Number">Get Detail</button>
+              </div>
+
+              <h4 class="table-title">Registry Detail</h4>
+              <div class="table-wrap">
+                <table class="tbl">
+                  <thead>
+                    <tr>
+                      <th>S.No</th><th>Party Name</th><th>Father's Name</th><th>Property Address</th>
+                      <th>Document No</th><th>Registry No</th><th>Registry Date</th><th>District Name</th>
+                      <th>Tehsil Name</th><th>Document Status</th><th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody class="empty-state">
+                    <tr><td colspan="11">No data available in table</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- (C) Electricity Connection Details -->
+          <div class="block-card">
+            <div class="block-bar" style="cursor:default">
+              <span class="block-title">(C) Electricity Connection Details</span>
+            </div>
+            <div class="block-panel">
+              <div class="detail-card">
+                <div class="field detail-field">
+                  <label class="f-label" for="kNo">K Number</label>
+                  <input class="input" type="text" id="kNo" placeholder="Enter K Number" />
+                </div>
+                <button class="help" type="button"><span class="help-ic">?</span> Where can I find my K Number?</button>
+                <button class="btn btn-success get-detail" type="button" data-topic="K Number">Get Detail</button>
+              </div>
+
+              <h4 class="table-title">Connection Detail</h4>
+              <div class="table-wrap">
+                <table class="tbl tbl-light-head">
+                  <thead>
+                    <tr>
+                      <th>S.No</th><th>K Number</th><th>Consumer Name</th><th>Fathers Name</th><th>Address</th>
+                      <th>Category Of Connection</th><th>Date Of Connection</th><th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody class="empty-state">
+                    <tr><td colspan="8">No data available in table</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- List of Documents -->
+          <div class="block-card">
+            <div class="block-bar" style="cursor:default">
+              <span class="block-title">List of Documents <em>/ डॉक्यूमेंट का विवरण</em></span>
+            </div>
+            <div class="block-panel">
+              <h4 class="table-title">Required Documents <i>*</i></h4>
+              <div class="table-wrap">
+                <table class="tbl doc-tbl">
+                  <thead>
+                    <tr>
+                      <th>S.No</th><th>Requirement</th><th>Document Type</th><th>View</th><th>Delete</th><th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody id="docRows"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="card-foot">
+          <a class="btn btn-outline" href="property-profile.html"><svg class="ic"><use href="#i-arrL"/></svg> Back</a>
+          <button class="btn btn-primary" type="button" id="saveDocuments">Save &amp; Proceed</button>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+</body>
+</html>

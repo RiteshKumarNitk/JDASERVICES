@@ -1,0 +1,37 @@
+/* =====================================================================
+   JDA Property Services — responsive.css (all breakpoints)
+   ===================================================================== */
+
+@media (max-width: 900px) {
+  .radio-cards-grid { grid-template-columns: repeat(3, 1fr); }
+  .steps-strip { grid-template-columns: repeat(2, 1fr); gap: 14px; }
+}
+
+@media (max-width: 720px) {
+  .page { padding: 16px 12px 44px; }
+  .card-head, .card-body, .card-foot { padding-left: 16px; padding-right: 16px; }
+  .form-grid { grid-template-columns: 1fr; gap: 16px; }
+  .radio-cards-grid { grid-template-columns: repeat(2, 1fr); }
+  .fetch-row { flex-direction: column; }
+  .fetch-btn { width: 100%; }
+  .stepper { justify-content: flex-start; }
+  .step-sep { display: none; }
+  .page-hero { padding-left: 16px; padding-right: 16px; }
+  .block-panel { padding: 12px; }
+  .find-row { flex-direction: column; align-items: stretch; }
+  .find-row .input, .find-row .btn { width: 100%; }
+  .detail-card { flex-direction: column; align-items: stretch; }
+  .detail-card .btn-success { width: 100%; }
+  .card-foot .btn { flex: 1; }
+  .summary-grid { grid-template-columns: 1fr; }
+  .summary-row:nth-child(odd) { border-right: 0; }
+  .summary-row dt { width: 40%; }
+}
+
+@media (max-width: 460px) {
+  .radio-cards-grid { grid-template-columns: 1fr; }
+  .portal-actions { align-items: stretch; flex-direction: column; }
+  .portal-actions .btn { width: 100%; }
+  .summary-row { flex-direction: column; gap: 2px; }
+  .summary-row dt { width: auto; }
+}

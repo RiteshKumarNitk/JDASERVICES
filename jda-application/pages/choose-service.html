@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Choose Service — JDA Property Services</title>
+  <link rel="stylesheet" href="../css/main.css" />
+  <link rel="stylesheet" href="../css/forms.css" />
+  <link rel="stylesheet" href="../css/responsive.css" />
+  <script src="../js/navigation.js" defer></script>
+  <script src="../js/main.js" defer></script>
+  <script src="../js/service.js" defer></script>
+</head>
+<body data-page="choose" data-step="0">
+
+  <svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
+    <symbol id="i-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></symbol>
+    <symbol id="i-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></symbol>
+    <symbol id="i-list" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/><line x1="10" y1="11" x2="14" y2="11"/><line x1="10" y1="15" x2="14" y2="15"/></symbol>
+    <symbol id="i-gear" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></symbol>
+    <symbol id="i-arrR" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="12" x2="20" y2="12"/><polyline points="13 5 20 12 13 19"/></symbol>
+    <symbol id="i-arrL" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="20" y1="12" x2="4" y2="12"/><polyline points="11 5 4 12 11 19"/></symbol>
+  </svg>
+
+  <div class="page">
+    <nav class="stepper-card" aria-label="Application progress">
+      <ol class="stepper" id="stepper"></ol>
+    </nav>
+
+    <main>
+      <div class="form-card">
+        <header class="card-head">
+          <span class="head-icon"><svg class="ic"><use href="#i-list"/></svg></span>
+          <div class="head-txt">
+            <h1>Choose Service</h1>
+            <p>Select the main service and related options to continue with your application.</p>
+          </div>
+        </header>
+
+        <div class="card-body" id="chooseFields">
+
+          <div class="field" id="fld-service">
+            <div class="field-head">
+              <span class="step-no">1</span>
+              <label class="f-label" for="serviceSelect">Select Service <i>*</i></label>
+            </div>
+            <select class="ss-native" id="serviceSelect" data-placeholder="Select Service" hidden required></select>
+          </div>
+
+          <div class="field" id="fld-subservice">
+            <div class="field-head">
+              <span class="step-no">2</span>
+              <label class="f-label" for="subServiceSelect">Select Sub Service <i>*</i></label>
+            </div>
+            <select class="ss-native" id="subServiceSelect" data-placeholder="Select Sub Service" hidden required></select>
+          </div>
+
+          <div class="field" id="fld-basedon">
+            <div class="field-head">
+              <span class="step-no">3</span>
+              <label class="f-label" for="basedOnSelect">Based On <i>*</i></label>
+            </div>
+            <select class="ss-native" id="basedOnSelect" data-placeholder="Select Based On" hidden required></select>
+          </div>
+
+          <div class="package-panel">
+            <div class="package-head">
+              <span class="package-icon"><svg class="ic"><use href="#i-gear"/></svg></span>
+              <div>
+                <h2>Package with Services</h2>
+                <p>Select one or more services included in this package.</p>
+              </div>
+            </div>
+
+            <div class="package-list">
+              <label class="check-row">
+                <input type="checkbox" value="Sub Division" />
+                <span class="cb"><svg class="ic"><use href="#i-check"/></svg></span>
+                <span class="cb-label">Sub Division</span>
+              </label>
+              <label class="check-row">
+                <input type="checkbox" value="Name Transfer" />
+                <span class="cb"><svg class="ic"><use href="#i-check"/></svg></span>
+                <span class="cb-label">Name Transfer</span>
+              </label>
+              <label class="check-row">
+                <input type="checkbox" value="Patta" />
+                <span class="cb"><svg class="ic"><use href="#i-check"/></svg></span>
+                <span class="cb-label">Patta</span>
+              </label>
+            </div>
+
+            <div class="package-note">
+              <svg class="ic"><use href="#i-info"/></svg>
+              <p>Use the checkboxes to select the services required for this application.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-foot">
+          <a class="btn btn-outline" href="../index.html"><svg class="ic"><use href="#i-arrL"/></svg> Back</a>
+          <button class="btn btn-primary" type="button" id="continueChoose">Proceed <svg class="ic"><use href="#i-arrR"/></svg></button>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+</body>
+</html>

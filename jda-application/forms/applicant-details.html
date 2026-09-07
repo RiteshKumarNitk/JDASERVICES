@@ -1,0 +1,140 @@
+<!-- Applicant Details — Individual / Joint (reusable form fragment)
+     Loaded by pages/applicant-profile.html for Self and POA flows. -->
+<section class="form-card section">
+  <header class="card-head">
+    <span class="head-icon"><svg class="ic"><use href="#i-user"/></svg></span>
+    <div class="head-txt">
+      <h2>Applicant Details</h2>
+      <p>Fill in the required details to fetch your application information.</p>
+    </div>
+  </header>
+
+  <div class="card-body">
+
+    <!-- Individual / Joint -->
+    <div class="seg-row">
+      <div class="radio-cards">
+        <label class="radio-card">
+          <input type="radio" name="applicantMode" value="individual" checked />
+          <span class="radio-dot"></span>
+          <span class="radio-text">Individual</span>
+        </label>
+        <label class="radio-card">
+          <input type="radio" name="applicantMode" value="joint" />
+          <span class="radio-dot"></span>
+          <span class="radio-text">Joint</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- With / Without Aadhaar -->
+    <div class="radio-cards">
+      <label class="radio-card">
+        <input type="radio" name="aadhaar-applicant" value="with" checked />
+        <span class="radio-dot"></span>
+        <span class="radio-text">With Aadhaar</span>
+      </label>
+      <label class="radio-card">
+        <input type="radio" name="aadhaar-applicant" value="without" />
+        <span class="radio-dot"></span>
+        <span class="radio-text">Without Aadhaar</span>
+      </label>
+    </div>
+
+    <!-- Aadhaar fetch row -->
+    <div class="fetch-block" data-block="applicant">
+      <div class="field">
+        <div class="field-head">
+          <label class="f-label" for="applicantAadhaar">Aadhaar Number <i>*</i></label>
+        </div>
+        <div class="fetch-row">
+          <input class="input" type="text" id="applicantAadhaar" data-aadhaar placeholder="Enter 12 digit Aadhaar number" inputmode="numeric" maxlength="14" autocomplete="off" required data-vtype="aadhaar" />
+          <button class="btn btn-primary fetch-btn" type="button" data-fetch>
+            <svg class="ic"><use href="#i-search"/></svg> Fetch Detail
+          </button>
+        </div>
+      </div>
+      <div class="or-divider"><span>OR</span></div>
+    </div>
+
+    <div class="form-grid">
+      <div class="field">
+        <div class="field-head"><label class="f-label" for="apName">Name of Applicant <i>*</i></label></div>
+        <input class="input" type="text" id="apName" data-auto="name" placeholder="Enter applicant name" required />
+      </div>
+      <div class="field">
+        <div class="field-head"><label class="f-label" for="apMobile">Mobile Number <i>*</i></label></div>
+        <div class="input-group">
+          <span class="ig-prefix">+91</span>
+          <input class="input-plain" type="text" id="apMobile" placeholder="Enter mobile number" inputmode="numeric" maxlength="10" required data-vtype="mobile" />
+          <span class="ig-suffix wa"><svg class="ic"><use href="#i-wa"/></svg><small>WhatsApp</small></span>
+        </div>
+      </div>
+      <div class="field">
+        <div class="field-head"><label class="f-label" for="apFather">Father / Husband Name <i>*</i></label></div>
+        <input class="input" type="text" id="apFather" data-auto="father" placeholder="Enter father / husband name" required />
+      </div>
+      <div class="field">
+        <div class="field-head"><label class="f-label" for="relApplicant">Relation <i>*</i></label></div>
+        <select class="ss-native" id="relApplicant" data-placeholder="Select relation" hidden required>
+          <option value="Father">Father</option>
+          <option value="Husband">Husband</option>
+          <option value="Mother">Mother</option>
+          <option value="Guardian">Guardian</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+      <div class="field span-2">
+        <div class="field-head"><label class="f-label" for="apAddress">Applicant Address <i>*</i></label></div>
+        <div class="ta-wrap">
+          <textarea class="textarea" id="apAddress" data-count placeholder="Enter complete address" maxlength="500" required></textarea>
+          <span class="char-count">0/500</span>
+        </div>
+      </div>
+      <div class="field">
+        <div class="field-head"><label class="f-label" for="apEmail">Email Id</label></div>
+        <div class="input-group">
+          <span class="ig-icon"><svg class="ic"><use href="#i-mail"/></svg></span>
+          <input class="input-plain" type="text" id="apEmail" placeholder="Enter email address" data-vtype="email" />
+        </div>
+      </div>
+      <div class="field">
+        <div class="field-head"><label class="f-label" for="apWhatsapp">WhatsApp Number</label></div>
+        <div class="input-group">
+          <span class="ig-icon wa-ic"><svg class="ic"><use href="#i-wa"/></svg></span>
+          <span class="ig-prefix">+91</span>
+          <input class="input-plain" type="text" id="apWhatsapp" placeholder="Enter WhatsApp number" inputmode="numeric" maxlength="10" data-vtype="mobile" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Joint (co-applicant) panel -->
+    <div class="joint-panel" data-joint-panel hidden>
+      <h3 class="panel-title">Co-Applicant (Joint) Details</h3>
+      <div class="form-grid">
+        <div class="field">
+          <div class="field-head"><label class="f-label" for="jaName">Name of Co-Applicant <i>*</i></label></div>
+          <input class="input" type="text" id="jaName" placeholder="Enter co-applicant name" required />
+        </div>
+        <div class="field">
+          <div class="field-head"><label class="f-label" for="jaFather">Father / Husband Name <i>*</i></label></div>
+          <input class="input" type="text" id="jaFather" placeholder="Enter father / husband name" required />
+        </div>
+        <div class="field">
+          <div class="field-head"><label class="f-label" for="jaMobile">Mobile Number <i>*</i></label></div>
+          <div class="input-group">
+            <span class="ig-prefix">+91</span>
+            <input class="input-plain" type="text" id="jaMobile" placeholder="Enter mobile number" inputmode="numeric" maxlength="10" required data-vtype="mobile" />
+          </div>
+        </div>
+        <div class="field">
+          <div class="field-head"><label class="f-label" for="jaEmail">Email Id</label></div>
+          <div class="input-group">
+            <span class="ig-icon"><svg class="ic"><use href="#i-mail"/></svg></span>
+            <input class="input-plain" type="text" id="jaEmail" placeholder="Enter email address" data-vtype="email" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

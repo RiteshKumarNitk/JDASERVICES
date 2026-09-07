@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Applicant Type — JDA Property Services</title>
+  <link rel="stylesheet" href="../css/main.css" />
+  <link rel="stylesheet" href="../css/forms.css" />
+  <link rel="stylesheet" href="../css/responsive.css" />
+  <script src="../js/navigation.js" defer></script>
+  <script src="../js/main.js" defer></script>
+  <script src="../js/applicant.js" defer></script>
+</head>
+<body data-page="applicant-type" data-step="1">
+
+  <svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
+    <symbol id="i-user" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></symbol>
+    <symbol id="i-arrR" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="12" x2="20" y2="12"/><polyline points="13 5 20 12 13 19"/></symbol>
+    <symbol id="i-arrL" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="20" y1="12" x2="4" y2="12"/><polyline points="11 5 4 12 11 19"/></symbol>
+  </svg>
+
+  <div class="page">
+    <nav class="stepper-card" aria-label="Application progress">
+      <ol class="stepper" id="stepper"></ol>
+    </nav>
+
+    <main>
+      <div class="form-card">
+        <header class="card-head">
+          <span class="head-icon"><svg class="ic"><use href="#i-user"/></svg></span>
+          <div class="head-txt">
+            <h1>Applicant Type</h1>
+            <p>Select the applicant / ownership type for this application.</p>
+          </div>
+        </header>
+
+        <div class="card-body">
+          <fieldset class="type-group" id="applicantTypeGroup">
+            <legend class="f-label">Applicant Type <i>*</i></legend>
+            <div class="radio-cards radio-cards-grid">
+              <label class="radio-card">
+                <input type="radio" name="applicantType" value="self" checked />
+                <span class="radio-dot"></span><span class="radio-text">Self</span>
+              </label>
+              <label class="radio-card">
+                <input type="radio" name="applicantType" value="poa" />
+                <span class="radio-dot"></span><span class="radio-text">POA</span>
+              </label>
+              <label class="radio-card">
+                <input type="radio" name="applicantType" value="minor" />
+                <span class="radio-dot"></span><span class="radio-text">Minor</span>
+              </label>
+              <label class="radio-card">
+                <input type="radio" name="applicantType" value="company" />
+                <span class="radio-dot"></span><span class="radio-text">Company</span>
+              </label>
+              <label class="radio-card">
+                <input type="radio" name="applicantType" value="poaCompany" />
+                <span class="radio-dot"></span><span class="radio-text">POA of Company</span>
+              </label>
+            </div>
+          </fieldset>
+        </div>
+
+        <div class="card-foot">
+          <a class="btn btn-outline" href="choose-service.html"><svg class="ic"><use href="#i-arrL"/></svg> Back</a>
+          <button class="btn btn-primary" type="button" id="continueType">Proceed <svg class="ic"><use href="#i-arrR"/></svg></button>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+</body>
+</html>

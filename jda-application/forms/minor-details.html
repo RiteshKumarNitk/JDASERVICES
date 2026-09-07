@@ -1,0 +1,64 @@
+<!-- Minor Details — reusable form fragment -->
+<section class="form-card section">
+  <header class="card-head">
+    <span class="head-icon"><svg class="ic"><use href="#i-user"/></svg></span>
+    <div class="head-txt">
+      <h2>Minor Details</h2>
+      <p>Fill in the details of the minor applicant.</p>
+    </div>
+  </header>
+
+  <div class="card-body">
+    <div class="radio-cards">
+      <label class="radio-card">
+        <input type="radio" name="aadhaar-minor" value="with" checked />
+        <span class="radio-dot"></span>
+        <span class="radio-text">With Aadhaar</span>
+      </label>
+      <label class="radio-card">
+        <input type="radio" name="aadhaar-minor" value="without" />
+        <span class="radio-dot"></span>
+        <span class="radio-text">Without Aadhaar</span>
+      </label>
+    </div>
+
+    <div class="fetch-block" data-block="minor">
+      <div class="field">
+        <div class="field-head"><label class="f-label" for="minorAadhaar">Aadhaar Number <i>*</i></label></div>
+        <div class="fetch-row">
+          <input class="input" type="text" id="minorAadhaar" data-aadhaar placeholder="Enter 12 digit Aadhaar number" inputmode="numeric" maxlength="14" autocomplete="off" required data-vtype="aadhaar" />
+          <button class="btn btn-primary fetch-btn" type="button" data-fetch>
+            <svg class="ic"><use href="#i-search"/></svg> Fetch Detail
+          </button>
+        </div>
+      </div>
+      <div class="or-divider"><span>OR</span></div>
+    </div>
+
+    <div class="form-grid">
+      <div class="field">
+        <div class="field-head"><label class="f-label" for="minorName">Name of Minor <i>*</i></label></div>
+        <input class="input" type="text" id="minorName" data-auto="name" placeholder="Enter name of minor" required />
+      </div>
+      <div class="field">
+        <div class="field-head"><label class="f-label" for="minorDob">Date of Birth <i>*</i></label></div>
+        <div class="input-group">
+          <span class="ig-icon"><svg class="ic"><use href="#i-cal"/></svg></span>
+          <input class="input-plain" type="date" id="minorDob" required />
+        </div>
+      </div>
+      <div class="field">
+        <div class="field-head"><label class="f-label" for="minorGender">Gender <i>*</i></label></div>
+        <select class="ss-native" id="minorGender" data-placeholder="Select gender" hidden required>
+          <option value="Male">Male</option>
+          <option value="Female">Female</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+      <div class="field">
+        <div class="field-head"><label class="f-label" for="minorFather">Father / Husband Name <i>*</i></label></div>
+        <input class="input" type="text" id="minorFather" data-auto="father" placeholder="Enter father / husband name" required />
+      </div>
+    </div>
+  </div>
+</section>
