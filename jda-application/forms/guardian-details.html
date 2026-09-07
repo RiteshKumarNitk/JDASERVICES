@@ -1,4 +1,5 @@
-<!-- Guardian Details — reusable form fragment (follows Minor Details) -->
+<!-- Guardian Details — reusable form fragment (follows Minor Details)
+     Fields are pre-filled with sample data for demonstration. -->
 <section class="form-card section">
   <header class="card-head">
     <span class="head-icon"><svg class="ic"><use href="#i-users"/></svg></span>
@@ -26,7 +27,7 @@
       <div class="field">
         <div class="field-head"><label class="f-label" for="guardianAadhaar">Guardian Aadhaar Number <i>*</i></label></div>
         <div class="fetch-row">
-          <input class="input" type="text" id="guardianAadhaar" data-aadhaar placeholder="Enter 12 digit Aadhaar number" inputmode="numeric" maxlength="14" autocomplete="off" required data-vtype="aadhaar" />
+          <input class="input" type="text" id="guardianAadhaar" data-aadhaar value="4567 8901 2345" placeholder="Enter 12 digit Aadhaar number" inputmode="numeric" maxlength="14" autocomplete="off" required data-vtype="aadhaar" />
           <button class="btn btn-primary fetch-btn" type="button" data-fetch>
             <svg class="ic"><use href="#i-search"/></svg> Fetch Detail
           </button>
@@ -37,12 +38,15 @@
     <div class="form-grid">
       <div class="field">
         <div class="field-head"><label class="f-label" for="guardianName">Name of Guardian <i>*</i></label></div>
-        <input class="input" type="text" id="guardianName" data-auto="name" placeholder="Enter name of guardian" required />
+        <div class="input-group">
+          <span class="ig-icon"><svg class="ic"><use href="#i-user"/></svg></span>
+          <input class="input-plain" type="text" id="guardianName" data-auto="name" value="ARUN KUMAR SHARMA" placeholder="Enter name of guardian" required />
+        </div>
       </div>
       <div class="field">
         <div class="field-head"><label class="f-label" for="relGuardian">Relation to Minor <i>*</i></label></div>
-        <select class="ss-native" id="relGuardian" data-placeholder="Select relation" hidden required>
-          <option value="Father">Father</option>
+        <select class="ss-native" id="relGuardian" data-placeholder="Select relation" data-auto="relation" hidden required>
+          <option value="Father" selected>Father</option>
           <option value="Mother">Mother</option>
           <option value="Grandfather">Grandfather</option>
           <option value="Grandmother">Grandmother</option>
@@ -53,15 +57,16 @@
       <div class="field">
         <div class="field-head"><label class="f-label" for="guardianMobile">Mobile Number <i>*</i></label></div>
         <div class="input-group">
+          <span class="ig-icon"><svg class="ic"><use href="#i-phone"/></svg></span>
           <span class="ig-prefix">+91</span>
-          <input class="input-plain" type="text" id="guardianMobile" placeholder="Enter mobile number" inputmode="numeric" maxlength="10" required data-vtype="mobile" />
+          <input class="input-plain" type="text" id="guardianMobile" data-auto="mobile" value="9829012345" placeholder="Enter mobile number" inputmode="numeric" maxlength="10" required data-vtype="mobile" />
         </div>
       </div>
       <div class="field">
         <div class="field-head"><label class="f-label" for="guardianEmail">Email Id</label></div>
         <div class="input-group">
           <span class="ig-icon"><svg class="ic"><use href="#i-mail"/></svg></span>
-          <input class="input-plain" type="text" id="guardianEmail" placeholder="Enter email address" data-vtype="email" />
+          <input class="input-plain" type="text" id="guardianEmail" data-auto="email" value="arun.sharma@example.com" placeholder="Enter email address" data-vtype="email" />
         </div>
       </div>
     </div>

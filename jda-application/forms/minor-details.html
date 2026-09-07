@@ -1,4 +1,5 @@
-<!-- Minor Details — reusable form fragment -->
+<!-- Minor Details — reusable form fragment
+     Fields are pre-filled with sample data for demonstration. -->
 <section class="form-card section">
   <header class="card-head">
     <span class="head-icon"><svg class="ic"><use href="#i-user"/></svg></span>
@@ -26,7 +27,7 @@
       <div class="field">
         <div class="field-head"><label class="f-label" for="minorAadhaar">Aadhaar Number <i>*</i></label></div>
         <div class="fetch-row">
-          <input class="input" type="text" id="minorAadhaar" data-aadhaar placeholder="Enter 12 digit Aadhaar number" inputmode="numeric" maxlength="14" autocomplete="off" required data-vtype="aadhaar" />
+          <input class="input" type="text" id="minorAadhaar" data-aadhaar value="3456 7890 1234" placeholder="Enter 12 digit Aadhaar number" inputmode="numeric" maxlength="14" autocomplete="off" required data-vtype="aadhaar" />
           <button class="btn btn-primary fetch-btn" type="button" data-fetch>
             <svg class="ic"><use href="#i-search"/></svg> Fetch Detail
           </button>
@@ -37,26 +38,32 @@
     <div class="form-grid">
       <div class="field">
         <div class="field-head"><label class="f-label" for="minorName">Name of Minor <i>*</i></label></div>
-        <input class="input" type="text" id="minorName" data-auto="name" placeholder="Enter name of minor" required />
+        <div class="input-group">
+          <span class="ig-icon"><svg class="ic"><use href="#i-user"/></svg></span>
+          <input class="input-plain" type="text" id="minorName" data-auto="name" value="ADITYA SHARMA" placeholder="Enter name of minor" required />
+        </div>
       </div>
       <div class="field">
         <div class="field-head"><label class="f-label" for="minorDob">Date of Birth <i>*</i></label></div>
         <div class="input-group">
           <span class="ig-icon"><svg class="ic"><use href="#i-cal"/></svg></span>
-          <input class="input-plain" type="date" id="minorDob" required />
+          <input class="input-plain" type="date" id="minorDob" data-auto="dob" value="2013-08-21" required />
         </div>
       </div>
       <div class="field">
         <div class="field-head"><label class="f-label" for="minorGender">Gender <i>*</i></label></div>
-        <select class="ss-native" id="minorGender" data-placeholder="Select gender" hidden required>
-          <option value="Male">Male</option>
+        <select class="ss-native" id="minorGender" data-placeholder="Select gender" data-auto="gender" hidden required>
+          <option value="Male" selected>Male</option>
           <option value="Female">Female</option>
           <option value="Other">Other</option>
         </select>
       </div>
       <div class="field">
         <div class="field-head"><label class="f-label" for="minorFather">Father / Husband Name <i>*</i></label></div>
-        <input class="input" type="text" id="minorFather" data-auto="father" placeholder="Enter father / husband name" required />
+        <div class="input-group">
+          <span class="ig-icon"><svg class="ic"><use href="#i-user"/></svg></span>
+          <input class="input-plain" type="text" id="minorFather" data-auto="father" value="ARUN KUMAR SHARMA" placeholder="Enter father / husband name" required />
+        </div>
       </div>
     </div>
   </div>

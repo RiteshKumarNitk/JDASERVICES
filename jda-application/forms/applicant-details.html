@@ -59,7 +59,10 @@
     <div class="form-grid">
       <div class="field">
         <div class="field-head"><label class="f-label" for="apName">Name of Applicant <i>*</i></label></div>
-        <input class="input" type="text" id="apName" data-auto="name" placeholder="Enter applicant name" required />
+        <div class="input-group">
+          <span class="ig-icon"><svg class="ic"><use href="#i-user"/></svg></span>
+          <input class="input-plain" type="text" id="apName" data-auto="name" placeholder="Enter applicant name" required />
+        </div>
       </div>
       <div class="field">
         <div class="field-head"><label class="f-label" for="apMobile">Mobile Number <i>*</i></label></div>
@@ -71,7 +74,10 @@
       </div>
       <div class="field">
         <div class="field-head"><label class="f-label" for="apFather">Father / Husband Name <i>*</i></label></div>
-        <input class="input" type="text" id="apFather" data-auto="father" placeholder="Enter father / husband name" required />
+        <div class="input-group">
+          <span class="ig-icon"><svg class="ic"><use href="#i-user"/></svg></span>
+          <input class="input-plain" type="text" id="apFather" data-auto="father" placeholder="Enter father / husband name" required />
+        </div>
       </div>
       <div class="field">
         <div class="field-head"><label class="f-label" for="relApplicant">Relation <i>*</i></label></div>
@@ -85,7 +91,8 @@
       </div>
       <div class="field span-2">
         <div class="field-head"><label class="f-label" for="apAddress">Applicant Address <i>*</i></label></div>
-        <div class="ta-wrap">
+        <div class="ta-wrap has-icon">
+          <span class="ta-icon"><svg class="ic"><use href="#i-pin"/></svg></span>
           <textarea class="textarea" id="apAddress" data-count placeholder="Enter complete address" maxlength="500" required></textarea>
           <span class="char-count">0/500</span>
         </div>
@@ -113,11 +120,17 @@
       <div class="form-grid">
         <div class="field">
           <div class="field-head"><label class="f-label" for="jaName">Name of Co-Applicant <i>*</i></label></div>
-          <input class="input" type="text" id="jaName" placeholder="Enter co-applicant name" required />
+          <div class="input-group">
+            <span class="ig-icon"><svg class="ic"><use href="#i-user"/></svg></span>
+            <input class="input-plain" type="text" id="jaName" placeholder="Enter co-applicant name" required />
+          </div>
         </div>
         <div class="field">
           <div class="field-head"><label class="f-label" for="jaFather">Father / Husband Name <i>*</i></label></div>
-          <input class="input" type="text" id="jaFather" placeholder="Enter father / husband name" required />
+          <div class="input-group">
+            <span class="ig-icon"><svg class="ic"><use href="#i-user"/></svg></span>
+            <input class="input-plain" type="text" id="jaFather" placeholder="Enter father / husband name" required />
+          </div>
         </div>
         <div class="field">
           <div class="field-head"><label class="f-label" for="jaMobile">Mobile Number <i>*</i></label></div>

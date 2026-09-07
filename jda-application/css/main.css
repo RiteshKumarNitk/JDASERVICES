@@ -655,7 +655,7 @@ a { text-decoration: none; color: inherit; }
 
 .steps-strip {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 12px;
   margin-top: 20px;
 }

@@ -8,6 +8,7 @@
 const STEPS = [
   ['CS', 'Choose', 'Service'],
   ['AP', 'Applicant', 'Profile'],
+  ['WT', 'Witness', 'Detail'],
   ['PP', 'Property', 'Profile'],
   ['DS', 'Document', 'Section'],
   ['FS', 'Final', 'Submission']

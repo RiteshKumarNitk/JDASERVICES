@@ -26,11 +26,12 @@ const TYPE_FORMS = {
 // Mock e-KYC data used by "Fetch Detail" for local demonstration only.
 // Replace with the live Aadhaar/KYC integration when available.
 const PROFILES = {
-  applicant:  { name: 'ARUN KUMAR SHARMA', father: 'RAKESH KUMAR SHARMA' },
-  poa:        { name: 'VIKASH SINGH',      father: 'SURESH SINGH' },
-  minor:      { name: 'ADITYA SHARMA',     father: 'ARUN KUMAR SHARMA' },
-  guardian:   { name: 'ARUN KUMAR SHARMA' },
-  companyPoa: { name: 'NEERAJ MEENA',      father: 'MOHAN LAL MEENA' }
+  applicant:  { name: 'ARUN KUMAR SHARMA', father: 'RAKESH KUMAR SHARMA', mobile: '9829012345', relation: 'Father', address: '12, Vidhyadhar Nagar, Sector 4, Jaipur, Rajasthan 302039', email: 'arun.sharma@example.com', whatsapp: '9829012345' },
+  poa:        { name: 'VIKASH SINGH',      father: 'SURESH SINGH',      mobile: '9812233445', relation: 'Father', address: '45-B, Malviya Nagar, Jaipur, Rajasthan 302017' },
+  witness:    { name: 'DEEPAK VERMA',      father: 'RAMESH VERMA',      relation: 'Other',  address: '7, Bani Park, Jaipur, Rajasthan 302016' },
+  minor:      { name: 'ADITYA SHARMA',     father: 'ARUN KUMAR SHARMA', dob: '2013-08-21', gender: 'Male' },
+  guardian:   { name: 'ARUN KUMAR SHARMA', father: 'RAKESH KUMAR SHARMA', mobile: '9829012345', relation: 'Father', email: 'arun.sharma@example.com' },
+  companyPoa: { name: 'NEERAJ MEENA',      father: 'MOHAN LAL MEENA',   mobile: '9887766554', address: 'Plot 21, Sitapura Industrial Area, Jaipur' }
 };
 
 function formUrl(name) {
@@ -105,7 +106,8 @@ async function loadForms(type, container) {
   for (const name of names) {
     let html = '';
     try {
-      const res = await fetch(formUrl(name));
+      // no-store: always pull the latest fragment (avoids stale cached forms in local dev)
+      const res = await fetch(formUrl(name), { cache: 'no-store' });
       html = await res.text();
     } catch (e) {
       html = '<section class="form-card section"><div class="card-body">' +
@@ -139,6 +141,7 @@ const PILL_MAPS = {
   applicantMode: { label: 'Applicant Mode', values: { individual: 'Individual', joint: 'Joint' } },
   'aadhaar-applicant': { label: 'Aadhaar', values: { with: 'With Aadhaar', without: 'Without Aadhaar' } },
   'aadhaar-poa': { label: 'POA Aadhaar', values: { with: 'With Aadhaar', without: 'Without Aadhaar' } },
+  'aadhaar-witness': { label: 'Witness Aadhaar', values: { with: 'With Aadhaar', without: 'Without Aadhaar' } },
   'aadhaar-minor': { label: 'Minor Aadhaar', values: { with: 'With Aadhaar', without: 'Without Aadhaar' } },
   'aadhaar-guardian': { label: 'Guardian Aadhaar', values: { with: 'With Aadhaar', without: 'Without Aadhaar' } },
   'aadhaar-companyPoa': { label: 'POA Aadhaar', values: { with: 'With Aadhaar', without: 'Without Aadhaar' } }
@@ -221,8 +224,12 @@ function bindFetches(scope) {
         const profile = PROFILES[block.dataset.block] || {};
         const article = block.closest('.form-card') || block;
         $$('[data-auto]', article).forEach((el) => {
-          const key = el.dataset.auto;
-          if (profile[key]) el.value = profile[key];
+          const val = profile[el.dataset.auto];
+          if (val == null || val === '') return;
+          if (el.classList.contains('ss-native') && el._ss) el._ss.setValue(val, true);
+          else el.value = val;
+          const field = el.closest('.field');
+          if (field) clearFieldError(field);
         });
         btn.classList.remove('is-loading');
         btn.disabled = false;
@@ -277,11 +284,42 @@ function initApplicantProfilePage() {
       const radio = $('input[name="applicantType"]:checked');
       const applicantType = radio ? radio.value : type;
       setFlow({ applicantType: applicantType, formSections: collectFormSections(container) });
-      window.location.href = 'property-profile.html';
+      window.location.href = 'witness-details.html';
     });
   }
 
   loadForms(type, container);
+}
+
+/* ------------------------------------------------------------------ */
+/* witness-details.html — standalone step between Applicant & Property */
+/* ------------------------------------------------------------------ */
+function initWitnessPage() {
+  const container = $('#witnessRoot');
+  if (!container) return;
+
+  enhanceSelects(container);
+  initCounters(container);
+  bindFetches(container);
+
+  // With / Without Aadhaar toggle shows / hides the fetch row
+  container.addEventListener('change', (e) => {
+    if (e.target.name !== 'aadhaar-witness') return;
+    const block = container.querySelector('.fetch-block');
+    if (block) block.hidden = e.target.value !== 'with';
+  });
+
+  const continueBtn = $('#continueWitness');
+  if (continueBtn) {
+    continueBtn.addEventListener('click', () => {
+      const bad = validateScope(container);
+      if (bad) return;
+      const kept = (getFlow().formSections || []).filter((s) => s.title !== 'Witness Detail');
+      const witnessSection = collectFormSections(container)[0];
+      setFlow({ formSections: witnessSection ? kept.concat([witnessSection]) : kept });
+      window.location.href = 'property-profile.html';
+    });
+  }
 }
 
 /* ------------------------------------------------------------------ */
@@ -291,4 +329,5 @@ document.addEventListener('DOMContentLoaded', () => {
   const page = document.body.dataset.page;
   if (page === 'applicant-type') initApplicantTypePage();
   if (page === 'applicant-profile') initApplicantProfilePage();
+  if (page === 'witness-details') initWitnessPage();
 });

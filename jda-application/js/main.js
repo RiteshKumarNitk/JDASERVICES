@@ -2,7 +2,7 @@
    JDA Property Services — main.js
    Shared runtime: DOM/validation helpers, the reusable searchable select
    widget, toasts, collapse behaviour, plus the Property Profile,
-   Document Section, Review and Final Submission page logic.
+   Supporting Documents, Review and Final Submission page logic.
    (Choose Service lives in service.js; applicant screens in applicant.js)
    ===================================================================== */
 'use strict';

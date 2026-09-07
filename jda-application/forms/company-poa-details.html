@@ -1,4 +1,5 @@
-<!-- Company POA Details — reusable form fragment (follows Company Details) -->
+<!-- Company POA Details — reusable form fragment (follows Company Details)
+     Fields are pre-filled with sample data for demonstration. -->
 <section class="form-card section">
   <header class="card-head">
     <span class="head-icon"><svg class="ic"><use href="#i-doc"/></svg></span>
@@ -26,7 +27,7 @@
       <div class="field">
         <div class="field-head"><label class="f-label" for="cpoaAadhaar">Aadhaar Number <i>*</i></label></div>
         <div class="fetch-row">
-          <input class="input" type="text" id="cpoaAadhaar" data-aadhaar placeholder="Enter 12 digit Aadhaar number" inputmode="numeric" maxlength="14" autocomplete="off" required data-vtype="aadhaar" />
+          <input class="input" type="text" id="cpoaAadhaar" data-aadhaar value="5678 9012 3456" placeholder="Enter 12 digit Aadhaar number" inputmode="numeric" maxlength="14" autocomplete="off" required data-vtype="aadhaar" />
           <button class="btn btn-primary fetch-btn" type="button" data-fetch>
             <svg class="ic"><use href="#i-search"/></svg> Fetch Detail
           </button>
@@ -37,27 +38,38 @@
     <div class="form-grid">
       <div class="field">
         <div class="field-head"><label class="f-label" for="cpoaName">Name of POA Holder <i>*</i></label></div>
-        <input class="input" type="text" id="cpoaName" data-auto="name" placeholder="Enter name of POA holder" required />
+        <div class="input-group">
+          <span class="ig-icon"><svg class="ic"><use href="#i-user"/></svg></span>
+          <input class="input-plain" type="text" id="cpoaName" data-auto="name" value="NEERAJ MEENA" placeholder="Enter name of POA holder" required />
+        </div>
       </div>
       <div class="field">
         <div class="field-head"><label class="f-label" for="cpoaDesig">Designation in Company <i>*</i></label></div>
-        <input class="input" type="text" id="cpoaDesig" placeholder="Enter designation (e.g. Director, Authorised Signatory)" required />
+        <div class="input-group">
+          <span class="ig-icon"><svg class="ic"><use href="#i-building"/></svg></span>
+          <input class="input-plain" type="text" id="cpoaDesig" value="Authorised Signatory" placeholder="Enter designation (e.g. Director, Authorised Signatory)" required />
+        </div>
       </div>
       <div class="field">
         <div class="field-head"><label class="f-label" for="cpoaFather">Father / Husband Name</label></div>
-        <input class="input" type="text" id="cpoaFather" data-auto="father" placeholder="Enter father / husband name" />
+        <div class="input-group">
+          <span class="ig-icon"><svg class="ic"><use href="#i-user"/></svg></span>
+          <input class="input-plain" type="text" id="cpoaFather" data-auto="father" value="MOHAN LAL MEENA" placeholder="Enter father / husband name" />
+        </div>
       </div>
       <div class="field">
         <div class="field-head"><label class="f-label" for="cpoaMobile">Mobile No <i>*</i></label></div>
         <div class="input-group">
+          <span class="ig-icon"><svg class="ic"><use href="#i-phone"/></svg></span>
           <span class="ig-prefix">+91</span>
-          <input class="input-plain" type="text" id="cpoaMobile" placeholder="Enter mobile number" inputmode="numeric" maxlength="10" required data-vtype="mobile" />
+          <input class="input-plain" type="text" id="cpoaMobile" data-auto="mobile" value="9887766554" placeholder="Enter mobile number" inputmode="numeric" maxlength="10" required data-vtype="mobile" />
         </div>
       </div>
       <div class="field span-2">
         <div class="field-head"><label class="f-label" for="cpoaAddress">Address</label></div>
-        <div class="ta-wrap">
-          <textarea class="textarea" id="cpoaAddress" data-count placeholder="Enter address" maxlength="500"></textarea>
+        <div class="ta-wrap has-icon">
+          <span class="ta-icon"><svg class="ic"><use href="#i-pin"/></svg></span>
+          <textarea class="textarea" id="cpoaAddress" data-count data-auto="address" placeholder="Enter address" maxlength="500">Plot 21, Sitapura Industrial Area, Tonk Road, Jaipur, Rajasthan 302022</textarea>
           <span class="char-count">0/500</span>
         </div>
       </div>
