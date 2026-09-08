@@ -19,6 +19,8 @@
   .type-panel { padding: 12px; }
   .type-tabs .radio-card { min-width: 96px; padding: 10px 8px; }
   .type-tabs .radio-text { font-size: 12.5px; }
+  .sd-group dl { grid-template-columns: 1fr; }
+  .type-panel-foot .btn { flex: 1; }
   .stepper { justify-content: flex-start; }
   .step-sep { display: none; }
   .page-hero { padding-left: 16px; padding-right: 16px; }

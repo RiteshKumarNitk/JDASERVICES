@@ -130,14 +130,9 @@ async function loadForms(type, container) {
   const dob = $('#minorDob', container);
   if (dob) dob.max = new Date().toISOString().split('T')[0];
 
-  // Individual / Joint applies to every applicant type; keep the joint panel in sync
+  // Individual / Joint applies to every applicant type
   const modeGroup = $('#applicantModeGroup');
-  if (modeGroup) {
-    modeGroup.hidden = false;
-    const mode = $('input[name="applicantMode"]:checked', modeGroup);
-    const panel = container.querySelector('[data-joint-panel]');
-    if (panel) panel.hidden = !(mode && mode.value === 'joint');
-  }
+  if (modeGroup) modeGroup.hidden = false;
 
   setFlow({ applicantType: type });
 }
@@ -303,6 +298,32 @@ function bindFetches(scope) {
   });
 }
 
+/* ------------------------------------------------------------------ */
+/* Multi-applicant collection (Individual = one, Joint = many)         */
+/* ------------------------------------------------------------------ */
+function getApplicants() { return getFlow().applicants || []; }
+
+function pickValue(sections, re) {
+  for (const s of sections) for (const r of (s.rows || [])) if (re.test(r.label)) return r.value;
+  return '';
+}
+
+// Flatten saved applicants into the { title, rows } shape Review / Final expect
+function flattenApplicants(list) {
+  const many = list.length > 1;
+  const out = [];
+  list.forEach((a, i) => {
+    const prefix = many ? 'Applicant ' + (i + 1) + ' · ' : '';
+    (a.sections || []).forEach((s, si) => {
+      const rows = si === 0
+        ? [{ label: 'Applicant Type', value: a.typeLabel || a.type }].concat(s.rows || [])
+        : (s.rows || []);
+      out.push({ title: prefix + s.title, rows: rows });
+    });
+  });
+  return out;
+}
+
 function initApplicantProfilePage() {
   let type = readQuery('type') || getFlow().applicantType || 'self';
   if (!TYPE_FORMS[type]) type = 'self';
@@ -312,10 +333,89 @@ function initApplicantProfilePage() {
   const radio = $('input[name="applicantType"][value="' + type + '"]');
   if (radio) radio.checked = true;
 
-  // keep every filled detail in the flow store for Review / Final Submission
-  bindSaveSections(container);
+  const panel = $('#typePanel');
+  const savedWrap = $('#savedApplicants');
+  const savedRows = $('#savedRows');
+  const addMoreBtn = $('#addMoreApplicant');
+  const saveBtn = $('#saveApplicant');
+  const modeGroup = $('#applicantModeGroup');
 
-  // live type switching on this page
+  // restore Individual / Joint choice
+  const savedMode = getFlow().applicantMode;
+  if (savedMode && modeGroup) {
+    const mr = $('input[name="applicantMode"][value="' + savedMode + '"]', modeGroup);
+    if (mr) mr.checked = true;
+  }
+
+  const currentMode = () => {
+    const m = modeGroup && $('input[name="applicantMode"]:checked', modeGroup);
+    return m ? m.value : 'individual';
+  };
+  const currentType = () => {
+    const t = $('input[name="applicantType"]:checked');
+    return t ? t.value : type;
+  };
+
+  function persist(list) {
+    setFlow({
+      applicants: list,
+      applicantMode: currentMode(),
+      applicantType: list.length ? list[list.length - 1].type : currentType(),
+      formSections: flattenApplicants(list)
+    });
+  }
+
+  function render(showForm) {
+    const list = getApplicants();
+    if (savedWrap) savedWrap.hidden = list.length === 0;
+
+    if (savedRows) {
+      savedRows.innerHTML = '';
+      list.forEach((a, i) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML =
+          '<td>' + (i + 1) + '</td>' +
+          '<td>' + esc(a.typeLabel || a.type) + '</td>' +
+          '<td>' + esc(a.name || '—') + '</td>' +
+          '<td>' + esc(a.mobile || '—') + '</td>' +
+          '<td><button class="tbtn tbtn-view" type="button" data-view="' + a.id + '">View</button></td>' +
+          '<td><button class="tbtn tbtn-del" type="button" data-remove="' + a.id + '">Remove</button></td>';
+        savedRows.appendChild(tr);
+
+        const dr = document.createElement('tr');
+        dr.className = 'saved-detail-row';
+        dr.dataset.detail = a.id;
+        dr.hidden = true;
+        dr.innerHTML = '<td colspan="6">' + (a.sections || []).map((s) =>
+          '<div class="sd-group"><h4>' + esc(s.title) + '</h4><dl>' +
+          (s.rows || []).map((r) => '<div><dt>' + esc(r.label) + '</dt><dd>' + esc(r.value || '—') + '</dd></div>').join('') +
+          '</dl></div>').join('') + '</td>';
+        savedRows.appendChild(dr);
+      });
+    }
+
+    const hasSaved = list.length > 0;
+    if (panel) panel.hidden = hasSaved && !showForm;
+    if (addMoreBtn) addMoreBtn.hidden = !(currentMode() === 'joint' && hasSaved) || !!showForm;
+  }
+
+  function snapshotForm() {
+    const bad = validateScope(container);
+    if (bad) return null;
+    const sections = collectFormSections(container);
+    if (!sections.length) { toast('Please fill the form before saving.'); return null; }
+    const t = currentType();
+    return {
+      id: 'a' + Date.now(),
+      type: t,
+      typeLabel: TYPE_LABELS[t] || t,
+      name: pickValue(sections, /name/i),
+      mobile: pickValue(sections, /mobile|whats\s?app/i),
+      sections: sections
+    };
+  }
+
+  // type tabs — reload the matching form(s)
   const group = $('#applicantTypeGroup');
   if (group) {
     group.addEventListener('change', (e) => {
@@ -325,26 +425,25 @@ function initApplicantProfilePage() {
     });
   }
 
-  // Individual / Joint lives on the page now — toggle the fragment's joint panel
-  const modeGroup = $('#applicantModeGroup');
+  // Individual / Joint
   if (modeGroup) {
     modeGroup.addEventListener('change', (e) => {
       if (e.target.name !== 'applicantMode') return;
-      const panel = container.querySelector('[data-joint-panel]');
-      if (panel) panel.hidden = e.target.value !== 'joint';
-      saveFormSections(container);
+      let list = getApplicants();
+      if (e.target.value === 'individual' && list.length > 1) {
+        list = list.slice(0, 1);
+        toast('Individual mode keeps a single applicant.');
+      }
+      persist(list);
+      render(list.length === 0);
     });
   }
 
-  // radio toggles inside the loaded fragments
+  // fragment-internal radio toggles (Aadhaar with / without)
   container.addEventListener('change', (e) => {
     const t = e.target;
     if (!t.matches('input[type="radio"]')) return;
-
-    if (t.name === 'applicantMode') {
-      const panel = t.closest('.form-card').querySelector('[data-joint-panel]');
-      if (panel) panel.hidden = t.value !== 'joint';
-    } else if (t.name && t.name.indexOf('aadhaar-') === 0) {
+    if (t.name && t.name.indexOf('aadhaar-') === 0) {
       const article = t.closest('.form-card');
       const block = article && article.querySelector('.fetch-block');
       if (block) block.hidden = t.value !== 'with';
@@ -352,18 +451,61 @@ function initApplicantProfilePage() {
     }
   });
 
+  // Save the applicant currently on screen
+  if (saveBtn) {
+    saveBtn.addEventListener('click', () => {
+      const rec = snapshotForm();
+      if (!rec) return;
+      persist(getApplicants().concat([rec]));
+      render(false);
+      toast('Applicant saved.', true);
+      if (savedWrap) savedWrap.scrollIntoView({ block: 'start', behavior: 'smooth' });
+    });
+  }
+
+  // Add More Applicant (Joint) — reopen a blank form
+  if (addMoreBtn) {
+    addMoreBtn.addEventListener('click', () => {
+      loadForms(currentType(), container);
+      render(true);
+      if (panel) panel.scrollIntoView({ block: 'start', behavior: 'smooth' });
+    });
+  }
+
+  // table actions — view / remove
+  if (savedRows) {
+    savedRows.addEventListener('click', (e) => {
+      const v = e.target.closest('[data-view]');
+      const d = e.target.closest('[data-remove]');
+      if (v) {
+        const row = savedRows.querySelector('tr[data-detail="' + v.dataset.view + '"]');
+        if (row) { row.hidden = !row.hidden; v.textContent = row.hidden ? 'View' : 'Hide'; }
+      } else if (d) {
+        const list = getApplicants().filter((a) => a.id !== d.dataset.remove);
+        persist(list);
+        if (!list.length) loadForms(currentType(), container);
+        render(list.length === 0);
+        toast('Applicant removed.');
+      }
+    });
+  }
+
+  // Proceed to witness
   const continueBtn = $('#continueProfile');
   if (continueBtn) {
     continueBtn.addEventListener('click', () => {
-      const bad = validateScope(container);
-      if (bad) return;
-      const radio = $('input[name="applicantType"]:checked');
-      const applicantType = radio ? radio.value : type;
-      setFlow({ applicantType: applicantType, formSections: collectFormSections(container) });
+      let list = getApplicants();
+      if (!list.length) {
+        const rec = snapshotForm();
+        if (!rec) { toast('Please fill and save at least one applicant.'); return; }
+        list = [rec];
+      }
+      persist(list);
       window.location.href = 'witness-details.html';
     });
   }
 
+  render(getApplicants().length === 0);
   loadForms(type, container);
 }
 

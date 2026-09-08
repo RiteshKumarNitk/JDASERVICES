@@ -30,6 +30,7 @@
     <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></symbol>
     <symbol id="i-arrR" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="12" x2="20" y2="12"/><polyline points="13 5 20 12 13 19"/></symbol>
     <symbol id="i-arrL" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="20" y1="12" x2="4" y2="12"/><polyline points="11 5 4 12 11 19"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></symbol>
   </svg>
 
   <div class="page">
@@ -62,7 +63,25 @@
             </div>
           </fieldset>
 
-          <div class="type-panel">
+          <!-- Saved applicants — Individual = 1, Joint = many -->
+          <div class="saved-applicants" id="savedApplicants" hidden>
+            <h3 class="saved-title">Added Applicants</h3>
+            <div class="table-wrap">
+              <table class="tbl saved-tbl">
+                <thead>
+                  <tr>
+                    <th>S.No</th><th>Applicant Type</th><th>Name</th><th>Mobile No</th><th>Details</th><th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="savedRows"></tbody>
+              </table>
+            </div>
+            <button class="btn btn-outline" type="button" id="addMoreApplicant" hidden>
+              <svg class="ic"><use href="#i-plus"/></svg> Add More Applicant
+            </button>
+          </div>
+
+          <div class="type-panel" id="typePanel">
           <fieldset class="type-group type-tabs" id="applicantTypeGroup">
             <legend class="f-label">Applicant Type <i>*</i></legend>
             <div class="radio-cards radio-cards-grid">
@@ -91,6 +110,12 @@
 
           <!-- Dynamic form sections (fragments loaded from /forms) -->
           <div class="sections" id="sectionsRoot"></div>
+
+          <div class="type-panel-foot">
+            <button class="btn btn-primary" type="button" id="saveApplicant">
+              <svg class="ic"><use href="#i-check"/></svg> Save Applicant
+            </button>
+          </div>
           </div>
         </div>
 
