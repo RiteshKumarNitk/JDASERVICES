@@ -231,9 +231,13 @@ class SearchSelect {
   }
 }
 
-/* Build widgets for every hidden native select inside a scope */
+/* Build widgets for every hidden native select inside a scope
+   (skips any select that already has a widget, so a page + its
+   init function can both call this without doubling the dropdown) */
 function enhanceSelects(scope) {
-  $$('select.ss-native', scope || document).forEach((sel) => new SearchSelect(sel));
+  $$('select.ss-native', scope || document).forEach((sel) => {
+    if (!sel._ss) new SearchSelect(sel);
+  });
 }
 
 /* ------------------------------------------------------------------ */

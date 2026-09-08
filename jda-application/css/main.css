@@ -62,7 +62,7 @@ svg.ic { width: 1em; height: 1em; display: inline-block; vertical-align: -0.13em
 button { font-family: inherit; }
 a { text-decoration: none; color: inherit; }
 
-.page { max-width: 980px; margin: 0 auto; padding: 28px 20px 60px; }
+.page { max-width: 1000px; margin: 0 auto; padding: 28px 20px 60px; }
 
 /* =====================================================================
    Progress stepper
