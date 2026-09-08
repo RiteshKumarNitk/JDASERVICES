@@ -409,9 +409,20 @@ input[type="date"].input-plain { color: var(--ink); }
   margin-top: 0;
   background: #fff;
   border: 1px solid var(--blue-100);
-  border-top: 3px solid var(--blue-600);
   border-radius: 10px;
   box-shadow: 0 10px 24px -16px rgba(31, 69, 114, .4);
+}
+
+/* section header = the same blue bar used on Property / Document / Final pages */
+.form-card.section > .block-bar {
+  border-radius: 10px 10px 0 0;
+  margin: -1px -1px 0;
+  width: auto;
+}
+.form-card.section > .card-body > .sec-sub {
+  font-size: 13px;
+  color: var(--muted);
+  margin: -2px 0 16px;
 }
 
 .type-panel-foot {

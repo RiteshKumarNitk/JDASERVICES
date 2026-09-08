@@ -161,7 +161,8 @@ function collectFormSections(container) {
   const sections = [];
 
   container.querySelectorAll('.form-card.section').forEach((card, idx) => {
-    const title = (card.querySelector('.head-txt h2') || {}).textContent || 'Details';
+    const titleEl = card.querySelector('.block-title, .head-txt h2, .card-head h2, .page-hero h1');
+    const title = (titleEl && titleEl.textContent.trim()) || 'Details';
     const rows = [];
     const seen = new Set();
 
