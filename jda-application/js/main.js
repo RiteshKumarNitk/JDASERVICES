@@ -616,7 +616,8 @@ function initDocumentsPage() {
       setFlow({
         uploadedDocs: DOCS.filter((d) => d.uploaded).map((d) => d.req),
         uploadedDocNames: DOCS.filter((d) => d.uploaded).map((d) => d.name || d.req),
-        documentsVerified: true
+        documentsVerified: true,
+        submitted: false
       });
       window.location.href = 'final-submission.html';
     });
@@ -631,6 +632,10 @@ const TYPE_LABELS = {
 };
 
 function initReviewPage() {
+  // Re-entering the flow: this application isn't submitted yet, so the
+  // Final Submission page must show the payment form, not the success screen.
+  if (getFlow().submitted) setFlow({ submitted: false });
+
   const root = $('#reviewSummary');
   if (root) root.innerHTML = buildSummaryHtml();
 
@@ -642,9 +647,14 @@ function initReviewPage() {
 /* Final Submission                                                    */
 /* ------------------------------------------------------------------ */
 function finalSection(title, rows) {
-  const body = (rows || [])
-    .map((r) => '<div class="summary-row"><dt>' + esc(r[0]) + '</dt><dd>' + esc(r[1] || '\u2014') + '</dd></div>')
-    .join('');
+  const body = (rows || []).map((r) => {
+    if (r && !Array.isArray(r) && r.group) {
+      return '<div class="summary-row grp"><dt>' + esc(r.label) + '</dt></div>';
+    }
+    const label = Array.isArray(r) ? r[0] : r.label;
+    const value = Array.isArray(r) ? r[1] : r.value;
+    return '<div class="summary-row"><dt>' + esc(label) + '</dt><dd>' + esc(value || '\u2014') + '</dd></div>';
+  }).join('');
   return '<div class="summary-card"><h3>' + esc(title) + '</h3><dl class="summary-grid">' + body + '</dl></div>';
 }
 
@@ -661,9 +671,9 @@ function buildSummaryHtml() {
     ['Applicant Type', TYPE_LABELS[flow.applicantType]]
   ]);
 
-  // every filled form detail, grouped by the form section it belongs to
+  // every filled form detail — one card per applicant (sub-forms merged inside)
   (flow.formSections || []).forEach((sec) => {
-    html += finalSection(sec.title || 'Details', (sec.rows || []).map((r) => [r.label, r.value]));
+    html += finalSection(sec.title || 'Details', sec.rows || []);
   });
 
   // property + documents
@@ -694,6 +704,19 @@ function initFinalPage() {
     form.hidden = true;
     success.hidden = false;
     return;
+  }
+
+  // "Review Application" — reveal / hide the dynamic group-wise summary
+  const reviewBtn = $('#reviewApplication');
+  const reviewPanel = $('#fsReviewPanel');
+  if (reviewBtn && reviewPanel) {
+    reviewBtn.addEventListener('click', () => {
+      const open = reviewPanel.hidden;
+      reviewPanel.hidden = !open;
+      reviewBtn.setAttribute('aria-expanded', String(open));
+      reviewBtn.textContent = open ? 'Hide Review' : 'Review Application';
+      if (open) reviewPanel.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    });
   }
 
   const submit = $('#submitFinal');

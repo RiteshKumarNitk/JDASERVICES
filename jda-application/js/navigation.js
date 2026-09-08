@@ -68,7 +68,58 @@ function renderStepper(activeIndex) {
   });
 }
 
+/* ---------- right info sidebar (required documents / help) ---------- */
+// Fallback list if the Document Section catalogue (DOCS, defined in main.js) is unavailable
+const ASIDE_DOCS_FALLBACK = [
+  { req: 'Aadhaar Card', type: 'mandatory' },
+  { req: 'Address Proof', type: 'mandatory' },
+  { req: 'Land Documents (Khasra / Khatuni)', type: 'mandatory' },
+  { req: 'Passport Size Photo', type: 'mandatory' },
+  { req: 'Any other supporting document', type: 'applicable' }
+];
+const IC_PHONE = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>';
+const IC_MAIL = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="22,6 12,13 2,6"/></svg>';
+
+function buildAside() {
+  const catalogue = (typeof DOCS !== 'undefined' && Array.isArray(DOCS)) ? DOCS : ASIDE_DOCS_FALLBACK;
+  const docs = catalogue.map((d) => {
+    const opt = d.type === 'applicable';
+    return '<li' + (opt ? ' class="is-opt"' : '') + '><span class="as-check"></span>' +
+      '<span>' + esc(d.req) + (opt ? ' <em>(if applicable)</em>' : '') + '</span></li>';
+  }).join('');
+
+  return '<section class="aside-card">' +
+      '<h3>Required Documents</h3><ul class="aside-docs">' + docs + '</ul>' +
+    '</section>' +
+    '<section class="aside-card">' +
+      '<h3>Need Help?</h3><div class="aside-help">' +
+        '<p>' + IC_PHONE + '<b>1800-180-6127</b></p>' +
+        '<p class="as-muted">Toll Free: 10:00 AM to 6:00 PM</p>' +
+        '<p>' + IC_MAIL + '<a href="mailto:support@land.rajasthan.gov.in">support@land.rajasthan.gov.in</a></p>' +
+      '</div>' +
+    '</section>';
+}
+
+function mountAside() {
+  if (document.body.dataset.page === 'index') return;
+  const pageEl = $q('.page');
+  const main = pageEl && pageEl.querySelector('main');
+  if (!pageEl || !main || pageEl.querySelector('.page-layout')) return;
+
+  const layout = document.createElement('div');
+  layout.className = 'page-layout';
+  pageEl.insertBefore(layout, main);
+  layout.appendChild(main);
+
+  const aside = document.createElement('aside');
+  aside.className = 'app-aside';
+  aside.setAttribute('aria-label', 'Application help');
+  aside.innerHTML = buildAside();
+  layout.appendChild(aside);
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   const idx = parseInt(document.body.dataset.step || '-1', 10);
   if (idx >= 0) renderStepper(idx);
+  mountAside();
 });

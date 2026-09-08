@@ -310,17 +310,19 @@ function pickValue(sections, re) {
 // Flatten saved applicants into the { title, rows } shape Review / Final expect
 function flattenApplicants(list) {
   const many = list.length > 1;
-  const out = [];
-  list.forEach((a, i) => {
-    const prefix = many ? 'Applicant ' + (i + 1) + ' · ' : '';
-    (a.sections || []).forEach((s, si) => {
-      const rows = si === 0
-        ? [{ label: 'Applicant Type', value: a.typeLabel || a.type }].concat(s.rows || [])
-        : (s.rows || []);
-      out.push({ title: prefix + s.title, rows: rows });
+  // one card per applicant — all its sub-forms merged inside
+  return list.map((a, i) => {
+    const subs = a.sections || [];
+    const rows = [{ label: 'Applicant Type', value: a.typeLabel || a.type }];
+    subs.forEach((s) => {
+      if (subs.length > 1) rows.push({ label: s.title, value: '', group: true });
+      (s.rows || []).forEach((r) => rows.push(r));
     });
+    const title = many
+      ? 'Applicant ' + (i + 1) + (a.typeLabel ? '  ·  ' + a.typeLabel : '')
+      : (subs.length === 1 ? (subs[0].title || 'Applicant Details') : (a.typeLabel || 'Applicant Details'));
+    return { title: title, rows: rows };
   });
-  return out;
 }
 
 function initApplicantProfilePage() {

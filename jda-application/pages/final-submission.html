@@ -31,17 +31,7 @@
         <div id="finalForm">
           <div class="card-body">
 
-            <!-- (A) Review Application Details — dynamic, group-wise -->
-            <div class="block-card">
-              <div class="block-bar" style="cursor:default">
-                <span class="block-title">Review Application Details</span>
-              </div>
-              <div class="block-panel">
-                <div id="finalSummary"></div>
-              </div>
-            </div>
-
-            <!-- (B) Final Submission -->
+            <!-- Final Submission -->
             <div class="block-card">
               <div class="block-bar" style="cursor:default">
                 <span class="block-title">Final Submission</span>
@@ -49,13 +39,19 @@
 
               <div class="block-panel">
 
-                <!-- Declaration -->
+                <!-- Declaration + Review Application -->
                 <div class="fs-declare" id="declarationBox">
                   <label class="check-row" for="fsDeclare">
                     <input type="checkbox" id="fsDeclare" name="declaration" value="accepted" checked />
                     <span class="cb"><svg class="ic"><use href="#i-check"/></svg></span>
                     <span class="cb-label">I hereby declare that the above information is correct to the best of my knowledge.</span>
                   </label>
+                  <button class="btn btn-success" type="button" id="reviewApplication" aria-expanded="false" aria-controls="fsReviewPanel">Review Application</button>
+                </div>
+
+                <!-- Review Application — dynamic group-wise summary -->
+                <div class="fs-review" id="fsReviewPanel" hidden>
+                  <div id="finalSummary"></div>
                 </div>
 
                 <!-- Payment & Affidavit Details -->
