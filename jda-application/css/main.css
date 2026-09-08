@@ -854,6 +854,7 @@ a { text-decoration: none; color: inherit; }
 }
 .fs-declare .check-row:hover { background: #fff; }
 .fs-declare .btn { flex: none; }
+.fs-declare.is-invalid .check-row { border-color: var(--err); box-shadow: 0 0 0 3px rgba(220, 38, 38, .1); }
 
 .fs-note { margin-top: 14px; }
 .fs-note p strong { font-weight: 700; }

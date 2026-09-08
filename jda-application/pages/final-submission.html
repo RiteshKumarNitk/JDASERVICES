@@ -27,104 +27,120 @@
 
     <main>
       <div class="form-card">
-        <div class="card-body">
 
-          <!-- (A) Final Submission -->
-          <div class="block-card">
-            <div class="block-bar" style="cursor:default">
-              <span class="block-title">Final Submission</span>
-            </div>
+        <div id="finalForm">
+          <div class="card-body">
 
-            <div class="block-panel">
-
-              <!-- Declaration + Review Application -->
-              <div class="fs-declare">
-                <label class="check-row" for="fsDeclare">
-                  <input type="checkbox" id="fsDeclare" name="declaration" value="accepted" checked />
-                  <span class="cb"><svg class="ic"><use href="#i-check"/></svg></span>
-                  <span class="cb-label">I hereby declare that the above information is correct to the best of my knowledge.</span>
-                </label>
-                <button class="btn btn-success" type="button" id="reviewApplication" aria-expanded="false" aria-controls="fsReviewPanel">Review Application</button>
+            <!-- (A) Review Application Details — dynamic, group-wise -->
+            <div class="block-card">
+              <div class="block-bar" style="cursor:default">
+                <span class="block-title">Review Application Details</span>
               </div>
-
-              <!-- Review Application — printed form details (same summary as review-application.html) -->
-              <div class="fs-review" id="fsReviewPanel" hidden>
+              <div class="block-panel">
                 <div id="finalSummary"></div>
               </div>
+            </div>
 
-              <!-- Note
-              <div class="package-note fs-note">
-                <svg class="ic"><use href="#i-info"/></svg>
-                <p><strong>Note:</strong> If you have applied for POA, complete the POA e-Affidavit before final submission.</p>
-              </div> -->
-
-              <!-- Payment & Affidavit Details -->
-              <h4 class="table-title fs-pa-title">Payment &amp; Affidavit Details</h4>
-              <p class="fs-subtitle">Complete the required payment and affidavit actions before proceeding with your application.</p>
-
-              <div class="table-wrap">
-                <table class="tbl fs-tbl">
-                  <thead>
-                    <tr>
-                      <th>S.No</th>
-                      <th>eStamp</th>
-                      <th>Payment Details</th>
-                      <th>Affidavit</th>
-                      <th>Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>1</td>
-
-                      <td>
-                        <span class="fs-cell-title">Affidavit of Stamp</span>
-                        <div class="fs-amount">&#8377; 100.00</div>
-                        <span class="req-badge required">Required</span>
-                      </td>
-
-                      <td>
-                        <span class="fs-cell-title">eGRAS Payment</span>
-                        <div class="fs-cell-sub">Select the Sub Registrar Office and generate your payment challan.</div>
-                        <div class="fs-field">
-                          <select class="ss-native" id="subRegistrarOffice" data-placeholder="Select Sub Registrar Office" hidden>
-                            <option value="Jaipur I">Jaipur I</option>
-                            <option value="Jaipur II">Jaipur II</option>
-                            <option value="Jaipur III">Jaipur III</option>
-                            <option value="Jaipur IV">Jaipur IV</option>
-                            <option value="Jaipur V">Jaipur V</option>
-                            <option value="Jaipur VI">Jaipur VI</option>
-                          </select>
-                        </div>
-                        <button class="btn btn-success btn-sm fs-field" type="button" id="payEgrasChallan">Pay eGRAS Challan</button>
-                      </td>
-
-                      <td>
-                        <span class="fs-cell-title">Affidavit of Self Declaration</span>
-                        <div class="fs-amount">Name Transfer</div>
-                        <div class="fs-cell-sub">Complete the affidavit to continue with final submission.</div>
-                        <button class="btn btn-outline btn-sm fs-field" type="button" id="viewAffidavit">View Affidavit</button>
-                      </td>
-
-                      <td>
-                        <div class="fs-actions">
-                          <button class="btn btn-success btn-sm" type="button" id="payEgras">Pay eGRAS</button>
-                          <button class="btn btn-outline btn-sm" type="button" id="checkStatus">Check Status</button>
-                        </div>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
+            <!-- (B) Final Submission -->
+            <div class="block-card">
+              <div class="block-bar" style="cursor:default">
+                <span class="block-title">Final Submission</span>
               </div>
 
+              <div class="block-panel">
+
+                <!-- Declaration -->
+                <div class="fs-declare" id="declarationBox">
+                  <label class="check-row" for="fsDeclare">
+                    <input type="checkbox" id="fsDeclare" name="declaration" value="accepted" checked />
+                    <span class="cb"><svg class="ic"><use href="#i-check"/></svg></span>
+                    <span class="cb-label">I hereby declare that the above information is correct to the best of my knowledge.</span>
+                  </label>
+                </div>
+
+                <!-- Payment & Affidavit Details -->
+                <h4 class="table-title fs-pa-title">Payment &amp; Affidavit Details</h4>
+                <p class="fs-subtitle">Complete the required payment and affidavit actions before proceeding with your application.</p>
+
+                <div class="table-wrap">
+                  <table class="tbl fs-tbl">
+                    <thead>
+                      <tr>
+                        <th>S.No</th>
+                        <th>eStamp</th>
+                        <th>Payment Details</th>
+                        <th>Affidavit</th>
+                        <th>Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>1</td>
+
+                        <td>
+                          <span class="fs-cell-title">Affidavit of Stamp</span>
+                          <div class="fs-amount">&#8377; 100.00</div>
+                          <span class="req-badge required">Required</span>
+                        </td>
+
+                        <td>
+                          <span class="fs-cell-title">eGRAS Payment</span>
+                          <div class="fs-cell-sub">Select the Sub Registrar Office and generate your payment challan.</div>
+                          <div class="fs-field">
+                            <select class="ss-native" id="subRegistrarOffice" data-placeholder="Select Sub Registrar Office" hidden>
+                              <option value="Jaipur I">Jaipur I</option>
+                              <option value="Jaipur II">Jaipur II</option>
+                              <option value="Jaipur III">Jaipur III</option>
+                              <option value="Jaipur IV">Jaipur IV</option>
+                              <option value="Jaipur V">Jaipur V</option>
+                              <option value="Jaipur VI">Jaipur VI</option>
+                            </select>
+                          </div>
+                          <button class="btn btn-success btn-sm fs-field" type="button" id="payEgrasChallan">Pay eGRAS Challan</button>
+                        </td>
+
+                        <td>
+                          <span class="fs-cell-title">Affidavit of Self Declaration</span>
+                          <div class="fs-amount">Name Transfer</div>
+                          <div class="fs-cell-sub">Complete the affidavit to continue with final submission.</div>
+                          <button class="btn btn-outline btn-sm fs-field" type="button" id="viewAffidavit">View Affidavit</button>
+                        </td>
+
+                        <td>
+                          <div class="fs-actions">
+                            <button class="btn btn-success btn-sm" type="button" id="payEgras">Pay eGRAS</button>
+                            <button class="btn btn-outline btn-sm" type="button" id="checkStatus">Check Status</button>
+                          </div>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+              </div>
             </div>
+
           </div>
 
+          <div class="card-foot fs-foot">
+            <button class="btn btn-primary" type="button" id="submitFinal">Proceed to Submit <svg class="ic"><use href="#i-arrR"/></svg></button>
+          </div>
         </div>
 
-        <div class="card-foot fs-foot">
-          <button class="btn btn-primary" type="button" id="proceedSubmit">Proceed to Submit <svg class="ic"><use href="#i-arrR"/></svg></button>
+        <!-- Success -->
+        <div id="finalSuccess" hidden>
+          <div class="success-card">
+            <span class="success-ic"><svg class="ic"><use href="#i-check"/></svg></span>
+            <h2>Application Submitted Successfully</h2>
+            <p>Your application has been received by the Jaipur Development Authority. Keep the application number for future reference.</p>
+            <div class="app-no" id="applicationNo">JDA/2026/00000</div>
+            <div style="margin-top:28px; display:flex; gap:12px; justify-content:center; flex-wrap:wrap">
+              <a class="btn btn-primary" href="../index.html">Go to Home</a>
+              <button class="btn btn-outline" type="button" onclick="window.print()">Print Receipt</button>
+            </div>
+          </div>
         </div>
+
       </div>
     </main>
   </div>

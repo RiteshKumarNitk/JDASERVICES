@@ -29,8 +29,9 @@ const PROFILES = {
   applicant:  { name: 'ARUN KUMAR SHARMA', father: 'RAKESH KUMAR SHARMA', mobile: '9829012345', relation: 'Father', address: '12, Vidhyadhar Nagar, Sector 4, Jaipur, Rajasthan 302039', email: 'arun.sharma@example.com', whatsapp: '9829012345' },
   poa:        { name: 'VIKASH SINGH',      father: 'SURESH SINGH',      mobile: '9812233445', relation: 'Father', address: '45-B, Malviya Nagar, Jaipur, Rajasthan 302017', email: 'vikash.singh@example.com', whatsapp: '9812233445' },
   witness:    { name: 'DEEPAK VERMA',      father: 'RAMESH VERMA',      relation: 'Other',  address: '7, Bani Park, Jaipur, Rajasthan 302016' },
-  minor:      { name: 'ADITYA SHARMA',     father: 'ARUN KUMAR SHARMA', dob: '2013-08-21', gender: 'Male' },
-  guardian:   { name: 'ARUN KUMAR SHARMA', father: 'RAKESH KUMAR SHARMA', mobile: '9829012345', relation: 'Father', email: 'arun.sharma@example.com' },
+  minor:      { name: 'ADITYA SHARMA',     father: 'ARUN KUMAR SHARMA', mobile: '9829012345', relation: 'Father', address: '12, Vidhyadhar Nagar, Sector 4, Jaipur, Rajasthan 302039' },
+  guardian:   { name: 'ARUN KUMAR SHARMA', father: 'RAKESH KUMAR SHARMA', mobile: '9829012345', relation: 'Father', email: 'arun.sharma@example.com', address: '12, Vidhyadhar Nagar, Sector 4, Jaipur, Rajasthan 302039' },
+  company:    { name: 'NEERAJ MEENA',      father: 'MOHAN LAL MEENA',   mobile: '9887766554', address: 'Plot 21, Sitapura Industrial Area, Tonk Road, Jaipur, Rajasthan 302022' },
   companyPoa: { name: 'NEERAJ MEENA',      father: 'MOHAN LAL MEENA',   mobile: '9887766554', address: 'Plot 21, Sitapura Industrial Area, Jaipur' }
 };
 
@@ -145,6 +146,7 @@ const PILL_MAPS = {
   'aadhaar-witness': { label: 'Witness Aadhaar', values: { with: 'With Aadhaar', without: 'Without Aadhaar' } },
   'aadhaar-minor': { label: 'Minor Aadhaar', values: { with: 'With Aadhaar', without: 'Without Aadhaar' } },
   'aadhaar-guardian': { label: 'Guardian Aadhaar', values: { with: 'With Aadhaar', without: 'Without Aadhaar' } },
+  'aadhaar-company': { label: 'Company Aadhaar', values: { with: 'With Aadhaar', without: 'Without Aadhaar' } },
   'aadhaar-companyPoa': { label: 'POA Aadhaar', values: { with: 'With Aadhaar', without: 'Without Aadhaar' } }
 };
 

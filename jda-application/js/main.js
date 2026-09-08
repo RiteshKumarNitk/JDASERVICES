@@ -618,7 +618,7 @@ function initDocumentsPage() {
         uploadedDocNames: DOCS.filter((d) => d.uploaded).map((d) => d.name || d.req),
         documentsVerified: true
       });
-      window.location.href = 'review-application.html';
+      window.location.href = 'final-submission.html';
     });
   }
 }
@@ -696,19 +696,6 @@ function initFinalPage() {
     return;
   }
 
-  // "Review Application" — reveal the same printed form summary shown on review-application.html
-  const reviewBtn = $('#reviewApplication');
-  const reviewPanel = $('#fsReviewPanel');
-  if (reviewBtn && reviewPanel) {
-    reviewBtn.addEventListener('click', () => {
-      const open = reviewPanel.hidden;
-      reviewPanel.hidden = !open;
-      reviewBtn.setAttribute('aria-expanded', String(open));
-      reviewBtn.textContent = open ? 'Hide Review' : 'Review Application';
-      if (open) reviewPanel.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-    });
-  }
-
   const submit = $('#submitFinal');
   if (!submit) return;
 
@@ -716,11 +703,11 @@ function initFinalPage() {
     const box = $('#declarationBox');
     const checked = $('input[name="declaration"]:checked');
     if (!checked) {
-      box.classList.add('is-invalid');
+      if (box) box.classList.add('is-invalid');
       toast('Please accept the declaration to submit your application.');
       return;
     }
-    box.classList.remove('is-invalid');
+    if (box) box.classList.remove('is-invalid');
     const appNo = 'JDA/2026/' + String(Math.floor(10000 + Math.random() * 89999));
     setFlow({ submitted: true, applicationNo: appNo });
     const noEl = $('#applicationNo');

@@ -10,6 +10,29 @@
   </header>
 
   <div class="card-body">
+    <div class="seg-tabs">
+      <label class="seg-tab">
+        <input type="radio" name="aadhaar-company" value="with" checked />
+        <span>With Aadhaar</span>
+      </label>
+      <label class="seg-tab">
+        <input type="radio" name="aadhaar-company" value="without" />
+        <span>Without Aadhaar</span>
+      </label>
+    </div>
+
+    <div class="fetch-block" data-block="company">
+      <div class="field">
+        <div class="field-head"><label class="f-label" for="coAadhaar">Aadhaar Number <i>*</i></label></div>
+        <div class="fetch-row">
+          <input class="input" type="text" id="coAadhaar" data-aadhaar value="9012 3456 7890" placeholder="Enter 12 digit Aadhaar number" inputmode="numeric" maxlength="14" autocomplete="off" required data-vtype="aadhaar" />
+          <button class="btn btn-primary fetch-btn" type="button" data-fetch>
+            <svg class="ic"><use href="#i-search"/></svg> Fetch Detail
+          </button>
+        </div>
+      </div>
+    </div>
+
     <div class="form-grid">
       <div class="field span-2">
         <div class="field-head"><label class="f-label" for="coName">Name of Company <i>*</i></label></div>
@@ -22,7 +45,7 @@
         <div class="field-head"><label class="f-label" for="coAddress">Address of Company <i>*</i></label></div>
         <div class="ta-wrap has-icon">
           <span class="ta-icon"><svg class="ic"><use href="#i-pin"/></svg></span>
-          <textarea class="textarea" id="coAddress" placeholder="Enter complete address of company" maxlength="500" required data-count>Plot 21, Sitapura Industrial Area, Tonk Road, Jaipur, Rajasthan 302022</textarea>
+          <textarea class="textarea" id="coAddress" data-auto="address" placeholder="Enter complete address of company" maxlength="500" required data-count>Plot 21, Sitapura Industrial Area, Tonk Road, Jaipur, Rajasthan 302022</textarea>
           <span class="char-count">0/500</span>
         </div>
       </div>
@@ -31,7 +54,7 @@
         <div class="field-head"><label class="f-label" for="coOwner">Owner / Director / Representative Name <i>*</i></label></div>
         <div class="input-group">
           <span class="ig-icon"><svg class="ic"><use href="#i-user"/></svg></span>
-          <input class="input-plain" type="text" id="coOwner" value="" placeholder="Enter owner / director / representative name" required />
+          <input class="input-plain" type="text" id="coOwner" data-auto="name" value="" placeholder="Enter owner / director / representative name" required />
         </div>
       </div>
       <div class="field">
@@ -39,14 +62,14 @@
         <div class="input-group">
           <span class="ig-icon"><svg class="ic"><use href="#i-phone"/></svg></span>
           <span class="ig-prefix">+91</span>
-          <input class="input-plain" type="text" id="coMobile" value="9887766554" placeholder="Enter mobile number" inputmode="numeric" maxlength="10" required data-vtype="mobile" />
+          <input class="input-plain" type="text" id="coMobile" data-auto="mobile" value="9887766554" placeholder="Enter mobile number" inputmode="numeric" maxlength="10" required data-vtype="mobile" />
         </div>
       </div>
       <div class="field">
         <div class="field-head"><label class="f-label" for="coFather">Father / Husband Name</label></div>
         <div class="input-group">
           <span class="ig-icon"><svg class="ic"><use href="#i-user"/></svg></span>
-          <input class="input-plain" type="text" id="coFather" value="MOHAN LAL MEENA" placeholder="Enter father / husband name" />
+          <input class="input-plain" type="text" id="coFather" data-auto="father" value="MOHAN LAL MEENA" placeholder="Enter father / husband name" />
         </div>
       </div>
       <div class="field">
