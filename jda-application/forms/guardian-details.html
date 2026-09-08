@@ -10,16 +10,14 @@
   </header>
 
   <div class="card-body">
-    <div class="radio-cards">
-      <label class="radio-card">
+    <div class="seg-tabs">
+      <label class="seg-tab">
         <input type="radio" name="aadhaar-guardian" value="with" checked />
-        <span class="radio-dot"></span>
-        <span class="radio-text">With Aadhaar</span>
+        <span>With Aadhaar</span>
       </label>
-      <label class="radio-card">
+      <label class="seg-tab">
         <input type="radio" name="aadhaar-guardian" value="without" />
-        <span class="radio-dot"></span>
-        <span class="radio-text">Without Aadhaar</span>
+        <span>Without Aadhaar</span>
       </label>
     </div>
 
@@ -37,10 +35,11 @@
 
     <div class="form-grid">
       <div class="field">
-        <div class="field-head"><label class="f-label" for="guardianName">Name of Guardian <i>*</i></label></div>
+        <div class="field-head">
+          <label class="f-label" for="guardianName">Name of Guardian <i>*</i></label>        </div>
         <div class="input-group">
           <span class="ig-icon"><svg class="ic"><use href="#i-user"/></svg></span>
-          <input class="input-plain" type="text" id="guardianName" data-auto="name" value="ARUN KUMAR SHARMA" placeholder="Enter name of guardian" required />
+          <input class="input-plain is-locked" type="text" id="guardianName" data-auto="name" data-aadhaar-lock value="ARUN KUMAR SHARMA" placeholder="Enter name of guardian" required readonly />
         </div>
       </div>
       <div class="field">
@@ -55,11 +54,12 @@
         </select>
       </div>
       <div class="field">
-        <div class="field-head"><label class="f-label" for="guardianMobile">Mobile Number <i>*</i></label></div>
+        <div class="field-head">
+          <label class="f-label" for="guardianMobile">Mobile Number <i>*</i></label>        </div>
         <div class="input-group">
           <span class="ig-icon"><svg class="ic"><use href="#i-phone"/></svg></span>
           <span class="ig-prefix">+91</span>
-          <input class="input-plain" type="text" id="guardianMobile" data-auto="mobile" value="9829012345" placeholder="Enter mobile number" inputmode="numeric" maxlength="10" required data-vtype="mobile" />
+          <input class="input-plain is-locked" type="text" id="guardianMobile" data-auto="mobile" data-aadhaar-lock value="9829012345" placeholder="Enter mobile number" inputmode="numeric" maxlength="10" required data-vtype="mobile" readonly />
         </div>
       </div>
       <div class="field">

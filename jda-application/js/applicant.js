@@ -204,6 +204,52 @@ function bindSaveSections(container) {
   container.addEventListener('change', schedule);
 }
 
+/* ------------------------------------------------------------------ */
+/* Aadhaar-sourced fields: shown read-only, released on "Without Aadhaar" */
+/* ------------------------------------------------------------------ */
+function fireInput(el) {
+  if (el) el.dispatchEvent(new Event('input', { bubbles: true }));
+}
+
+// Mark / release the [data-aadhaar-lock] fields inside a form card
+function setAadhaarLock(scope, locked) {
+  $$('[data-aadhaar-lock]', scope).forEach((el) => {
+    if (el.classList.contains('ss-native') && el._ss) {
+      locked ? el._ss.disable() : el._ss.enable();
+    } else {
+      el.readOnly = locked;
+    }
+    el.classList.toggle('is-locked', locked);
+  });
+}
+
+// WhatsApp number defaults to the (Aadhaar) mobile number but stays editable
+function syncWhatsApp(scope) {
+  const mob = $('[data-auto="mobile"]', scope);
+  const wa = $('[data-auto="whatsapp"]', scope);
+  if (mob && wa) { wa.value = mob.value; fireInput(wa); }
+}
+
+/* With Aadhaar  => Aadhaar fields prefilled from the profile + read-only
+   Without Aadhaar => same fields cleared and released for manual entry
+   Works for every form card that has a .fetch-block (applicant, POA,
+   minor, guardian, company POA, witness). */
+function applyAadhaarMode(article, withAadhaar) {
+  if (!article) return;
+  const block = article.querySelector('.fetch-block');
+  const profile = (block && PROFILES[block.dataset.block]) || {};
+
+  $$('[data-aadhaar-lock]', article).forEach((el) => {
+    const val = withAadhaar ? profile[el.dataset.auto] : '';
+    if (el.classList.contains('ss-native') && el._ss) el._ss.setValue(val || '', true);
+    else el.value = val == null ? '' : val;
+    fireInput(el);
+  });
+
+  if (withAadhaar) syncWhatsApp(article);
+  setAadhaarLock(article, withAadhaar);
+}
+
 function bindFetches(scope) {
   $$('.fetch-block', scope).forEach((block) => {
     const btn = $('[data-fetch]', block);
@@ -231,6 +277,8 @@ function bindFetches(scope) {
           const field = el.closest('.field');
           if (field) clearFieldError(field);
         });
+        syncWhatsApp(article);
+        setAadhaarLock(article, true);
         btn.classList.remove('is-loading');
         btn.disabled = false;
         toast('Details fetched successfully.', true);
@@ -273,6 +321,7 @@ function initApplicantProfilePage() {
       const article = t.closest('.form-card');
       const block = article && article.querySelector('.fetch-block');
       if (block) block.hidden = t.value !== 'with';
+      applyAadhaarMode(article, t.value === 'with');
     }
   });
 
@@ -302,11 +351,13 @@ function initWitnessPage() {
   initCounters(container);
   bindFetches(container);
 
-  // With / Without Aadhaar toggle shows / hides the fetch row
+  // With / Without Aadhaar toggle: show/hide the fetch row + lock/release Aadhaar fields
   container.addEventListener('change', (e) => {
     if (e.target.name !== 'aadhaar-witness') return;
+    const article = e.target.closest('.form-card') || container;
     const block = container.querySelector('.fetch-block');
     if (block) block.hidden = e.target.value !== 'with';
+    applyAadhaarMode(article, e.target.value === 'with');
   });
 
   const continueBtn = $('#continueWitness');

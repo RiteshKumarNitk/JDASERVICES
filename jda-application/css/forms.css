@@ -163,6 +163,50 @@ input[type="date"].input-plain { color: var(--ink); }
 }
 .input-plain:last-child { padding-right: 14px; }
 
+/* ---------- read-only fields fetched from Aadhaar ---------- */
+.input-plain[readonly],
+.textarea[readonly] { color: var(--ink-2); cursor: not-allowed; }
+.textarea[readonly] { background: #f1f5f9; }
+.input-group:has(.input-plain[readonly]) { background: #f1f5f9; border-color: #e2e8f0; }
+.input-group:has(.input-plain[readonly]) .ig-icon { background: #e9eef4; }
+.input-group:has(.input-plain[readonly]) .ig-prefix { background: #e9eef4; }
+
+/* ---------- segmented tabs (With / Without Aadhaar) ---------- */
+.seg-tabs {
+  display: inline-flex;
+  gap: 4px;
+  padding: 4px;
+  max-width: 100%;
+  background: #eef2f7;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+.card-body > .seg-tabs { margin: 0 0 18px; }
+
+.seg-tabs .seg-tab {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 20px;
+  border-radius: 9px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+  transition: background .15s ease, color .15s ease, box-shadow .15s ease;
+}
+.seg-tabs .seg-tab input { position: absolute; opacity: 0; pointer-events: none; }
+.seg-tabs .seg-tab:hover { color: var(--ink-2); }
+.seg-tabs .seg-tab:has(input:checked) {
+  background: #fff;
+  color: var(--blue-800);
+  box-shadow: 0 1px 3px rgba(15, 23, 42, .12);
+}
+.seg-tabs .seg-tab input:focus-visible + span { outline: 2px solid var(--blue-600); outline-offset: 3px; border-radius: 4px; }
+
 /* ---------- validation state ---------- */
 .err-msg {
   display: block;

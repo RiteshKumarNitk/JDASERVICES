@@ -28,16 +28,14 @@
     </div>
 
     <!-- With / Without Aadhaar -->
-    <div class="radio-cards">
-      <label class="radio-card">
+    <div class="seg-tabs">
+      <label class="seg-tab">
         <input type="radio" name="aadhaar-applicant" value="with" checked />
-        <span class="radio-dot"></span>
-        <span class="radio-text">With Aadhaar</span>
+        <span>With Aadhaar</span>
       </label>
-      <label class="radio-card">
+      <label class="seg-tab">
         <input type="radio" name="aadhaar-applicant" value="without" />
-        <span class="radio-dot"></span>
-        <span class="radio-text">Without Aadhaar</span>
+        <span>Without Aadhaar</span>
       </label>
     </div>
 
@@ -58,18 +56,20 @@
 
     <div class="form-grid">
       <div class="field">
-        <div class="field-head"><label class="f-label" for="apName">Name of Applicant <i>*</i></label></div>
+        <div class="field-head">
+          <label class="f-label" for="apName">Name of Applicant <i>*</i></label>        </div>
         <div class="input-group">
           <span class="ig-icon"><svg class="ic"><use href="#i-user"/></svg></span>
-          <input class="input-plain" type="text" id="apName" data-auto="name" placeholder="Enter applicant name" required />
+          <input class="input-plain is-locked" type="text" id="apName" data-auto="name" data-aadhaar-lock value="ARUN KUMAR SHARMA" placeholder="Enter applicant name" required readonly />
         </div>
       </div>
       <div class="field">
-        <div class="field-head"><label class="f-label" for="apMobile">Mobile Number <i>*</i></label></div>
+        <div class="field-head">
+          <label class="f-label" for="apMobile">Mobile Number <i>*</i></label>        </div>
         <div class="input-group">
+          <span class="ig-icon"><svg class="ic"><use href="#i-phone"/></svg></span>
           <span class="ig-prefix">+91</span>
-          <input class="input-plain" type="text" id="apMobile" placeholder="Enter mobile number" inputmode="numeric" maxlength="10" required data-vtype="mobile" />
-    
+          <input class="input-plain is-locked" type="text" id="apMobile" data-auto="mobile" data-aadhaar-lock value="9829012345" placeholder="Enter mobile number" inputmode="numeric" maxlength="10" required data-vtype="mobile" readonly />
         </div>
       </div>
       <div class="field">
@@ -90,10 +90,11 @@
         </select>
       </div>
       <div class="field span-2">
-        <div class="field-head"><label class="f-label" for="apAddress">Applicant Address <i>*</i></label></div>
+        <div class="field-head">
+          <label class="f-label" for="apAddress">Applicant Address <i>*</i></label>        </div>
         <div class="ta-wrap has-icon">
           <span class="ta-icon"><svg class="ic"><use href="#i-pin"/></svg></span>
-          <textarea class="textarea" id="apAddress" data-count placeholder="Enter complete address" maxlength="500" required></textarea>
+          <textarea class="textarea is-locked" id="apAddress" data-count data-auto="address" data-aadhaar-lock placeholder="Enter complete address" maxlength="500" required readonly>12, Vidhyadhar Nagar, Sector 4, Jaipur, Rajasthan 302039</textarea>
           <span class="char-count">0/500</span>
         </div>
       </div>
@@ -109,7 +110,7 @@
         <div class="input-group">
           <span class="ig-icon wa-ic"><svg class="ic"><use href="#i-wa"/></svg></span>
           <span class="ig-prefix">+91</span>
-          <input class="input-plain" type="text" id="apWhatsapp" placeholder="Enter WhatsApp number" inputmode="numeric" maxlength="10" data-vtype="mobile" />
+          <input class="input-plain" type="text" id="apWhatsapp" data-auto="whatsapp" value="9829012345" placeholder="Enter WhatsApp number" inputmode="numeric" maxlength="10" data-vtype="mobile" />
         </div>
       </div>
     </div>

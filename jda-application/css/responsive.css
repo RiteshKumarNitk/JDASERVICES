@@ -14,9 +14,16 @@
   .radio-cards-grid { grid-template-columns: repeat(2, 1fr); }
   .fetch-row { flex-direction: column; }
   .fetch-btn { width: 100%; }
+  .seg-tabs { display: flex; width: 100%; }
+  .seg-tabs .seg-tab { flex: 1; padding: 9px 12px; }
   .stepper { justify-content: flex-start; }
   .step-sep { display: none; }
   .page-hero { padding-left: 16px; padding-right: 16px; }
+  .portal-hero-head { padding: 24px 18px 22px; }
+  .portal-steps { padding: 22px 18px 4px; }
+  .portal-note { margin: 16px 18px 24px; }
+  .portal-foot { padding: 4px 18px 24px; }
+  .portal-hero h2 { font-size: 21px; }
   .block-panel { padding: 12px; }
   .find-row { flex-direction: column; align-items: stretch; }
   .find-row .input, .find-row .btn { width: 100%; }
@@ -33,8 +40,10 @@
 
 @media (max-width: 460px) {
   .radio-cards-grid { grid-template-columns: 1fr; }
+  .steps-strip { grid-template-columns: 1fr; }
   .portal-actions { align-items: stretch; flex-direction: column; }
   .portal-actions .btn { width: 100%; }
+  .portal-hint { justify-content: center; }
   .summary-row { flex-direction: column; gap: 2px; }
   .summary-row dt { width: auto; }
 }

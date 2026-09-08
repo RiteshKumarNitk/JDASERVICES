@@ -15,6 +15,9 @@
   <svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
     <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></symbol>
     <symbol id="i-arrR" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="12" x2="20" y2="12"/><polyline points="13 5 20 12 13 19"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></symbol>
   </svg>
 
   <div class="page">
@@ -27,21 +30,31 @@
     </div>
 
     <div class="form-card portal-hero">
-      <h2>Start a New Service Application</h2>
-      <p>Apply online for JDA services such as Patta, Sub Division and Name Transfer. Follow the guided steps to submit your application with supporting documents.</p>
-
-      <div class="steps-strip">
-        <div class="mini-step"><b>1</b><span>Choose Service</span></div>
-        <div class="mini-step"><b>2</b><span>Applicant Profile</span></div>
-        <div class="mini-step"><b>3</b><span>Witness Detail</span></div>
-        <div class="mini-step"><b>4</b><span>Property Profile</span></div>
-        <div class="mini-step"><b>5</b><span>Supporting Documents</span></div>
-        <div class="mini-step"><b>6</b><span>Final Submission</span></div>
+      <div class="portal-hero-head">
+        <span class="portal-eyebrow"><svg class="ic"><use href="#i-shield"/></svg> Official Online Application</span>
+        <h2>Apply for New Service Application</h2>
+        <!-- <p>Apply online for JDA services such as Patta, Sub Division and Name Transfer. Complete the six guided steps below to submit your application with supporting documents.</p> -->
       </div>
 
-      <div class="portal-actions">
-        <a class="btn btn-primary" href="pages/choose-service.html">Start New Application <svg class="ic"><use href="#i-arrR"/></svg></a>
-       
+      <div class="portal-steps">
+        <h3 class="portal-steps-title">How it works</h3>
+        <ol class="steps-strip">
+          <li class="mini-step"><span class="ms-no">1</span><span class="ms-txt"><b>Choose Service</b><span>Select the JDA service you need</span></span></li>
+          <li class="mini-step"><span class="ms-no">2</span><span class="ms-txt"><b>Applicant Profile</b><span>Enter applicant / owner details</span></span></li>
+          <li class="mini-step"><span class="ms-no">3</span><span class="ms-txt"><b>Witness Detail</b><span>Add witness information</span></span></li>
+          <li class="mini-step"><span class="ms-no">4</span><span class="ms-txt"><b>Property Profile</b><span>Provide property &amp; patta details</span></span></li>
+          <li class="mini-step"><span class="ms-no">5</span><span class="ms-txt"><b>Supporting Documents</b><span>Upload the required documents</span></span></li>
+          <li class="mini-step"><span class="ms-no">6</span><span class="ms-txt"><b>Final Submission</b><span>Review, pay fees &amp; submit</span></span></li>
+        </ol>
+      </div>
+
+      <div class="portal-note">
+        <svg class="ic"><use href="#i-info"/></svg>
+        <p><strong>Before you begin:</strong> keep your Aadhaar number, registered mobile number, and property / registry documents ready.</p>
+      </div>
+
+      <div class="portal-actions portal-foot">
+        <a class="btn btn-primary btn-lg" href="pages/choose-service.html">Start New Application <svg class="ic"><use href="#i-arrR"/></svg></a>
       </div>
     </div>
   </div>
