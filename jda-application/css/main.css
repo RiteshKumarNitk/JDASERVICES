@@ -235,7 +235,7 @@ a { text-decoration: none; color: inherit; }
 
 .form-card + .form-card { margin-top: 18px; }
 
-.section { border-left: 4px solid var(--blue-600); }
+/* .section { border-left: 4px solid var(--blue-600); } */
 
 .card-head {
   display: flex;
