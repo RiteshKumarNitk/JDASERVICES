@@ -23,6 +23,9 @@
   .detail-card { flex-direction: column; align-items: stretch; }
   .detail-card .btn-success { width: 100%; }
   .card-foot .btn { flex: 1; }
+  .fs-declare { flex-direction: column; align-items: stretch; }
+  .fs-declare .check-row { min-width: 0; }
+  .fs-declare .btn { width: 100%; }
   .summary-grid { grid-template-columns: 1fr; }
   .summary-row:nth-child(odd) { border-right: 0; }
   .summary-row dt { width: 40%; }

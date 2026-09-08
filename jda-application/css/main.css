@@ -575,6 +575,9 @@ a { text-decoration: none; color: inherit; }
 .check-row input:checked ~ .cb-label { color: var(--ink); font-weight: 600; }
 .check-row input:focus-visible + .cb { outline: 2px solid var(--blue-600); outline-offset: 2px; }
 
+.check-row.boxed { background: #fff; border: 1px solid var(--line); margin-top: 14px; }
+.check-row.boxed:hover { background: #fff; }
+
 .package-note {
   display: flex;
   align-items: center;
@@ -757,6 +760,67 @@ a { text-decoration: none; color: inherit; }
 
 /* card-foot: keep secondary + primary actions grouped on the right */
 .foot-actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+
+/* =====================================================================
+   Final Submission — payment & affidavit
+   ===================================================================== */
+.btn-sm { height: 34px; padding: 0 14px; font-size: 12.5px; }
+
+.fs-declare {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.fs-declare .check-row {
+  flex: 1;
+  min-width: 260px;
+  background: #fff;
+  border: 1px solid var(--line);
+}
+.fs-declare .check-row:hover { background: #fff; }
+.fs-declare .btn { flex: none; }
+
+.fs-note { margin-top: 14px; }
+.fs-note p strong { font-weight: 700; }
+
+.fs-review {
+  margin-top: 14px;
+  padding: 16px;
+  background: #f8fafd;
+  border: 1px solid #dfe7f2;
+  border-radius: 10px;
+}
+.fs-review .summary-card:last-child { margin-bottom: 0; }
+
+.fs-pa-title { margin-top: 22px; }
+.fs-subtitle {
+  font-size: 12.5px;
+  color: var(--muted);
+  margin: -4px 0 12px;
+}
+
+.fs-tbl { min-width: 880px; }
+.fs-tbl td { vertical-align: top; }
+
+.fs-cell-title { font-weight: 700; color: var(--ink); font-size: 13px; }
+.fs-amount { font-weight: 600; color: var(--ink-2); font-size: 13px; margin-top: 3px; }
+.fs-cell-sub {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.5;
+  margin-top: 4px;
+  max-width: 280px;
+}
+
+.req-badge.required { background: var(--blue-100); color: var(--blue-800); margin-top: 8px; }
+
+.fs-field { margin-top: 10px; }
+.fs-tbl .ss { max-width: 240px; }
+
+.fs-actions { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; }
+
+.fs-foot { justify-content: flex-end; }
 
 /* =====================================================================
    Print (Review Application / Final Submission receipt)
