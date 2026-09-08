@@ -130,6 +130,15 @@ async function loadForms(type, container) {
   const dob = $('#minorDob', container);
   if (dob) dob.max = new Date().toISOString().split('T')[0];
 
+  // Individual / Joint applies to every applicant type; keep the joint panel in sync
+  const modeGroup = $('#applicantModeGroup');
+  if (modeGroup) {
+    modeGroup.hidden = false;
+    const mode = $('input[name="applicantMode"]:checked', modeGroup);
+    const panel = container.querySelector('[data-joint-panel]');
+    if (panel) panel.hidden = !(mode && mode.value === 'joint');
+  }
+
   setFlow({ applicantType: type });
 }
 
@@ -157,10 +166,17 @@ function visibleValue(el) {
 function collectFormSections(container) {
   const sections = [];
 
-  container.querySelectorAll('.form-card.section').forEach((card) => {
+  container.querySelectorAll('.form-card.section').forEach((card, idx) => {
     const title = (card.querySelector('.head-txt h2') || {}).textContent || 'Details';
     const rows = [];
     const seen = new Set();
+
+    // Individual / Joint sits on the page — record it against the first section
+    if (idx === 0) {
+      const mg = $('#applicantModeGroup');
+      const mode = mg && !mg.hidden ? $('input[name="applicantMode"]:checked', mg) : null;
+      if (mode) rows.push({ label: PILL_MAPS.applicantMode.label, value: PILL_MAPS.applicantMode.values[mode.value] || mode.value });
+    }
 
     // pill-style groups (Individual/Joint, With/Without Aadhaar)
     card.querySelectorAll('input[type="radio"]:checked').forEach((r) => {
@@ -306,6 +322,17 @@ function initApplicantProfilePage() {
       if (e.target.name !== 'applicantType') return;
       loadForms(e.target.value, container);
       history.replaceState(null, '', '?type=' + e.target.value);
+    });
+  }
+
+  // Individual / Joint lives on the page now — toggle the fragment's joint panel
+  const modeGroup = $('#applicantModeGroup');
+  if (modeGroup) {
+    modeGroup.addEventListener('change', (e) => {
+      if (e.target.name !== 'applicantMode') return;
+      const panel = container.querySelector('[data-joint-panel]');
+      if (panel) panel.hidden = e.target.value !== 'joint';
+      saveFormSections(container);
     });
   }
 

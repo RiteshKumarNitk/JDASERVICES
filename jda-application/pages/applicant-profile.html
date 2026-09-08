@@ -48,7 +48,22 @@
         </header>
 
         <div class="card-body">
-          <fieldset class="type-group" id="applicantTypeGroup">
+          <fieldset class="type-group" id="applicantModeGroup">
+            <legend class="f-label">Individual / Joint <i>*</i></legend>
+            <div class="radio-cards">
+              <label class="radio-card">
+                <input type="radio" name="applicantMode" value="individual" checked />
+                <span class="radio-dot"></span><span class="radio-text">Individual</span>
+              </label>
+              <label class="radio-card">
+                <input type="radio" name="applicantMode" value="joint" />
+                <span class="radio-dot"></span><span class="radio-text">Joint</span>
+              </label>
+            </div>
+          </fieldset>
+
+          <div class="type-panel">
+          <fieldset class="type-group type-tabs" id="applicantTypeGroup">
             <legend class="f-label">Applicant Type <i>*</i></legend>
             <div class="radio-cards radio-cards-grid">
               <label class="radio-card">
@@ -76,6 +91,7 @@
 
           <!-- Dynamic form sections (fragments loaded from /forms) -->
           <div class="sections" id="sectionsRoot"></div>
+          </div>
         </div>
 
         <div class="card-foot">

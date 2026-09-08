@@ -174,11 +174,11 @@ input[type="date"].input-plain { color: var(--ink); }
 /* ---------- segmented tabs (With / Without Aadhaar) ---------- */
 .seg-tabs {
   display: inline-flex;
-  gap: 4px;
-  padding: 4px;
+  gap: 6px;
+  padding: 6px;
   max-width: 100%;
-  background: #eef2f7;
-  border: 1px solid var(--line);
+  background: var(--blue-50);
+  border: 1px solid var(--blue-200);
   border-radius: 12px;
 }
 .card-body > .seg-tabs { margin: 0 0 18px; }
@@ -188,7 +188,7 @@ input[type="date"].input-plain { color: var(--ink); }
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 8px 20px;
+  padding: 9px 22px;
   border-radius: 9px;
   font-size: 13px;
   font-weight: 600;
@@ -201,9 +201,9 @@ input[type="date"].input-plain { color: var(--ink); }
 .seg-tabs .seg-tab input { position: absolute; opacity: 0; pointer-events: none; }
 .seg-tabs .seg-tab:hover { color: var(--ink-2); }
 .seg-tabs .seg-tab:has(input:checked) {
-  background: #fff;
-  color: var(--blue-800);
-  box-shadow: 0 1px 3px rgba(15, 23, 42, .12);
+  background: var(--blue-600);
+  color: #fff;
+  box-shadow: 0 2px 8px -3px rgba(61, 129, 197, .55);
 }
 .seg-tabs .seg-tab input:focus-visible + span { outline: 2px solid var(--blue-600); outline-offset: 3px; border-radius: 4px; }
 
@@ -352,23 +352,66 @@ input[type="date"].input-plain { color: var(--ink); }
 .type-group { border: 0; }
 .type-group legend.f-label { margin-bottom: 12px; }
 
-/* ---------- applicant-profile: separate the type selector from the detail cards ---------- */
-.card-body > .type-group {
-  padding-bottom: 22px;
+/* Individual / Joint — its own separated block above the type panel */
+.card-body > #applicantModeGroup {
+  padding-bottom: 20px;
   border-bottom: 1px solid #e7edf6;
+  margin-bottom: 20px;
 }
 
+/* ---------- applicant-profile: panel holds the Applicant Type tabs + the section they open ---------- */
+.type-panel {
+  background: var(--panel-tint);
+  border: 1px solid var(--blue-100);
+  border-radius: var(--r-card);
+  padding: 18px;
+}
+
+/* Applicant Type = a tab strip, not radio buttons */
+.type-tabs .radio-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  border-bottom: 2px solid var(--blue-200);
+}
+.type-tabs .radio-card {
+  flex: 1 1 auto;
+  min-width: 118px;
+  min-height: 40px;
+  justify-content: center;
+  gap: 0;
+  padding: 11px 14px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  border-radius: 8px 8px 0 0;
+  margin-bottom: -2px;
+  background: transparent;
+  color: var(--muted);
+}
+.type-tabs .radio-card .radio-dot { display: none; }
+.type-tabs .radio-card:hover { color: var(--ink-2); background: rgba(61, 129, 197, .06); }
+.type-tabs .radio-card:has(input:checked) {
+  background: #fff;
+  border-bottom-color: var(--blue-600);
+  box-shadow: none;
+}
+.type-tabs .radio-card:has(input:checked) .radio-text { color: var(--blue-900); font-weight: 700; }
+
 #sectionsRoot {
-  margin-top: 24px;
+  margin-top: 18px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 18px;
 }
-#sectionsRoot .form-card.section {
+
+/* the loaded form(s) = the panel the selected tab just opened */
+.type-panel #sectionsRoot .form-card.section {
   margin-top: 0;
+  background: #fff;
   border: 1px solid var(--blue-100);
-  border-left: 4px solid var(--blue-600);
-  border-radius: var(--r-card);
+  border-top: 3px solid var(--blue-600);
+  border-radius: 10px;
+  box-shadow: 0 10px 24px -16px rgba(31, 69, 114, .4);
 }
 
 /* --- Improved card styling for applicant profile --- */
