@@ -128,10 +128,6 @@ async function loadForms(type, container) {
   initCounters(container);
   bindFetches(container);
 
-  // Individual / Joint applies to every applicant type
-  const modeGroup = $('#applicantModeGroup');
-  if (modeGroup) modeGroup.hidden = false;
-
   setFlow({ applicantType: type });
 }
 
@@ -140,7 +136,6 @@ async function loadForms(type, container) {
 /* Final Submission)                                                   */
 /* ------------------------------------------------------------------ */
 const PILL_MAPS = {
-  applicantMode: { label: 'Applicant Mode', values: { individual: 'Individual', joint: 'Joint' } },
   'aadhaar-applicant': { label: 'Aadhaar', values: { with: 'With Aadhaar', without: 'Without Aadhaar' } },
   'aadhaar-poa': { label: 'POA Aadhaar', values: { with: 'With Aadhaar', without: 'Without Aadhaar' } },
   'aadhaar-witness': { label: 'Witness Aadhaar', values: { with: 'With Aadhaar', without: 'Without Aadhaar' } },
@@ -166,14 +161,8 @@ function collectFormSections(container) {
     const rows = [];
     const seen = new Set();
 
-    // Individual / Joint sits on the page — record it against the first section
-    if (idx === 0) {
-      const mg = $('#applicantModeGroup');
-      const mode = mg && !mg.hidden ? $('input[name="applicantMode"]:checked', mg) : null;
-      if (mode) rows.push({ label: PILL_MAPS.applicantMode.label, value: PILL_MAPS.applicantMode.values[mode.value] || mode.value });
-    }
 
-    // pill-style groups (Individual/Joint, With/Without Aadhaar)
+    // pill-style groups (With / Without Aadhaar)
     card.querySelectorAll('input[type="radio"]:checked').forEach((r) => {
       const map = PILL_MAPS[r.name];
       if (!map || !r.checked) return;
@@ -299,7 +288,7 @@ function bindFetches(scope) {
 }
 
 /* ------------------------------------------------------------------ */
-/* Multi-applicant collection (Individual = one, Joint = many)         */
+/* Multi-applicant collection — applicants added via "Add More"        */
 /* ------------------------------------------------------------------ */
 function getApplicants() { return getFlow().applicants || []; }
 
@@ -340,19 +329,7 @@ function initApplicantProfilePage() {
   const savedRows = $('#savedRows');
   const addMoreBtn = $('#addMoreApplicant');
   const saveBtn = $('#saveApplicant');
-  const modeGroup = $('#applicantModeGroup');
 
-  // restore Individual / Joint choice
-  const savedMode = getFlow().applicantMode;
-  if (savedMode && modeGroup) {
-    const mr = $('input[name="applicantMode"][value="' + savedMode + '"]', modeGroup);
-    if (mr) mr.checked = true;
-  }
-
-  const currentMode = () => {
-    const m = modeGroup && $('input[name="applicantMode"]:checked', modeGroup);
-    return m ? m.value : 'individual';
-  };
   const currentType = () => {
     const t = $('input[name="applicantType"]:checked');
     return t ? t.value : type;
@@ -361,7 +338,6 @@ function initApplicantProfilePage() {
   function persist(list) {
     setFlow({
       applicants: list,
-      applicantMode: currentMode(),
       applicantType: list.length ? list[list.length - 1].type : currentType(),
       formSections: flattenApplicants(list)
     });
@@ -398,7 +374,7 @@ function initApplicantProfilePage() {
 
     const hasSaved = list.length > 0;
     if (panel) panel.hidden = hasSaved && !showForm;
-    if (addMoreBtn) addMoreBtn.hidden = !(currentMode() === 'joint' && hasSaved) || !!showForm;
+    if (addMoreBtn) addMoreBtn.hidden = !hasSaved || !!showForm;
   }
 
   function snapshotForm() {
@@ -427,20 +403,6 @@ function initApplicantProfilePage() {
     });
   }
 
-  // Individual / Joint
-  if (modeGroup) {
-    modeGroup.addEventListener('change', (e) => {
-      if (e.target.name !== 'applicantMode') return;
-      let list = getApplicants();
-      if (e.target.value === 'individual' && list.length > 1) {
-        list = list.slice(0, 1);
-        toast('Individual mode keeps a single applicant.');
-      }
-      persist(list);
-      render(list.length === 0);
-    });
-  }
-
   // fragment-internal radio toggles (Aadhaar with / without)
   container.addEventListener('change', (e) => {
     const t = e.target;
@@ -465,7 +427,7 @@ function initApplicantProfilePage() {
     });
   }
 
-  // Add More Applicant (Joint) — reopen a blank form
+  // Add More Applicant — reopen a blank form
   if (addMoreBtn) {
     addMoreBtn.addEventListener('click', () => {
       loadForms(currentType(), container);

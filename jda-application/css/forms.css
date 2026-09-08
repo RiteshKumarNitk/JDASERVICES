@@ -352,13 +352,6 @@ input[type="date"].input-plain { color: var(--ink); }
 .type-group { border: 0; }
 .type-group legend.f-label { margin-bottom: 12px; }
 
-/* Individual / Joint — its own separated block above the type panel */
-.card-body > #applicantModeGroup {
-  padding-bottom: 20px;
-  border-bottom: 1px solid #e7edf6;
-  margin-bottom: 20px;
-}
-
 /* ---------- applicant-profile: panel holds the Applicant Type tabs + the section they open ---------- */
 .type-panel {
   background: var(--panel-tint);
@@ -431,7 +424,7 @@ input[type="date"].input-plain { color: var(--ink); }
   justify-content: flex-end;
 }
 
-/* ---------- saved applicants (Individual = 1, Joint = many) ---------- */
+/* ---------- saved applicants (added via "Add More") ---------- */
 .saved-applicants {
   border: 1px solid var(--blue-100);
   border-radius: var(--r-card);
