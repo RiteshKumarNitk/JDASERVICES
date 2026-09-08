@@ -35,35 +35,35 @@
 
     <div class="form-grid">
       <div class="field">
-        <div class="field-head">
-          <label class="f-label" for="minorName">Name of Minor <i>*</i></label>        </div>
+        <div class="field-head"><label class="f-label" for="minorName">Name of Minor <i>*</i></label></div>
         <div class="input-group">
           <span class="ig-icon"><svg class="ic"><use href="#i-user"/></svg></span>
           <input class="input-plain is-locked" type="text" id="minorName" data-auto="name" data-aadhaar-lock value="ADITYA SHARMA" placeholder="Enter name of minor" required readonly />
         </div>
       </div>
       <div class="field">
-        <div class="field-head">
-          <label class="f-label" for="minorDob">Date of Birth <i>*</i></label>        </div>
+        <div class="field-head"><label class="f-label" for="minorFather">Father / Husband Name</label></div>
         <div class="input-group">
-          <span class="ig-icon"><svg class="ic"><use href="#i-cal"/></svg></span>
-          <input class="input-plain is-locked" type="date" id="minorDob" data-auto="dob" data-aadhaar-lock value="2013-08-21" required readonly />
+          <span class="ig-icon"><svg class="ic"><use href="#i-user"/></svg></span>
+          <input class="input-plain" type="text" id="minorFather" data-auto="father" value="ARUN KUMAR SHARMA" placeholder="Enter father / husband name" />
         </div>
       </div>
       <div class="field">
-        <div class="field-head">
-          <label class="f-label" for="minorGender">Gender <i>*</i></label>        </div>
-        <select class="ss-native" id="minorGender" data-placeholder="Select gender" data-auto="gender" data-aadhaar-lock hidden required>
-          <option value="Male" selected>Male</option>
-          <option value="Female">Female</option>
+        <div class="field-head"><label class="f-label" for="relMinor">Relation <i>*</i></label></div>
+        <select class="ss-native" id="relMinor" data-placeholder="Select relation" data-auto="relation" hidden required>
+          <option value="Father" selected>Father</option>
+          <option value="Husband">Husband</option>
+          <option value="Mother">Mother</option>
+          <option value="Guardian">Guardian</option>
           <option value="Other">Other</option>
         </select>
       </div>
-      <div class="field">
-        <div class="field-head"><label class="f-label" for="minorFather">Father / Husband Name <i>*</i></label></div>
-        <div class="input-group">
-          <span class="ig-icon"><svg class="ic"><use href="#i-user"/></svg></span>
-          <input class="input-plain" type="text" id="minorFather" data-auto="father" value="ARUN KUMAR SHARMA" placeholder="Enter father / husband name" required />
+      <div class="field span-2">
+        <div class="field-head"><label class="f-label" for="minorAddress">Address <i>*</i></label></div>
+        <div class="ta-wrap has-icon">
+          <span class="ta-icon"><svg class="ic"><use href="#i-pin"/></svg></span>
+          <textarea class="textarea" id="minorAddress" data-count data-auto="address" placeholder="Enter address" maxlength="500" required>12, Vidhyadhar Nagar, Sector 4, Jaipur, Rajasthan 302039</textarea>
+          <span class="char-count">0/500</span>
         </div>
       </div>
     </div>

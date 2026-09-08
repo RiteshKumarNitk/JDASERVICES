@@ -127,9 +127,6 @@ async function loadForms(type, container) {
   initCounters(container);
   bindFetches(container);
 
-  const dob = $('#minorDob', container);
-  if (dob) dob.max = new Date().toISOString().split('T')[0];
-
   // Individual / Joint applies to every applicant type
   const modeGroup = $('#applicantModeGroup');
   if (modeGroup) modeGroup.hidden = false;
