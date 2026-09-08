@@ -95,6 +95,41 @@ a { text-decoration: none; color: inherit; }
   margin-bottom: 14px;
 }
 
+/* application process */
+.aside-steps { list-style: none; }
+.aside-step { position: relative; display: flex; gap: 12px; padding-bottom: 16px; }
+.aside-step:last-child { padding-bottom: 0; }
+.aside-step:not(:last-child)::before {
+  content: "";
+  position: absolute;
+  left: 12px;
+  top: 26px;
+  bottom: 0;
+  width: 2px;
+  background: var(--line);
+}
+.aside-step.is-done:not(:last-child)::before { background: var(--blue-300); }
+.as-dot {
+  width: 26px;
+  height: 26px;
+  flex: none;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  background: #eef2f7;
+  color: var(--muted-2);
+  z-index: 1;
+}
+.aside-step.is-current .as-dot { background: var(--blue-600); color: #fff; }
+.aside-step.is-done .as-dot { background: var(--blue-100); color: var(--blue-700); }
+.as-txt { display: flex; flex-direction: column; gap: 2px; padding-top: 2px; }
+.as-txt b { font-size: 12.5px; font-weight: 700; color: var(--ink); }
+.aside-step.is-current .as-txt b { color: var(--blue-800); }
+.as-txt span { font-size: 11.5px; color: var(--muted); line-height: 1.4; }
+
 /* required documents */
 .aside-docs { list-style: none; display: flex; flex-direction: column; gap: 11px; }
 .aside-docs li { display: flex; align-items: flex-start; gap: 9px; font-size: 12px; color: var(--ink-2); line-height: 1.45; }

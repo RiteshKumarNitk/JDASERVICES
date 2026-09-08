@@ -68,7 +68,16 @@ function renderStepper(activeIndex) {
   });
 }
 
-/* ---------- right info sidebar (required documents / help) ---------- */
+/* ---------- right info sidebar (application process / required documents / help) ---------- */
+// Application Process uses the SAME 6 steps as the header stepper (STEPS), same active index (body[data-step])
+const ASIDE_DESC = [
+  'Select the service you need',
+  'Enter applicant details',
+  'Add witness information',
+  'Provide property & land details',
+  'Upload required documents',
+  'Review, pay & submit'
+];
 // Fallback list if the Document Section catalogue (DOCS, defined in main.js) is unavailable
 const ASIDE_DOCS_FALLBACK = [
   { req: 'Aadhaar Card', type: 'mandatory' },
@@ -81,6 +90,20 @@ const IC_PHONE = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" st
 const IC_MAIL = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="22,6 12,13 2,6"/></svg>';
 
 function buildAside() {
+  const page = document.body.dataset.page;
+  const stepNo = parseInt(document.body.dataset.step || '-1', 10);
+  let active = stepNo >= 0 ? stepNo : 0;
+  if (page === 'final' && getFlow().submitted) active = STEPS.length; // whole flow complete
+
+  const steps = STEPS.map((s, i) => {
+    const cls = i < active ? 'is-done' : (i === active ? 'is-current' : '');
+    const mark = i < active ? '✓' : (i + 1);
+    return '<li class="aside-step ' + cls + '">' +
+      '<span class="as-dot">' + mark + '</span>' +
+      '<span class="as-txt"><b>' + esc(s[1] + ' ' + s[2]) + '</b><span>' + esc(ASIDE_DESC[i] || '') + '</span></span>' +
+      '</li>';
+  }).join('');
+
   const catalogue = (typeof DOCS !== 'undefined' && Array.isArray(DOCS)) ? DOCS : ASIDE_DOCS_FALLBACK;
   const docs = catalogue.map((d) => {
     const opt = d.type === 'applicable';
@@ -89,6 +112,9 @@ function buildAside() {
   }).join('');
 
   return '<section class="aside-card">' +
+      '<h3>Application Process</h3><ol class="aside-steps">' + steps + '</ol>' +
+    '</section>' +
+    '<section class="aside-card">' +
       '<h3>Required Documents</h3><ul class="aside-docs">' + docs + '</ul>' +
     '</section>' +
     '<section class="aside-card">' +
