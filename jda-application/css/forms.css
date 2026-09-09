@@ -360,6 +360,7 @@ input[type="date"].input-plain { color: var(--ink); }
   padding: 18px;
 }
 
+
 /* Applicant Type = a tab strip, not radio buttons */
 .type-tabs .radio-cards {
   display: flex;

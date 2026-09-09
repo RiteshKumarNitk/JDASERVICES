@@ -103,8 +103,11 @@ function asideDocList() {
 function buildAside() {
   let html = '';
 
-  // Required Documents — only after a service has been selected & continued.
-  if (serviceChosen()) {
+  // Required Documents — appears from the Applicant Profile step onward, and
+  // only once Choose Service has been completed with Proceed. Never shown on
+  // the Choose Service page itself, even when returning to it via Back.
+  const onChoosePage = document.body.dataset.page === 'choose';
+  if (serviceChosen() && !onChoosePage) {
     html += '<section class="aside-card">' +
         '<h3>Required Documents</h3><ul class="aside-docs">' + asideDocList() + '</ul>' +
       '</section>';

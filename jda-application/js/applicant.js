@@ -365,15 +365,15 @@ function initApplicantProfilePage() {
   const heading = $('#apHeading');
   const typeHint = $('#typeHint');
   const group = $('#applicantTypeGroup');
+  const typeFoot = $('.type-panel-foot');
 
-  // Applicant Type panel visibility is driven purely by state:
-  //   addMode  — user is creating a new applicant (fresh page with none saved,
-  //              or "+ Add More Applicant" was clicked)
-  //   editingId — user is editing an existing applicant (its id)
-  // Panel is shown only while one of these is active; otherwise it is hidden
-  // and the page shows just the "Added Applicants" list.
+  // The Applicant Type section and its five tabs are ALWAYS visible. Only the
+  // form area below the tabs is shown/hidden:
+  //   - no tab selected  -> no form
+  //   - a tab selected   -> that type's form(s) load below
+  //   - after Save       -> selection cleared, form hidden, tabs still there
+  //   - Edit an applicant -> its tab activated + forms populated (editingId set)
   let editingId = null;
-  let addMode = false;
 
   const currentType = () => {
     const t = $('input[name="applicantType"]:checked');
@@ -381,20 +381,9 @@ function initApplicantProfilePage() {
   };
   const formOpen = () => !!container.querySelector('.form-card.section');
 
-  // Enter ADD mode: reveal the type panel with "Self" selected + its form open.
-  function startAdd(preferType) {
+  // Clear the current selection: no active tab, no form. Tabs stay visible.
+  function clearSelection() {
     editingId = null;
-    addMode = true;
-    const want = TYPE_FORMS[preferType] ? preferType : 'self';
-    $$('input[name="applicantType"]').forEach((r) => { r.checked = r.value === want; });
-    render();
-    return loadForms(want, container).then(render);
-  }
-
-  // Leave ADD / EDIT mode: clear + hide the type panel.
-  function exitForm() {
-    editingId = null;
-    addMode = false;
     container.innerHTML = '';
     container.hidden = true;
     $$('input[name="applicantType"]').forEach((r) => { r.checked = false; });
@@ -439,9 +428,11 @@ function initApplicantProfilePage() {
       });
     }
 
+    // Applicant Type section + tabs: ALWAYS visible. Only the form area toggles.
     const open = formOpen();
-    const panelOn = addMode || !!editingId;
-    if (panel) panel.hidden = !panelOn;
+    if (panel) panel.hidden = false;
+    if (container) container.hidden = !open;
+    if (typeFoot) typeFoot.hidden = !open;
     if (saveBtn) saveBtn.hidden = !open;
     if (saveLabel) saveLabel.textContent = editingId ? 'Update Applicant' : 'Save Applicant';
     if (editBadge) editBadge.hidden = !editingId;
@@ -469,7 +460,6 @@ function initApplicantProfilePage() {
   async function editApplicant(id) {
     const a = getApplicants().find((x) => x.id === id);
     if (!a) return;
-    addMode = false;
     editingId = id;
     $$('input[name="applicantType"]').forEach((r) => { r.checked = r.value === a.type; });
     render();
@@ -479,10 +469,12 @@ function initApplicantProfilePage() {
     if (panel) panel.scrollIntoView({ block: 'start', behavior: 'smooth' });
   }
 
-  // type tabs — load the matching form(s); keeps editingId if we're mid-edit
+  // type tabs — user clicks a tab: load that type's form(s) below the tabs.
+  // A manual switch means "start this applicant fresh", so leave EDIT mode.
   if (group) {
     group.addEventListener('change', (e) => {
       if (e.target.name !== 'applicantType') return;
+      editingId = null;
       loadForms(e.target.value, container).then(render);
       try { history.replaceState(null, '', '?type=' + e.target.value); } catch (err) { /* ignore */ }
     });
@@ -514,17 +506,17 @@ function initApplicantProfilePage() {
         toast('Applicant saved.', true);
       }
       persist(list);
-      exitForm();                       // add/edit done -> hide the Applicant Type panel
+      clearSelection();                 // add/edit done -> no active tab, form hidden
       if (savedWrap) savedWrap.scrollIntoView({ block: 'start', behavior: 'smooth' });
     });
   }
 
-  // Add More Applicant — enter ADD mode: panel back, "Self" active, Self form open
+  // Add More Applicant — just clear the current selection so the user picks a
+  // type for the next applicant. The tabs are already on screen; none active.
   if (addMoreBtn) {
     addMoreBtn.addEventListener('click', () => {
-      startAdd('self').then(() => {
-        if (panel) panel.scrollIntoView({ block: 'start', behavior: 'smooth' });
-      });
+      clearSelection();
+      if (group) group.scrollIntoView({ block: 'center', behavior: 'smooth' });
     });
   }
 
@@ -539,10 +531,8 @@ function initApplicantProfilePage() {
         const rid = d.dataset.remove;
         const list = getApplicants().filter((a) => a.id !== rid);
         persist(list);
-        if (!list.length) {
-          startAdd('self');            // no applicants left -> back to default ADD state
-        } else if (editingId === rid) {
-          exitForm();                  // was editing the removed one -> hide panel
+        if (editingId === rid) {
+          clearSelection();             // was editing the removed one -> clear form
         } else {
           render();
         }
@@ -567,19 +557,14 @@ function initApplicantProfilePage() {
     });
   }
 
-  render();
-
-  // Initial state:
-  //   - no applicant saved  -> ADD mode: Applicant Type panel shown, "Self"
-  //                            active by default, Self form open. A valid
-  //                            ?type= deep-link (e.g. Edit-from-Review) opens
-  //                            that type instead of Self.
-  //   - at least one saved  -> panel hidden; the "Added Applicants" list is
-  //                            the whole page until "+ Add More Applicant".
-  if (getApplicants().length === 0) {
-    startAdd(readQuery('type') || 'self');
-  } else {
-    exitForm();
+  // Initial state: tabs visible, none active, no form. A valid ?type= deep-link
+  // (e.g. Edit-from-Review) opens straight to that type's form.
+  clearSelection();
+  const qType = readQuery('type');
+  if (qType && TYPE_FORMS[qType]) {
+    const r = $('input[name="applicantType"][value="' + qType + '"]');
+    if (r) r.checked = true;
+    loadForms(qType, container).then(render);
   }
 }
 
