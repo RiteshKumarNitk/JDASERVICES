@@ -367,13 +367,13 @@ function initApplicantProfilePage() {
   const group = $('#applicantTypeGroup');
   const typeFoot = $('.type-panel-foot');
 
-  // The Applicant Type section and its five tabs are ALWAYS visible. Only the
-  // form area below the tabs is shown/hidden:
-  //   - no tab selected  -> no form
-  //   - a tab selected   -> that type's form(s) load below
-  //   - after Save       -> selection cleared, form hidden, tabs still there
-  //   - Edit an applicant -> its tab activated + forms populated (editingId set)
+  // The Applicant Type section is shown only while the user is actually working
+  // on an applicant. Visibility rule (see render):
+  //   show if  applicants.length === 0  ||  isAddingApplicant  ||  editingId
+  //   hide otherwise (saved applicants exist and nothing is being added/edited)
+  //   "+ Add More Applicant" sets isAddingApplicant; Save / Edit-Save clears it.
   let editingId = null;
+  let isAddingApplicant = false;
 
   const currentType = () => {
     const t = $('input[name="applicantType"]:checked');
@@ -381,14 +381,27 @@ function initApplicantProfilePage() {
   };
   const formOpen = () => !!container.querySelector('.form-card.section');
 
-  // Clear the current selection: no active tab, no form. Tabs stay visible.
-  function clearSelection() {
-    editingId = null;
+  // Wipe the working form: no active tab, no form loaded.
+  function resetFormArea() {
     container.innerHTML = '';
     container.hidden = true;
     $$('input[name="applicantType"]').forEach((r) => { r.checked = false; });
+  }
+
+  // Finish adding / editing: hide the whole Applicant Type section again.
+  function endApplicantEntry() {
+    editingId = null;
+    isAddingApplicant = false;
+    resetFormArea();
     try { history.replaceState(null, '', location.pathname); } catch (e) { /* ignore */ }
     render();
+  }
+
+  // Activate a tab and load its form(s) (first applicant default / deep-link).
+  function openType(type) {
+    const r = $('input[name="applicantType"][value="' + type + '"]');
+    if (r) r.checked = true;
+    return loadForms(type, container).then(render);
   }
 
   function persist(list) {
@@ -428,16 +441,18 @@ function initApplicantProfilePage() {
       });
     }
 
-    // Applicant Type section + tabs: ALWAYS visible. Only the form area toggles.
+    // Applicant Type section: shown only while adding the first applicant,
+    // adding another (via "+ Add More"), or editing an existing one.
     const open = formOpen();
-    if (panel) panel.hidden = false;
+    const showPanel = list.length === 0 || isAddingApplicant || !!editingId;
+    if (panel) panel.hidden = !showPanel;
     if (container) container.hidden = !open;
     if (typeFoot) typeFoot.hidden = !open;
     if (saveBtn) saveBtn.hidden = !open;
     if (saveLabel) saveLabel.textContent = editingId ? 'Update Applicant' : 'Save Applicant';
     if (editBadge) editBadge.hidden = !editingId;
     if (heading) heading.textContent = editingId ? 'Edit Applicant Profile' : 'Applicant Profile';
-    if (typeHint) typeHint.hidden = open;
+    if (typeHint) typeHint.hidden = !showPanel || open;
     if (addMoreBtn) addMoreBtn.hidden = list.length === 0;
   }
 
@@ -460,6 +475,7 @@ function initApplicantProfilePage() {
   async function editApplicant(id) {
     const a = getApplicants().find((x) => x.id === id);
     if (!a) return;
+    isAddingApplicant = false;
     editingId = id;
     $$('input[name="applicantType"]').forEach((r) => { r.checked = r.value === a.type; });
     render();
@@ -470,11 +486,13 @@ function initApplicantProfilePage() {
   }
 
   // type tabs — user clicks a tab: load that type's form(s) below the tabs.
-  // A manual switch means "start this applicant fresh", so leave EDIT mode.
+  // A manual switch means "start this applicant fresh", so leave EDIT mode
+  // and treat it as an in-progress add so the panel stays open.
   if (group) {
     group.addEventListener('change', (e) => {
       if (e.target.name !== 'applicantType') return;
       editingId = null;
+      isAddingApplicant = true;
       loadForms(e.target.value, container).then(render);
       try { history.replaceState(null, '', '?type=' + e.target.value); } catch (err) { /* ignore */ }
     });
@@ -506,17 +524,20 @@ function initApplicantProfilePage() {
         toast('Applicant saved.', true);
       }
       persist(list);
-      clearSelection();                 // add/edit done -> no active tab, form hidden
+      endApplicantEntry();              // add/edit done -> hide the Applicant Type section
       if (savedWrap) savedWrap.scrollIntoView({ block: 'start', behavior: 'smooth' });
     });
   }
 
-  // Add More Applicant — just clear the current selection so the user picks a
-  // type for the next applicant. The tabs are already on screen; none active.
+  // + Add More Applicant — reveal the Applicant Type section for a NEW applicant:
+  // tabs visible, no tab active, no form open. Existing applicants untouched.
   if (addMoreBtn) {
     addMoreBtn.addEventListener('click', () => {
-      clearSelection();
-      if (group) group.scrollIntoView({ block: 'center', behavior: 'smooth' });
+      isAddingApplicant = true;
+      editingId = null;
+      resetFormArea();
+      render();
+      if (panel) panel.scrollIntoView({ block: 'start', behavior: 'smooth' });
     });
   }
 
@@ -532,10 +553,12 @@ function initApplicantProfilePage() {
         const list = getApplicants().filter((a) => a.id !== rid);
         persist(list);
         if (editingId === rid) {
-          clearSelection();             // was editing the removed one -> clear form
+          endApplicantEntry();          // was editing the removed one
         } else {
           render();
         }
+        // all applicants gone -> back to the first-applicant default (Self open)
+        if (!list.length && !isAddingApplicant && !editingId) openType('self');
         toast('Applicant removed.');
       }
     });
@@ -557,14 +580,18 @@ function initApplicantProfilePage() {
     });
   }
 
-  // Initial state: tabs visible, none active, no form. A valid ?type= deep-link
-  // (e.g. Edit-from-Review) opens straight to that type's form.
-  clearSelection();
-  const qType = readQuery('type');
-  if (qType && TYPE_FORMS[qType]) {
-    const r = $('input[name="applicantType"][value="' + qType + '"]');
-    if (r) r.checked = true;
-    loadForms(qType, container).then(render);
+  // Initial state:
+  //   - applicants already saved -> Applicant Type section hidden; the page is
+  //     just the "Added Applicants" list until "+ Add More Applicant".
+  //   - no applicant yet -> section visible; the first applicant defaults to
+  //     "Self" active with its form open (a valid ?type= deep-link wins).
+  isAddingApplicant = false;
+  editingId = null;
+  resetFormArea();
+  render();
+  if (getApplicants().length === 0) {
+    const qType = readQuery('type');
+    openType(qType && TYPE_FORMS[qType] ? qType : 'self');
   }
 }
 
