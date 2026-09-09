@@ -43,8 +43,11 @@
         <div class="page-hero">
           <span class="hero-badge">AP</span>
           <div>
-            <h1>Applicant Profile</h1>
+            <h1 id="apHeading">Applicant Profile</h1>
             <p>Select the applicant / ownership type and fill in the details shown below.</p>
+            <p class="edit-badge" id="editBadge" hidden>
+              <svg class="ic"><use href="#i-info"/></svg> Edit Applicant — update this applicant and save the changes.
+            </p>
           </div>
         </div>
 
@@ -68,12 +71,13 @@
             </button>
           </div>
 
-          <div class="type-panel" id="typePanel">
+          <div class="type-panel" id="typePanel" hidden>
           <fieldset class="type-group type-tabs" id="applicantTypeGroup">
             <legend class="f-label">Applicant Type <i>*</i></legend>
+            <p class="type-hint" id="typeHint">Select the applicant type — the matching form opens below.</p>
             <div class="radio-cards radio-cards-grid">
               <label class="radio-card">
-                <input type="radio" name="applicantType" value="self" checked />
+                <input type="radio" name="applicantType" value="self" />
                 <span class="radio-dot"></span><span class="radio-text">Self</span>
               </label>
               <label class="radio-card">
@@ -99,8 +103,8 @@
           <div class="sections" id="sectionsRoot"></div>
 
           <div class="type-panel-foot">
-            <button class="btn btn-primary" type="button" id="saveApplicant">
-              <svg class="ic"><use href="#i-check"/></svg> Save Applicant
+            <button class="btn btn-primary" type="button" id="saveApplicant" hidden>
+              <svg class="ic"><use href="#i-check"/></svg> <span class="save-label">Save Applicant</span>
             </button>
           </div>
           </div>

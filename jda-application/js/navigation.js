@@ -80,24 +80,45 @@ const ASIDE_DOCS_FALLBACK = [
 const IC_PHONE = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>';
 const IC_MAIL = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="22,6 12,13 2,6"/></svg>';
 
-function buildAside() {
+// A service is "chosen" once Choose Service has been completed & continued.
+// This is the same condition Choose Service uses to collapse its package panel.
+function serviceChosen() {
+  const f = getFlow();
+  return !!(f.service && f.subService && f.basedOn);
+}
+
+// Required-documents checklist for the chosen service. There is no separate
+// per-service rules table in the project, so the Document Section catalogue
+// (DOCS, defined in main.js) is the single source of truth; it already holds
+// the requirement set for the current service (Patta).
+function asideDocList() {
   const catalogue = (typeof DOCS !== 'undefined' && Array.isArray(DOCS)) ? DOCS : ASIDE_DOCS_FALLBACK;
-  const docs = catalogue.map((d) => {
+  return catalogue.map((d) => {
     const opt = d.type === 'applicable';
     return '<li' + (opt ? ' class="is-opt"' : '') + '><span class="as-req"></span>' +
       '<span>' + esc(d.req) + (opt ? ' <em>(if applicable)</em>' : '') + '</span></li>';
   }).join('');
+}
 
-  return '<section class="aside-card">' +
-      '<h3>Required Documents</h3><ul class="aside-docs">' + docs + '</ul>' +
-    '</section>' +
-    '<section class="aside-card">' +
+function buildAside() {
+  let html = '';
+
+  // Required Documents — only after a service has been selected & continued.
+  if (serviceChosen()) {
+    html += '<section class="aside-card">' +
+        '<h3>Required Documents</h3><ul class="aside-docs">' + asideDocList() + '</ul>' +
+      '</section>';
+  }
+
+  html += '<section class="aside-card">' +
       '<h3>Need Help?</h3><div class="aside-help">' +
         '<p>' + IC_PHONE + '<b> +91 141 2569696</b></p>' +
         '<p class="as-muted">Toll Free: 10:00 AM to 6:00 PM</p>' +
         '<p>' + IC_MAIL + '<a href="mailto:jda@rajasthan.gov.in">jda@rajasthan.gov.in</a></p>' +
       '</div>' +
     '</section>';
+
+  return html;
 }
 
 function mountAside() {

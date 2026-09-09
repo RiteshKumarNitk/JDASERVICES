@@ -315,25 +315,92 @@ function flattenApplicants(list) {
   });
 }
 
+/* Reverse of collectFormSections: put a saved applicant's values back into
+   the freshly-loaded form fragments (used by "Edit"). */
+function restoreSectionsIntoForm(container, sections) {
+  const cards = container.querySelectorAll('.form-card.section');
+  cards.forEach((card, i) => {
+    const sec = sections[i];
+    if (!sec) return;
+    const byLabel = {};
+    (sec.rows || []).forEach((r) => { byLabel[String(r.label).toLowerCase().trim()] = r.value; });
+
+    // Aadhaar mode first — it can lock / clear the identity fields
+    const aadRadio = card.querySelector('input[type="radio"][name^="aadhaar-"]');
+    if (aadRadio) {
+      const pill = PILL_MAPS[aadRadio.name];
+      const savedMode = pill && byLabel[String(pill.label).toLowerCase()];
+      if (savedMode) {
+        const val = /without/i.test(savedMode) ? 'without' : 'with';
+        const r = card.querySelector('input[name="' + aadRadio.name + '"][value="' + val + '"]');
+        if (r && !r.checked) { r.checked = true; r.dispatchEvent(new Event('change', { bubbles: true })); }
+      }
+    }
+
+    card.querySelectorAll('.field').forEach((field) => {
+      const labelEl = field.querySelector('.field-head .f-label');
+      if (!labelEl) return;
+      const label = labelEl.textContent.replace(/\s*\*\s*$/, '').trim().toLowerCase();
+      const v = byLabel[label];
+      if (v == null || v === '') return;
+      const sel = field.querySelector('select.ss-native');
+      if (sel && sel._ss) { sel._ss.setValue(v, true); return; }
+      const inp = field.querySelector('input:not([type="radio"]):not([type="checkbox"]), textarea');
+      if (inp) { inp.value = v; fireInput(inp); }
+    });
+  });
+}
+
 function initApplicantProfilePage() {
-  let type = readQuery('type') || getFlow().applicantType || 'self';
-  if (!TYPE_FORMS[type]) type = 'self';
   const container = $('#sectionsRoot');
   if (!container) return;
-
-  const radio = $('input[name="applicantType"][value="' + type + '"]');
-  if (radio) radio.checked = true;
 
   const panel = $('#typePanel');
   const savedWrap = $('#savedApplicants');
   const savedRows = $('#savedRows');
   const addMoreBtn = $('#addMoreApplicant');
   const saveBtn = $('#saveApplicant');
+  const saveLabel = saveBtn && saveBtn.querySelector('.save-label');
+  const editBadge = $('#editBadge');
+  const heading = $('#apHeading');
+  const typeHint = $('#typeHint');
+  const group = $('#applicantTypeGroup');
+
+  // Applicant Type panel visibility is driven purely by state:
+  //   addMode  — user is creating a new applicant (fresh page with none saved,
+  //              or "+ Add More Applicant" was clicked)
+  //   editingId — user is editing an existing applicant (its id)
+  // Panel is shown only while one of these is active; otherwise it is hidden
+  // and the page shows just the "Added Applicants" list.
+  let editingId = null;
+  let addMode = false;
 
   const currentType = () => {
     const t = $('input[name="applicantType"]:checked');
-    return t ? t.value : type;
+    return t ? t.value : '';
   };
+  const formOpen = () => !!container.querySelector('.form-card.section');
+
+  // Enter ADD mode: reveal the type panel with "Self" selected + its form open.
+  function startAdd(preferType) {
+    editingId = null;
+    addMode = true;
+    const want = TYPE_FORMS[preferType] ? preferType : 'self';
+    $$('input[name="applicantType"]').forEach((r) => { r.checked = r.value === want; });
+    render();
+    return loadForms(want, container).then(render);
+  }
+
+  // Leave ADD / EDIT mode: clear + hide the type panel.
+  function exitForm() {
+    editingId = null;
+    addMode = false;
+    container.innerHTML = '';
+    container.hidden = true;
+    $$('input[name="applicantType"]').forEach((r) => { r.checked = false; });
+    try { history.replaceState(null, '', location.pathname); } catch (e) { /* ignore */ }
+    render();
+  }
 
   function persist(list) {
     setFlow({
@@ -343,7 +410,7 @@ function initApplicantProfilePage() {
     });
   }
 
-  function render(showForm) {
+  function render() {
     const list = getApplicants();
     if (savedWrap) savedWrap.hidden = list.length === 0;
 
@@ -351,19 +418,19 @@ function initApplicantProfilePage() {
       savedRows.innerHTML = '';
       list.forEach((a, i) => {
         const tr = document.createElement('tr');
+        if (a.id === editingId) tr.classList.add('is-editing');
         tr.innerHTML =
           '<td>' + (i + 1) + '</td>' +
           '<td>' + esc(a.typeLabel || a.type) + '</td>' +
           '<td>' + esc(a.name || '—') + '</td>' +
           '<td>' + esc(a.mobile || '—') + '</td>' +
-          '<td><button class="tbtn tbtn-view" type="button" data-view="' + a.id + '">View</button></td>' +
+          '<td><button class="tbtn tbtn-view" type="button" data-edit="' + a.id + '">Edit</button></td>' +
           '<td><button class="tbtn tbtn-del" type="button" data-remove="' + a.id + '">Remove</button></td>';
         savedRows.appendChild(tr);
 
+        // read-only detail row — always visible, no Hide/Collapse
         const dr = document.createElement('tr');
         dr.className = 'saved-detail-row';
-        dr.dataset.detail = a.id;
-        dr.hidden = true;
         dr.innerHTML = '<td colspan="6">' + (a.sections || []).map((s) =>
           '<div class="sd-group"><h4>' + esc(s.title) + '</h4><dl>' +
           (s.rows || []).map((r) => '<div><dt>' + esc(r.label) + '</dt><dd>' + esc(r.value || '—') + '</dd></div>').join('') +
@@ -372,9 +439,15 @@ function initApplicantProfilePage() {
       });
     }
 
-    const hasSaved = list.length > 0;
-    if (panel) panel.hidden = hasSaved && !showForm;
-    if (addMoreBtn) addMoreBtn.hidden = !hasSaved || !!showForm;
+    const open = formOpen();
+    const panelOn = addMode || !!editingId;
+    if (panel) panel.hidden = !panelOn;
+    if (saveBtn) saveBtn.hidden = !open;
+    if (saveLabel) saveLabel.textContent = editingId ? 'Update Applicant' : 'Save Applicant';
+    if (editBadge) editBadge.hidden = !editingId;
+    if (heading) heading.textContent = editingId ? 'Edit Applicant Profile' : 'Applicant Profile';
+    if (typeHint) typeHint.hidden = open;
+    if (addMoreBtn) addMoreBtn.hidden = list.length === 0;
   }
 
   function snapshotForm() {
@@ -393,13 +466,25 @@ function initApplicantProfilePage() {
     };
   }
 
-  // type tabs — reload the matching form(s)
-  const group = $('#applicantTypeGroup');
+  async function editApplicant(id) {
+    const a = getApplicants().find((x) => x.id === id);
+    if (!a) return;
+    addMode = false;
+    editingId = id;
+    $$('input[name="applicantType"]').forEach((r) => { r.checked = r.value === a.type; });
+    render();
+    await loadForms(a.type, container);
+    restoreSectionsIntoForm(container, a.sections || []);
+    render();
+    if (panel) panel.scrollIntoView({ block: 'start', behavior: 'smooth' });
+  }
+
+  // type tabs — load the matching form(s); keeps editingId if we're mid-edit
   if (group) {
     group.addEventListener('change', (e) => {
       if (e.target.name !== 'applicantType') return;
-      loadForms(e.target.value, container);
-      history.replaceState(null, '', '?type=' + e.target.value);
+      loadForms(e.target.value, container).then(render);
+      try { history.replaceState(null, '', '?type=' + e.target.value); } catch (err) { /* ignore */ }
     });
   }
 
@@ -415,40 +500,52 @@ function initApplicantProfilePage() {
     }
   });
 
-  // Save the applicant currently on screen
+  // Save / Update the applicant currently on screen
   if (saveBtn) {
     saveBtn.addEventListener('click', () => {
       const rec = snapshotForm();
       if (!rec) return;
-      persist(getApplicants().concat([rec]));
-      render(false);
-      toast('Applicant saved.', true);
+      let list = getApplicants();
+      if (editingId) {
+        list = list.map((a) => (a.id === editingId ? Object.assign({}, rec, { id: editingId }) : a));
+        toast('Applicant updated.', true);
+      } else {
+        list = list.concat([rec]);
+        toast('Applicant saved.', true);
+      }
+      persist(list);
+      exitForm();                       // add/edit done -> hide the Applicant Type panel
       if (savedWrap) savedWrap.scrollIntoView({ block: 'start', behavior: 'smooth' });
     });
   }
 
-  // Add More Applicant — reopen a blank form
+  // Add More Applicant — enter ADD mode: panel back, "Self" active, Self form open
   if (addMoreBtn) {
     addMoreBtn.addEventListener('click', () => {
-      loadForms(currentType(), container);
-      render(true);
-      if (panel) panel.scrollIntoView({ block: 'start', behavior: 'smooth' });
+      startAdd('self').then(() => {
+        if (panel) panel.scrollIntoView({ block: 'start', behavior: 'smooth' });
+      });
     });
   }
 
-  // table actions — view / remove
+  // table actions — Edit / Remove
   if (savedRows) {
     savedRows.addEventListener('click', (e) => {
-      const v = e.target.closest('[data-view]');
+      const ed = e.target.closest('[data-edit]');
       const d = e.target.closest('[data-remove]');
-      if (v) {
-        const row = savedRows.querySelector('tr[data-detail="' + v.dataset.view + '"]');
-        if (row) { row.hidden = !row.hidden; v.textContent = row.hidden ? 'View' : 'Hide'; }
+      if (ed) {
+        editApplicant(ed.dataset.edit);
       } else if (d) {
-        const list = getApplicants().filter((a) => a.id !== d.dataset.remove);
+        const rid = d.dataset.remove;
+        const list = getApplicants().filter((a) => a.id !== rid);
         persist(list);
-        if (!list.length) loadForms(currentType(), container);
-        render(list.length === 0);
+        if (!list.length) {
+          startAdd('self');            // no applicants left -> back to default ADD state
+        } else if (editingId === rid) {
+          exitForm();                  // was editing the removed one -> hide panel
+        } else {
+          render();
+        }
         toast('Applicant removed.');
       }
     });
@@ -460,17 +557,30 @@ function initApplicantProfilePage() {
     continueBtn.addEventListener('click', () => {
       let list = getApplicants();
       if (!list.length) {
+        if (!formOpen()) { toast('Please add at least one applicant.'); return; }
         const rec = snapshotForm();
         if (!rec) { toast('Please fill and save at least one applicant.'); return; }
         list = [rec];
       }
       persist(list);
-      window.location.href = 'witness-details.html';
+      window.location.href = getFlow().editReturn ? 'final-submission.html' : 'witness-details.html';
     });
   }
 
-  render(getApplicants().length === 0);
-  loadForms(type, container);
+  render();
+
+  // Initial state:
+  //   - no applicant saved  -> ADD mode: Applicant Type panel shown, "Self"
+  //                            active by default, Self form open. A valid
+  //                            ?type= deep-link (e.g. Edit-from-Review) opens
+  //                            that type instead of Self.
+  //   - at least one saved  -> panel hidden; the "Added Applicants" list is
+  //                            the whole page until "+ Add More Applicant".
+  if (getApplicants().length === 0) {
+    startAdd(readQuery('type') || 'self');
+  } else {
+    exitForm();
+  }
 }
 
 /* ------------------------------------------------------------------ */
@@ -483,6 +593,31 @@ function initWitnessPage() {
   enhanceSelects(container);
   initCounters(container);
   bindFetches(container);
+
+  // prefill from a previously saved Witness section (Edit round-trip)
+  const savedWitness = (getFlow().formSections || []).find((s) => /witness/i.test(s.title || ''));
+  if (savedWitness) {
+    const byLabel = {};
+    (savedWitness.rows || []).forEach((r) => { byLabel[String(r.label).toLowerCase().trim()] = r.value; });
+
+    // set Aadhaar mode first (it may lock/clear the identity fields)
+    const aad = byLabel['witness aadhaar'];
+    if (aad && /without/i.test(aad)) {
+      const r = $('input[name="aadhaar-witness"][value="without"]', container);
+      if (r && !r.checked) { r.checked = true; r.dispatchEvent(new Event('change', { bubbles: true })); }
+    }
+
+    const put = (id, label) => {
+      const el = $('#' + id, container);
+      const v = byLabel[label];
+      if (el && v != null && v !== '') el.value = v;
+    };
+    put('witnessName', 'name of witness');
+    put('witnessFather', 'father / husband name');
+    put('witnessAddress', 'address');
+    const rel = $('#relWitness', container);
+    if (rel && rel._ss && byLabel['relation']) rel._ss.setValue(byLabel['relation'], true);
+  }
 
   // With / Without Aadhaar toggle: show/hide the fetch row + lock/release Aadhaar fields
   container.addEventListener('change', (e) => {
@@ -498,10 +633,10 @@ function initWitnessPage() {
     continueBtn.addEventListener('click', () => {
       const bad = validateScope(container);
       if (bad) return;
-      const kept = (getFlow().formSections || []).filter((s) => s.title !== 'Witness Detail');
+      const kept = (getFlow().formSections || []).filter((s) => s.title !== 'Witness Profile');
       const witnessSection = collectFormSections(container)[0];
       setFlow({ formSections: witnessSection ? kept.concat([witnessSection]) : kept });
-      window.location.href = 'property-profile.html';
+      window.location.href = getFlow().editReturn ? 'final-submission.html' : 'property-profile.html';
     });
   }
 }

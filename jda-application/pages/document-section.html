@@ -15,6 +15,7 @@
   <svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
     <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></symbol>
     <symbol id="i-arrL" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="20" y1="12" x2="4" y2="12"/><polyline points="11 5 4 12 11 19"/></symbol>
+    <symbol id="i-arrR" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="12" x2="20" y2="12"/><polyline points="13 5 20 12 13 19"/></symbol>
   </svg>
 
   <div class="page">
@@ -34,72 +35,7 @@
 
         <div class="card-body">
 
-          <!-- (B) Registry Details -->
-          <div class="block-card">
-            <div class="block-bar" style="cursor:default">
-              <span class="block-title">Registry Details</span>
-            </div>
-            <div class="block-panel">
-              <div class="detail-card">
-                <div class="field detail-field">
-                  <label class="f-label" for="regNo">Registry Number</label>
-                  <input class="input" type="text" id="regNo" placeholder="Enter Registry Number" />
-                </div>
-                <button class="help" type="button"><span class="help-ic">?</span> Where can I find my Registry Number?</button>
-                <button class="btn btn-success get-detail" type="button" data-topic="Registry Number">Get Detail</button>
-              </div>
-
-              <h4 class="table-title">Registry Detail</h4>
-              <div class="table-wrap">
-                <table class="tbl">
-                  <thead>
-                    <tr>
-                      <th>S.No</th><th>Party Name</th><th>Father's Name</th><th>Property Address</th>
-                      <th>Document No</th><th>Registry No</th><th>Registry Date</th><th>District Name</th>
-                      <th>Tehsil Name</th><th>Document Status</th><th>Action</th>
-                    </tr>
-                  </thead>
-                  <tbody class="empty-state">
-                    <tr><td colspan="11">No data available in table</td></tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-
-          <!-- (C) Electricity Connection Details -->
-          <div class="block-card">
-            <div class="block-bar" style="cursor:default">
-              <span class="block-title">Electricity Connection Details</span>
-            </div>
-            <div class="block-panel">
-              <div class="detail-card">
-                <div class="field detail-field">
-                  <label class="f-label" for="kNo">K Number</label>
-                  <input class="input" type="text" id="kNo" placeholder="Enter K Number" />
-                </div>
-                <button class="help" type="button"><span class="help-ic">?</span> Where can I find my K Number?</button>
-                <button class="btn btn-success get-detail" type="button" data-topic="K Number">Get Detail</button>
-              </div>
-
-              <h4 class="table-title">Connection Detail</h4>
-              <div class="table-wrap">
-                <table class="tbl tbl-light-head">
-                  <thead>
-                    <tr>
-                      <th>S.No</th><th>K Number</th><th>Consumer Name</th><th>Fathers Name</th><th>Address</th>
-                      <th>Category Of Connection</th><th>Date Of Connection</th><th>Action</th>
-                    </tr>
-                  </thead>
-                  <tbody class="empty-state">
-                    <tr><td colspan="8">No data available in table</td></tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-
-          <!-- List of Documents -->
+          <!-- 1. List of Documents -->
           <div class="block-card">
             <div class="block-bar" style="cursor:default">
               <span class="block-title">List of Documents <em>/ डॉक्यूमेंट का विवरण</em></span>
@@ -121,9 +57,115 @@
 
         </div>
 
+        <!-- Row detail sub-forms: moved into the matching document row when its Upload is clicked -->
+        <div id="detailHolder" hidden>
+
+          <div class="row-detail" id="registryDetail">
+            <div class="detail-card">
+              <div class="field detail-field">
+                <label class="f-label" for="regNo">Registry Number</label>
+                <input class="input" type="text" id="regNo" placeholder="Enter Registry Number" />
+              </div>
+              <button class="help" type="button"><span class="help-ic">?</span> Where can I find my Registry Number?</button>
+              <button class="btn btn-success get-detail" type="button" data-topic="Registry Number">Get Detail</button>
+            </div>
+
+            <h4 class="table-title">Registry Detail</h4>
+            <div class="table-wrap">
+              <table class="tbl">
+                <thead>
+                  <tr>
+                    <th>S.No</th><th>Party Name</th><th>Father's Name</th><th>Property Address</th>
+                    <th>Document No</th><th>Registry No</th><th>Registry Date</th><th>District Name</th>
+                    <th>Tehsil Name</th><th>Document Status</th><th>Action</th>
+                  </tr>
+                </thead>
+                <tbody class="empty-state">
+                  <tr><td colspan="11">No data available in table</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="or-divider"><span>OR</span></div>
+
+            <div class="upload-fallback" data-upload="registry">
+              <h4 class="table-title">Registry Document / Image</h4>
+              <p class="mini-note">Don't have the registry number, or the fetch is unavailable? Upload the registry document instead.</p>
+              <div class="upload-row">
+                <input type="file" class="up-input" accept=".jpg,.jpeg,.png,.pdf" hidden />
+                <button class="btn btn-outline" type="button" data-file-pick>Choose File</button>
+                <span class="file-name" data-file-name>No file chosen</span>
+                <button class="btn btn-success" type="button" data-file-upload>Upload</button>
+              </div>
+              <p class="mini-hint">Supported formats: JPG, JPEG, PNG, PDF</p>
+              <div class="upload-result" data-file-result hidden>
+                <span class="up-name" data-file-final></span>
+                <button type="button" class="tbtn tbtn-view" data-file-preview>Preview</button>
+                <button type="button" class="tbtn tbtn-del" data-file-remove>Remove</button>
+              </div>
+            </div>
+
+            <div class="row-detail-foot">
+              <button class="btn btn-outline btn-sm" type="button" data-detail-cancel>Cancel</button>
+              <button class="btn btn-primary btn-sm" type="button" data-detail-save="registry">Save</button>
+            </div>
+          </div>
+
+          <div class="row-detail" id="electricityDetail">
+            <div class="detail-card">
+              <div class="field detail-field">
+                <label class="f-label" for="kNo">K Number</label>
+                <input class="input" type="text" id="kNo" placeholder="Enter K Number" />
+              </div>
+              <button class="help" type="button"><span class="help-ic">?</span> Where can I find my K Number?</button>
+              <button class="btn btn-success get-detail" type="button" data-topic="K Number">Get Detail</button>
+            </div>
+
+            <h4 class="table-title">Connection Detail</h4>
+            <div class="table-wrap">
+              <table class="tbl tbl-light-head">
+                <thead>
+                  <tr>
+                    <th>S.No</th><th>K Number</th><th>Consumer Name</th><th>Fathers Name</th><th>Address</th>
+                    <th>Category Of Connection</th><th>Date Of Connection</th><th>Action</th>
+                  </tr>
+                </thead>
+                <tbody class="empty-state">
+                  <tr><td colspan="8">No data available in table</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="or-divider"><span>OR</span></div>
+
+            <div class="upload-fallback" data-upload="electricity">
+              <h4 class="table-title">Electricity Connection Document</h4>
+              <p class="mini-note">Don't have the K Number, or the fetch is unavailable? Upload the electricity bill / connection document instead.</p>
+              <div class="upload-row">
+                <input type="file" class="up-input" accept=".jpg,.jpeg,.png,.pdf" hidden />
+                <button class="btn btn-outline" type="button" data-file-pick>Choose File</button>
+                <span class="file-name" data-file-name>No file chosen</span>
+                <button class="btn btn-success" type="button" data-file-upload>Upload</button>
+              </div>
+              <p class="mini-hint">Supported formats: JPG, JPEG, PNG, PDF</p>
+              <div class="upload-result" data-file-result hidden>
+                <span class="up-name" data-file-final></span>
+                <button type="button" class="tbtn tbtn-view" data-file-preview>Preview</button>
+                <button type="button" class="tbtn tbtn-del" data-file-remove>Remove</button>
+              </div>
+            </div>
+
+            <div class="row-detail-foot">
+              <button class="btn btn-outline btn-sm" type="button" data-detail-cancel>Cancel</button>
+              <button class="btn btn-primary btn-sm" type="button" data-detail-save="electricity">Save</button>
+            </div>
+          </div>
+
+        </div>
+
         <div class="card-foot">
           <a class="btn btn-outline" href="property-profile.html"><svg class="ic"><use href="#i-arrL"/></svg> Back</a>
-          <button class="btn btn-primary" type="button" id="saveDocuments">Save &amp; Proceed</button>
+          <button class="btn btn-primary" type="button" id="saveDocuments">Save &amp; Proceed <svg class="ic"><use href="#i-arrR"/></svg></button>
         </div>
       </div>
     </main>

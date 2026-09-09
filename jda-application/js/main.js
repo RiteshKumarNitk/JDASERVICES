@@ -403,6 +403,13 @@ function initPropertyPage() {
   propertyRows = [];
   renderPropertyRows();
 
+  // restore the chosen Patta type (e.g. Edit round-trip / Back)
+  const savedPatta = getFlow().pattaType;
+  if (savedPatta) {
+    const pr = $('input[name="pattaType"][value="' + savedPatta + '"]');
+    if (pr) pr.checked = true;
+  }
+
   $$('.tab-btn').forEach((btn) => {
     btn.addEventListener('click', () => {
       const card = btn.closest('.find-card');
@@ -434,8 +441,8 @@ function initPropertyPage() {
     proceed.addEventListener('click', () => {
       const patta = $('input[name="pattaType"]:checked');
       setFlow({
-        pattaType: patta ? patta.value : '',
-        propertyCount: propertyRows.length
+        pattaType: patta ? patta.value : (getFlow().pattaType || ''),
+        propertyCount: propertyRows.length || getFlow().propertyCount || 0
       });
       window.location.href = 'document-section.html';
     });
@@ -448,12 +455,12 @@ function initPropertyPage() {
 // Mock list — extend with the actual requirement set per service.
 const DOCS = [
   { req: 'Photo ID issued by Government (Aadhaar Card / Driving License / Passport / Voter ID)', type: 'mandatory', uploaded: true, name: 'Photo_ID.pdf' },
-  { req: 'Registered Gift Deed', type: 'mandatory', uploaded: false },
+  { req: 'Registered Gift Deed', type: 'mandatory', uploaded: false, detail: 'registry' },
   { req: 'Lease Deed (Patta) including Stamps issued by JDA', type: 'mandatory', uploaded: false },
   { req: 'Site Plan issued by JDA', type: 'mandatory', uploaded: false },
   { req: 'Allotment Letter issued by JDA', type: 'applicable', uploaded: false },
   { req: 'Possession Letter issued by JDA', type: 'applicable', uploaded: false },
-  { req: 'For constructed property: latest Electricity / Water Bill', type: 'applicable', uploaded: false },
+  { req: 'For constructed property: latest Electricity / Water Bill', type: 'applicable', uploaded: false, detail: 'electricity' },
   { req: 'Receipt(s) of amount deposited in JDA', type: 'applicable', uploaded: false }
 ];
 
@@ -496,25 +503,169 @@ function fillDetailTable(panel, topic, refValue) {
     '<td><button type="button" class="tbtn tbtn-del remove-detail">delete</button></td></tr>';
 }
 
+/* One reusable inline upload card, opened directly below the clicked row.
+   Only one card open at a time. */
+const docFiles = {};       // DOCS index -> File (session only, for preview)
+let openDocIdx = null;     // index of the row whose card is open
+let stagedDocFile = null;  // file picked in the open card, not yet saved
+
+function docActionHtml(item) {
+  return item.uploaded
+    ? '<button type="button" class="tbtn tbtn-ok" data-act="upload">Uploaded</button>'
+    : '<button type="button" class="tbtn tbtn-upload" data-act="upload">Upload</button>';
+}
+
+function filePreviewHtml(file) {
+  return (file && /^image\//.test(file.type))
+    ? '<img src="' + URL.createObjectURL(file) + '" alt="preview" />'
+    : '';
+}
+
+// registry / electricity sub-forms live in #detailHolder; move them back there
+function stashRowDetails() {
+  const holder = document.getElementById('detailHolder');
+  if (!holder) return;
+  ['registryDetail', 'electricityDetail'].forEach((id) => {
+    const b = document.getElementById(id);
+    if (b && b.parentElement !== holder) holder.appendChild(b);
+  });
+}
+
+function mountDocCard(idx) {
+  const tbody = $('#docRows');
+  const rowTr = tbody && tbody.children[idx];
+  const item = DOCS[idx];
+  if (!rowTr || !item) return;
+
+  // registry / electricity rows: drop the shared detail sub-form into this row
+  if (item.detail) {
+    const block = document.getElementById(item.detail + 'Detail');
+    const tr = document.createElement('tr');
+    tr.className = 'doc-detail-row';
+    tr.dataset.docDetail = idx;
+    const td = document.createElement('td');
+    td.colSpan = 6;
+    td.className = 'row-detail-cell';
+    tr.appendChild(td);
+    rowTr.after(tr);
+    if (block) td.appendChild(block);
+    tr.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    return;
+  }
+
+  const shownName = stagedDocFile ? stagedDocFile.name
+    : (item.uploaded ? (item.name || 'document') : 'No file chosen');
+  const hasFile = !!stagedDocFile || !!item.uploaded;
+  const preview = filePreviewHtml(stagedDocFile || docFiles[idx]);
+
+  const tr = document.createElement('tr');
+  tr.className = 'doc-detail-row';
+  tr.dataset.docDetail = idx;
+  tr.innerHTML =
+    '<td colspan="6"><div class="up-card">' +
+      '<div class="up-card-head">' + esc(item.req) + '</div>' +
+      '<div class="up-card-body">' +
+        '<p class="mini-note">Upload Document</p>' +
+        '<input type="file" class="up-input" accept=".jpg,.jpeg,.png,.pdf" hidden />' +
+        '<div class="upload-row">' +
+          '<button class="btn btn-outline" type="button" data-pick>Choose File</button>' +
+          '<span class="file-name" data-name>' + esc(shownName) + '</span>' +
+        '</div>' +
+        '<p class="mini-hint">Supported formats: JPG, JPEG, PNG, PDF</p>' +
+        '<div class="up-preview" data-preview' + (preview ? '' : ' hidden') + '>' + preview + '</div>' +
+        '<div class="upload-result" data-result' + (hasFile ? '' : ' hidden') + '>' +
+          '<span class="up-name">' + esc(shownName) + '</span>' +
+          '<button type="button" class="tbtn tbtn-view" data-preview-open>Preview</button>' +
+          '<button type="button" class="tbtn tbtn-upload" data-pick>Replace</button>' +
+          '<button type="button" class="tbtn tbtn-del" data-remove>Remove</button>' +
+        '</div>' +
+      '</div>' +
+      '<div class="up-card-foot">' +
+        '<button class="btn btn-outline btn-sm" type="button" data-cancel>Cancel</button>' +
+        '<button class="btn btn-primary btn-sm" type="button" data-save>Save</button>' +
+      '</div>' +
+    '</div></td>';
+  rowTr.after(tr);
+
+  const input = tr.querySelector('.up-input');
+  const nameEls = tr.querySelectorAll('[data-name], .up-name');
+  const previewBox = tr.querySelector('[data-preview]');
+  const resultBox = tr.querySelector('[data-result]');
+
+  tr.querySelectorAll('[data-pick]').forEach((b) => b.addEventListener('click', () => input.click()));
+  input.addEventListener('change', () => {
+    stagedDocFile = input.files[0] || null;
+    const n = stagedDocFile ? stagedDocFile.name
+      : (item.uploaded ? (item.name || 'document') : 'No file chosen');
+    nameEls.forEach((el) => { el.textContent = n; });
+    const pv = filePreviewHtml(stagedDocFile);
+    previewBox.innerHTML = pv;
+    previewBox.hidden = !pv;
+    resultBox.hidden = !(stagedDocFile || item.uploaded);
+  });
+  tr.querySelector('[data-preview-open]').addEventListener('click', () => {
+    const f = stagedDocFile || docFiles[idx];
+    if (f) window.open(URL.createObjectURL(f), '_blank');
+    else toast('No local preview available for this file.');
+  });
+  tr.querySelector('[data-remove]').addEventListener('click', () => {
+    stagedDocFile = null;
+    delete docFiles[idx];
+    item.uploaded = false;
+    delete item.name;
+    persistDocs();
+    renderDocTable();
+    toast('File removed.');
+  });
+  tr.querySelector('[data-cancel]').addEventListener('click', closeDocCard);
+  tr.querySelector('[data-save]').addEventListener('click', () => {
+    if (!stagedDocFile && !item.uploaded) { toast('Please choose a file to upload.'); return; }
+    if (stagedDocFile) {
+      item.uploaded = true;
+      item.name = stagedDocFile.name;
+      docFiles[idx] = stagedDocFile;
+    }
+    persistDocs();
+    openDocIdx = null;
+    stagedDocFile = null;
+    renderDocTable();
+    toast('Document saved.', true);
+  });
+
+  tr.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+}
+
+// keep the flow store in sync with DOCS so uploads survive navigation
+function persistDocs() {
+  setFlow({
+    uploadedDocs: DOCS.filter((d) => d.uploaded).map((d) => d.req),
+    uploadedDocNames: DOCS.filter((d) => d.uploaded).map((d) => d.name || d.req)
+  });
+}
+
+function openDocCard(idx) {
+  if (openDocIdx === idx) { closeDocCard(); return; }
+  openDocIdx = idx;
+  stagedDocFile = null;
+  renderDocTable();
+}
+function closeDocCard() {
+  openDocIdx = null;
+  stagedDocFile = null;
+  renderDocTable();
+}
+
 function renderDocTable() {
   const tbody = $('#docRows');
   if (!tbody) return;
+  stashRowDetails();          // rescue moved sub-forms before wiping the table
   tbody.innerHTML = '';
 
   DOCS.forEach((item, i) => {
     const tr = document.createElement('tr');
+    tr.dataset.docIdx = i;
     const badge = item.type === 'mandatory' ? 'Mandatory' : 'If Applicable';
     const cls = item.type === 'mandatory' ? 'mandatory' : 'applicable';
-
-    let action;
-    if (item.uploading) {
-      action = '<button type="button" class="tbtn tbtn-upload" data-act="none" disabled>Uploading\u2026</button>';
-    } else if (item.uploaded) {
-      action = '<button type="button" class="tbtn tbtn-ok" data-act="upload">Uploaded</button>';
-    } else {
-      action = '<button type="button" class="tbtn tbtn-upload" data-act="upload">Upload</button>';
-    }
-
     const view = item.uploaded ? '<button type="button" class="tbtn tbtn-view" data-act="view">View</button>' : '';
     const del = item.uploaded ? '<button type="button" class="tbtn tbtn-del" data-act="del">delete</button>' : '';
 
@@ -524,47 +675,70 @@ function renderDocTable() {
       '<td><span class="req-badge ' + cls + '">' + badge + '</span></td>' +
       '<td>' + view + '</td>' +
       '<td>' + del + '</td>' +
-      '<td>' + action + '</td>';
+      '<td>' + docActionHtml(item) + '</td>';
     tbody.appendChild(tr);
   });
+
+  if (openDocIdx != null) mountDocCard(openDocIdx);
 }
 
 function initDocumentsPage() {
+  const upFiles = {}; // registry | electricity -> File (session only)
+
+  // restore previously uploaded documents from the flow store
+  const savedDocs = getFlow().uploadedDocs || [];
+  const savedNames = getFlow().uploadedDocNames || [];
+  savedDocs.forEach((req, i) => {
+    const d = DOCS.find((x) => x.req === req);
+    if (d) { d.uploaded = true; d.name = savedNames[i] || d.name || 'document'; }
+  });
+
   renderDocTable();
 
   const tbody = $('#docRows');
   if (tbody) {
     tbody.addEventListener('click', (e) => {
       const btn = e.target.closest('.tbtn[data-act]');
-      if (!btn || btn.dataset.act === 'none') return;
-      const tr = btn.closest('tr');
-      const idx = Array.prototype.indexOf.call(tr.parentNode.children, tr);
+      if (!btn) return;
+      const rowTr = btn.closest('tr[data-doc-idx]');
+      if (!rowTr) return;
+      const idx = parseInt(rowTr.dataset.docIdx, 10);
       const item = DOCS[idx];
       if (!item) return;
-
       const act = btn.dataset.act;
+
       if (act === 'upload') {
-        if (item.uploaded || item.uploading) return;
-        item.uploading = true;
-        renderDocTable();
-        setTimeout(() => {
-          item.uploading = false;
-          item.uploaded = true;
-          item.name = item.name || 'document_' + (idx + 1) + '.pdf';
-          renderDocTable();
-          toast('Document uploaded successfully.', true);
-        }, 650);
+        openDocCard(idx);                 // Upload / Uploaded(replace) -> inline card below this row
       } else if (act === 'view') {
-        toast('Viewing ' + (item.name || 'document') + ' (mock preview)');
+        const f = docFiles[idx];
+        if (f) window.open(URL.createObjectURL(f), '_blank');
+        else toast('Viewing ' + (item.name || 'document') + ' (no local preview).');
       } else if (act === 'del') {
         item.uploaded = false;
         delete item.name;
+        delete docFiles[idx];
+        if (item.detail) {
+          delete upFiles[item.detail];
+          setFlow(item.detail === 'registry' ? { registryDone: false } : { electricityDone: false });
+          const block = document.getElementById(item.detail + 'Detail');
+          if (block) {
+            const tb = block.querySelector('.tbl tbody');
+            const cols = block.querySelectorAll('.tbl thead th').length;
+            if (tb) { tb.classList.add('empty-state'); tb.innerHTML = '<tr><td colspan="' + cols + '">No data available in table</td></tr>'; }
+            const ii = block.querySelector('#regNo, #kNo'); if (ii) ii.value = '';
+            const fr = block.querySelector('[data-file-result]'); if (fr) fr.hidden = true;
+            const fn = block.querySelector('[data-file-name]'); if (fn) fn.textContent = 'No file chosen';
+          }
+        }
+        if (openDocIdx === idx) openDocIdx = null;
+        persistDocs();
         renderDocTable();
         toast('Document removed.');
       }
     });
   }
 
+  /* ---- Registry Number / K Number fetch (existing behaviour) ---- */
   $$('.get-detail').forEach((btn) => {
     btn.addEventListener('click', () => {
       const card = btn.closest('.detail-card');
@@ -574,21 +748,21 @@ function initDocumentsPage() {
         return;
       }
       clearFieldError(input.closest('.field'));
-      fillDetailTable(btn.closest('.block-panel'), btn.dataset.topic, input.value.trim());
+      fillDetailTable(btn.closest('.row-detail'), btn.dataset.topic, input.value.trim());
       toast('Details fetched successfully (mock \u2014 connect live API).', true);
     });
   });
 
-  // remove a fetched Registry / Connection detail row
+  /* ---- remove a fetched Registry / Connection row ---- */
   document.addEventListener('click', (e) => {
     const rm = e.target.closest('.remove-detail');
     if (!rm) return;
     const table = rm.closest('.tbl');
-    const tbody = table && table.querySelector('tbody');
-    if (!tbody) return;
+    const tb = table && table.querySelector('tbody');
+    if (!tb) return;
     const cols = table.querySelectorAll('thead th').length;
-    tbody.classList.add('empty-state');
-    tbody.innerHTML = '<tr><td colspan="' + cols + '">No data available in table</td></tr>';
+    tb.classList.add('empty-state');
+    tb.innerHTML = '<tr><td colspan="' + cols + '">No data available in table</td></tr>';
   });
 
   $$('.help').forEach((h) => {
@@ -597,20 +771,103 @@ function initDocumentsPage() {
     });
   });
 
+  /* ---- Registry / Electricity sub-forms (live inside their document row) ---- */
+  // restore previously saved reference / uploaded filename
+  const f0 = getFlow();
+  ['registry', 'electricity'].forEach((kind) => {
+    const d = f0[kind + 'Data'];
+    const block = document.getElementById(kind + 'Detail');
+    if (!d || !block) return;
+    if (d.ref) {
+      const idInput = block.querySelector('#regNo, #kNo');
+      if (idInput) idInput.value = d.ref;
+    }
+    if (d.method === 'upload' && d.fileName) {
+      block.querySelector('[data-file-final]').textContent = d.fileName;
+      block.querySelector('[data-file-result]').hidden = false;
+    }
+  });
+
+  // upload fallback inside the Registry / Electricity sub-forms (mock)
+  $$('.upload-fallback').forEach((box) => {
+    const kind = box.dataset.upload;
+    const input = box.querySelector('.up-input');
+    box.querySelector('[data-file-pick]').addEventListener('click', () => input.click());
+    input.addEventListener('change', () => {
+      box.querySelector('[data-file-name]').textContent = input.files[0] ? input.files[0].name : 'No file chosen';
+    });
+    box.querySelector('[data-file-upload]').addEventListener('click', () => {
+      const file = input.files[0];
+      if (!file) { toast('Please choose a file to upload.'); return; }
+      upFiles[kind] = file;
+      box.querySelector('[data-file-final]').textContent = file.name;
+      box.querySelector('[data-file-result]').hidden = false;
+      toast('Document uploaded.', true);
+    });
+    box.querySelector('[data-file-preview]').addEventListener('click', () => {
+      const file = upFiles[kind];
+      if (file) window.open(URL.createObjectURL(file), '_blank');
+      else toast('No preview available.');
+    });
+    box.querySelector('[data-file-remove]').addEventListener('click', () => {
+      delete upFiles[kind];
+      input.value = '';
+      box.querySelector('[data-file-name]').textContent = 'No file chosen';
+      box.querySelector('[data-file-result]').hidden = true;
+    });
+  });
+
+  // Cancel / Save at the bottom of a row's Registry / Electricity sub-form
+  $$('[data-detail-cancel]').forEach((b) => b.addEventListener('click', closeDocCard));
+  $$('[data-detail-save]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const kind = btn.dataset.detailSave;
+      const block = btn.closest('.row-detail');
+      const idx = DOCS.findIndex((d) => d.detail === kind);
+      const tb = block.querySelector('.tbl tbody');
+      const hasRow = tb && !tb.classList.contains('empty-state') && !!tb.querySelector('tr');
+      const hasFile = !!upFiles[kind];
+      const idInput = block.querySelector('#regNo, #kNo');
+      const idVal = idInput ? (idInput.value || '').trim() : '';
+
+      if (!hasRow && !hasFile) {
+        toast(kind === 'registry'
+          ? 'Enter the Registry Number and fetch details, or upload the registry document.'
+          : 'Enter the K Number and fetch details, or upload the connection document.');
+        return;
+      }
+
+      if (idx >= 0) {
+        DOCS[idx].uploaded = true;
+        DOCS[idx].name = hasFile ? upFiles[kind].name
+          : (idVal ? (kind === 'registry' ? 'Registry No. ' + idVal : 'K No. ' + idVal) : 'Fetched details');
+        if (hasFile) docFiles[idx] = upFiles[kind];
+      }
+      const data = { method: hasFile ? 'upload' : 'fetch', ref: idVal, fileName: hasFile ? upFiles[kind].name : '' };
+      setFlow(kind === 'registry'
+        ? { registryDone: true, registryData: data }
+        : { electricityDone: true, electricityData: data });
+      persistDocs();
+      openDocIdx = null;
+      renderDocTable();
+      toast((kind === 'registry' ? 'Registry' : 'Electricity connection') + ' details saved.', true);
+    });
+  });
+
+  /* ---- Save & Proceed ---- */
   const save = $('#saveDocuments');
   if (save) {
     save.addEventListener('click', () => {
-      const missing = DOCS.some((d) => d.type === 'mandatory' && !d.uploaded);
-      if (missing) {
-        const card = $('.block-card:last-of-type');
-        if (card) card.scrollIntoView({ block: 'start', behavior: 'smooth' });
+      const missingDocs = DOCS.some((d) => d.type === 'mandatory' && !d.uploaded);
+      if (missingDocs) {
         toast('Please upload all Mandatory documents before proceeding.');
-        renderDocTable();
-        const body = $('#docRows');
-        DOCS.forEach((d, i) => {
-          if (d.type === 'mandatory' && !d.uploaded && body.children[i]) body.children[i].classList.add('is-missing');
+        $$('#docRows tr[data-doc-idx]').forEach((r) => {
+          const d = DOCS[parseInt(r.dataset.docIdx, 10)];
+          if (d && d.type === 'mandatory' && !d.uploaded) r.classList.add('is-missing');
         });
         setTimeout(() => { $$('#docRows tr.is-missing').forEach((r) => r.classList.remove('is-missing')); }, 2600);
+        const dt = $('.doc-tbl');
+        if (dt) dt.scrollIntoView({ block: 'center', behavior: 'smooth' });
         return;
       }
       setFlow({
@@ -635,6 +892,7 @@ function initReviewPage() {
   // Re-entering the flow: this application isn't submitted yet, so the
   // Final Submission page must show the payment form, not the success screen.
   if (getFlow().submitted) setFlow({ submitted: false });
+  if (getFlow().editReturn) setFlow({ editReturn: false });
 
   const root = $('#reviewSummary');
   if (root) root.innerHTML = buildSummaryHtml();
@@ -646,7 +904,7 @@ function initReviewPage() {
 /* ------------------------------------------------------------------ */
 /* Final Submission                                                    */
 /* ------------------------------------------------------------------ */
-function finalSection(title, rows) {
+function finalSection(title, rows, editHref) {
   const body = (rows || []).map((r) => {
     if (r && !Array.isArray(r) && r.group) {
       return '<div class="summary-row grp"><dt>' + esc(r.label) + '</dt></div>';
@@ -655,7 +913,10 @@ function finalSection(title, rows) {
     const value = Array.isArray(r) ? r[1] : r.value;
     return '<div class="summary-row"><dt>' + esc(label) + '</dt><dd>' + esc(value || '\u2014') + '</dd></div>';
   }).join('');
-  return '<div class="summary-card"><h3>' + esc(title) + '</h3><dl class="summary-grid">' + body + '</dl></div>';
+  const edit = editHref
+    ? '<a class="btn btn-outline btn-sm summary-edit" href="' + esc(editHref) + '" data-edit>Edit</a>'
+    : '';
+  return '<div class="summary-card"><h3>' + esc(title) + edit + '</h3><dl class="summary-grid">' + body + '</dl></div>';
 }
 
 /* Shared summary markup used by both Review Application and Final Submission */
@@ -663,17 +924,21 @@ function buildSummaryHtml() {
   const flow = getFlow();
   let html = '';
 
+  const applicantHref = 'applicant-profile.html' + (flow.applicantType ? '?type=' + flow.applicantType : '');
+
   // step 1 + applicant profile overview
   html += finalSection('Service & Applicant', [
     ['Service', flow.service],
     ['Sub Service', flow.subService],
     ['Based On', flow.basedOn],
     ['Applicant Type', TYPE_LABELS[flow.applicantType]]
-  ]);
+  ], 'choose-service.html');
 
   // every filled form detail — one card per applicant (sub-forms merged inside)
   (flow.formSections || []).forEach((sec) => {
-    html += finalSection(sec.title || 'Details', sec.rows || []);
+    const t = sec.title || 'Details';
+    const href = /witness/i.test(t) ? 'witness-details.html' : applicantHref;
+    html += finalSection(t, sec.rows || [], href);
   });
 
   // property + documents
@@ -684,7 +949,14 @@ function buildSummaryHtml() {
     ['Documents', flow.documentsVerified ? 'Verified' : null]
   ];
   (flow.uploadedDocNames || []).forEach((n, i) => docRows.push(['Document ' + (i + 1), n]));
-  html += finalSection('Property & Documents', docRows);
+
+  const detailLabel = (d) => !d ? 'Provided'
+    : (d.method === 'upload' ? ('Uploaded — ' + (d.fileName || 'document'))
+       : ('Fetched' + (d.ref ? ' (' + d.ref + ')' : '')));
+  if (flow.registryDone) docRows.push(['Registry Details', detailLabel(flow.registryData)]);
+  if (flow.electricityDone) docRows.push(['Electricity Connection', detailLabel(flow.electricityData)]);
+
+  html += finalSection('Property & Documents', docRows, 'property-profile.html');
 
   return html;
 }
@@ -695,6 +967,9 @@ function renderFinalSummary() {
 }
 
 function initFinalPage() {
+  // arrived back at the review — the edit round-trip is complete
+  if (getFlow().editReturn) setFlow({ editReturn: false });
+
   renderFinalSummary();
 
   const form = $('#finalForm');
@@ -767,6 +1042,15 @@ function initGlobal() {
     if (!t || !t.matches) return;
     const field = t.closest('.field');
     if (field && field.querySelector('.err-msg')) clearFieldError(field);
+  });
+
+  // Review "Edit" — flag the return trip, then go to the section's own page
+  document.addEventListener('click', (e) => {
+    const link = e.target.closest('.summary-edit[data-edit]');
+    if (!link) return;
+    e.preventDefault();
+    setFlow({ editReturn: true });
+    window.location.href = link.getAttribute('href');
   });
 
   // collapsible section bars

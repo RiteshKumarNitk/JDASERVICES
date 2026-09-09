@@ -424,7 +424,30 @@ input[type="date"].input-plain { color: var(--ink); }
   justify-content: flex-end;
 }
 
-/* ---------- saved applicants (added via "Add More") ---------- */
+/* hint shown under the Applicant Type tabs before any form is opened */
+.type-hint {
+  font-size: 12.5px;
+  color: var(--muted);
+  margin: 8px 0 2px;
+}
+
+/* edit-mode indicator in the page hero */
+.edit-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 10px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: var(--blue-50, #eef4ff);
+  border: 1px solid var(--blue-100);
+  color: var(--blue-900);
+  font-size: 12.5px;
+  font-weight: 600;
+}
+.edit-badge .ic { width: 15px; height: 15px; }
+
+/* ---------- saved applicants (Individual = 1, Joint = many) ---------- */
 .saved-applicants {
   border: 1px solid var(--blue-100);
   border-radius: var(--r-card);
@@ -441,6 +464,12 @@ input[type="date"].input-plain { color: var(--ink); }
 .saved-tbl { min-width: 560px; }
 .saved-tbl td { vertical-align: middle; }
 .saved-applicants #addMoreApplicant { margin-top: 14px; }
+
+/* row currently loaded into the form for editing */
+#savedRows tr.is-editing td {
+  background: var(--blue-50, #eef4ff);
+  box-shadow: inset 3px 0 0 var(--blue-600, #2563eb);
+}
 
 #savedRows .saved-detail-row td,
 #savedRows .saved-detail-row:hover td {
