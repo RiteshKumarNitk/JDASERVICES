@@ -397,7 +397,8 @@ function initApplicantProfilePage() {
     render();
   }
 
-  // Activate a tab and load its form(s) (first applicant default / deep-link).
+  // Activate a tab and load its form(s) — used only for a ?type= deep-link
+  // and for Edit. A new applicant never auto-activates a tab.
   function openType(type) {
     const r = $('input[name="applicantType"][value="' + type + '"]');
     if (r) r.checked = true;
@@ -557,8 +558,7 @@ function initApplicantProfilePage() {
         } else {
           render();
         }
-        // all applicants gone -> back to the first-applicant default (Self open)
-        if (!list.length && !isAddingApplicant && !editingId) openType('self');
+        // all applicants gone -> tabs visible again, but none active, no form
         toast('Applicant removed.');
       }
     });
@@ -583,15 +583,16 @@ function initApplicantProfilePage() {
   // Initial state:
   //   - applicants already saved -> Applicant Type section hidden; the page is
   //     just the "Added Applicants" list until "+ Add More Applicant".
-  //   - no applicant yet -> section visible; the first applicant defaults to
-  //     "Self" active with its form open (a valid ?type= deep-link wins).
+  //   - no applicant yet -> section visible with all five tabs, but NONE active
+  //     and NO form open. The user must click a tab.
+  //   - a valid ?type= deep-link is the only case that auto-opens a form.
   isAddingApplicant = false;
   editingId = null;
   resetFormArea();
   render();
-  if (getApplicants().length === 0) {
-    const qType = readQuery('type');
-    openType(qType && TYPE_FORMS[qType] ? qType : 'self');
+  const qType = readQuery('type');
+  if (qType && TYPE_FORMS[qType] && getApplicants().length === 0) {
+    openType(qType);
   }
 }
 
