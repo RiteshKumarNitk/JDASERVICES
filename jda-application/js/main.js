@@ -353,6 +353,7 @@ const PROPERTY_RESULTS = [
 ];
 
 let propertyRows = [];
+let propertyEditing = false;
 
 function rowField(row, key) {
   if (key === 'plot' || key === 'sector') return row.sectorPlot || '';
@@ -399,16 +400,60 @@ function doPropertySearch(card) {
   renderPropertyRows();
 }
 
-function initPropertyPage() {
-  propertyRows = [];
-  renderPropertyRows();
+// Persist the current property selection into the shared flow store.
+function persistProperty() {
+  setFlow({
+    propertyRecords: propertyRows.slice(),
+    propertyCount: propertyRows.length
+  });
+}
 
-  // restore the chosen Patta type (e.g. Edit round-trip / Back)
-  const savedPatta = getFlow().pattaType;
-  if (savedPatta) {
-    const pr = $('input[name="pattaType"][value="' + savedPatta + '"]');
-    if (pr) pr.checked = true;
+// Read-only summary of the saved property(ies) + an Edit action.
+function renderPropertySummary() {
+  const wrap = $('#propertySummary');
+  const searchArea = $('#propertySearchArea');
+  const saveBtn = $('#savePropertyEdit');
+  const recs = getFlow().propertyRecords || [];
+  const showSummary = recs.length > 0 && !propertyEditing;
+
+  if (wrap) {
+    wrap.hidden = !showSummary;
+    wrap.innerHTML = !showSummary ? '' : recs.map((r, i) => {
+      const rows = [
+        ['Property ID', r.id], ['Zone', r.zone], ['Scheme', r.scheme],
+        ['Sector & Plot No', r.sectorPlot], ['Area', r.area],
+        ['Area Unit', r.unit], ['Owner Name', r.owner]
+      ];
+      const title = recs.length > 1 ? 'Property ' + (i + 1) : 'Property Details';
+      const editBtn = i === 0
+        ? '<button class="btn btn-outline btn-sm summary-edit" type="button" id="editProperty">Edit</button>'
+        : '';
+      return '<div class="summary-card"><h3>' + esc(title) + editBtn + '</h3><dl class="summary-grid">' +
+        rows.map((kv) => '<div class="summary-row"><dt>' + esc(kv[0]) + '</dt><dd>' + esc(kv[1] || '—') + '</dd></div>').join('') +
+        '</dl></div>';
+    }).join('');
   }
+  if (searchArea) searchArea.hidden = showSummary;
+  if (saveBtn) saveBtn.hidden = !propertyEditing;
+
+  const editBtn = $('#editProperty');
+  if (editBtn) {
+    editBtn.addEventListener('click', () => {
+      propertyEditing = true;
+      propertyRows = (getFlow().propertyRecords || []).slice();
+      renderPropertyRows();
+      renderPropertySummary();
+      const area = $('#propertySearchArea');
+      if (area) area.scrollIntoView({ block: 'start', behavior: 'smooth' });
+    });
+  }
+}
+
+function initPropertyPage() {
+  propertyEditing = false;
+  propertyRows = (getFlow().propertyRecords || []).slice();
+  renderPropertyRows();
+  renderPropertySummary();
 
   $$('.tab-btn').forEach((btn) => {
     btn.addEventListener('click', () => {
@@ -436,15 +481,24 @@ function initPropertyPage() {
     });
   }
 
+  // Save (edit mode only): persist the updated selection and return to summary.
+  const saveEdit = $('#savePropertyEdit');
+  if (saveEdit) {
+    saveEdit.addEventListener('click', () => {
+      persistProperty();
+      propertyEditing = false;
+      renderPropertyRows();
+      renderPropertySummary();
+      toast('Property details updated.', true);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  }
+
   const proceed = $('#proceedProperty');
   if (proceed) {
     proceed.addEventListener('click', () => {
-      const patta = $('input[name="pattaType"]:checked');
-      setFlow({
-        pattaType: patta ? patta.value : (getFlow().pattaType || ''),
-        propertyCount: propertyRows.length || getFlow().propertyCount || 0
-      });
-      window.location.href = 'document-section.html';
+      persistProperty();
+      window.location.href = getFlow().editReturn ? 'final-submission.html' : 'document-section.html';
     });
   }
 }
@@ -1071,12 +1125,19 @@ function buildSummaryHtml() {
   });
 
   // property + documents
-  const patta = flow.pattaType === 'freeHold' ? 'Free Hold' : (flow.pattaType === 'leaseHold' ? 'Lease Hold' : null);
-  const docRows = [
-    ['Patta Type', patta],
-    ['Property', flow.propertyCount ? flow.propertyCount + ' record(s) added' : null],
-    ['Documents', flow.documentsVerified ? 'Verified' : null]
-  ];
+  const props = flow.propertyRecords || [];
+  const docRows = [];
+  if (props.length === 1) {
+    const p = props[0];
+    docRows.push(
+      ['Property ID', p.id], ['Zone', p.zone], ['Scheme', p.scheme],
+      ['Sector & Plot No', p.sectorPlot], ['Area', p.area],
+      ['Area Unit', p.unit], ['Owner Name', p.owner]
+    );
+  } else if (props.length > 1) {
+    docRows.push(['Property', props.length + ' record(s) selected']);
+  }
+  docRows.push(['Documents', flow.documentsVerified ? 'Verified' : null]);
   (flow.uploadedDocNames || []).forEach((n, i) => docRows.push(['Document ' + (i + 1), n]));
 
   const detailLabel = (d) => !d ? 'Provided'

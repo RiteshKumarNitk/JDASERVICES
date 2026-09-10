@@ -36,30 +36,16 @@
         </div>
 
         <div class="card-body">
-          <div class="block-card">
+
+          <!-- Saved property (read-only) — shown when property data already exists -->
+          <div id="propertySummary" hidden></div>
+
+          <div class="block-card" id="propertySearchArea">
             <div class="block-bar" style="cursor:default">
               <span class="block-title">Property Details</span>
             </div>
 
             <div class="block-panel">
-              <div class="patta-card">
-                <div class="sc-head" style="cursor:default">
-                  <span class="sc-title">Select Patta Type</span>
-                </div>
-                <div class="block-panel patta-body">
-                  <div class="radio-cards">
-                    <label class="radio-card">
-                      <input type="radio" name="pattaType" value="freeHold" checked />
-                      <span class="radio-dot"></span><span class="radio-text">Free Hold</span>
-                    </label>
-                    <label class="radio-card">
-                      <input type="radio" name="pattaType" value="leaseHold" />
-                      <span class="radio-dot"></span><span class="radio-text">Lease Hold</span>
-                    </label>
-                  </div>
-                </div>
-              </div>
-
               <div class="find-card">
                 <div class="tabs" role="tablist" aria-label="Find property">
                   <button type="button" class="tab-btn is-active" data-tab="0"><svg class="ic"><use href="#i-info"/></svg> (i) Find Through Scheme Name</button>
@@ -132,6 +118,7 @@
 
         <div class="card-foot">
           <a class="btn btn-outline" href="witness-details.html"><svg class="ic"><use href="#i-arrL"/></svg> Back</a>
+          <button class="btn btn-outline" type="button" id="savePropertyEdit" hidden><svg class="ic"><use href="#i-check"/></svg> Save</button>
           <button class="btn btn-success" type="button" id="proceedProperty">Proceed</button>
         </div>
       </div>

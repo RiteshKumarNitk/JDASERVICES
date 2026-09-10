@@ -366,34 +366,6 @@ a { text-decoration: none; color: inherit; }
 .collapsible.is-collapsed .block-panel { display: none; }
 .collapsible.is-collapsed .block-bar { border-radius: 12px; }
 
-.patta-card {
-  background: var(--panel-tint);
-  border: 1px solid var(--blue-100);
-  border-radius: 12px;
-  padding: 14px 16px;
-  margin-bottom: 18px;
-}
-
-.sc-head {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  width: 100%;
-  border: 0;
-  background: transparent;
-  font: inherit;
-  cursor: pointer;
-  text-align: left;
-  padding: 0;
-  margin-bottom: 12px;
-}
-.sc-head .block-tog { border-color: var(--blue-600); color: var(--blue-600); background: #fff; }
-
-.sc-title { font-size: 14px; font-weight: 700; color: var(--blue-900); letter-spacing: .2px; }
-.patta-card .patta-body { border: 0; background: transparent; padding: 0; }
-.patta-card.collapsible.is-collapsed .patta-body { display: none; }
-.patta-card.collapsible.is-collapsed .sc-head { margin-bottom: 0; }
-
 /* =====================================================================
    Tabbed search card (Property Profile)
    ===================================================================== */
