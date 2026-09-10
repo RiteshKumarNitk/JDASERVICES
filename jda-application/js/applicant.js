@@ -374,6 +374,7 @@ function initApplicantProfilePage() {
   //   "+ Add More Applicant" sets isAddingApplicant; Save / Edit-Save clears it.
   let editingId = null;
   let isAddingApplicant = false;
+  const viewOpen = new Set();   // ids of saved applicants whose details are expanded
 
   const currentType = () => {
     const t = $('input[name="applicantType"]:checked');
@@ -388,10 +389,12 @@ function initApplicantProfilePage() {
     $$('input[name="applicantType"]').forEach((r) => { r.checked = false; });
   }
 
-  // Finish adding / editing: hide the whole Applicant Type section again.
+  // Finish adding / editing: hide the whole Applicant Type section again and
+  // collapse every open details card.
   function endApplicantEntry() {
     editingId = null;
     isAddingApplicant = false;
+    viewOpen.clear();
     resetFormArea();
     try { history.replaceState(null, '', location.pathname); } catch (e) { /* ignore */ }
     render();
@@ -420,6 +423,7 @@ function initApplicantProfilePage() {
     if (savedRows) {
       savedRows.innerHTML = '';
       list.forEach((a, i) => {
+        const shown = viewOpen.has(a.id);
         const tr = document.createElement('tr');
         if (a.id === editingId) tr.classList.add('is-editing');
         tr.innerHTML =
@@ -427,17 +431,25 @@ function initApplicantProfilePage() {
           '<td>' + esc(a.typeLabel || a.type) + '</td>' +
           '<td>' + esc(a.name || '—') + '</td>' +
           '<td>' + esc(a.mobile || '—') + '</td>' +
-          '<td><button class="tbtn tbtn-view" type="button" data-edit="' + a.id + '">Edit</button></td>' +
+          '<td><button class="tbtn tbtn-view" type="button" data-view="' + a.id + '">' +
+            (shown ? 'Hide' : 'View') + '</button></td>' +
           '<td><button class="tbtn tbtn-del" type="button" data-remove="' + a.id + '">Remove</button></td>';
         savedRows.appendChild(tr);
 
-        // read-only detail row — always visible, no Hide/Collapse
+        // details card — collapsed by default, revealed by the row's View button
         const dr = document.createElement('tr');
         dr.className = 'saved-detail-row';
-        dr.innerHTML = '<td colspan="6">' + (a.sections || []).map((s) =>
-          '<div class="sd-group"><h4>' + esc(s.title) + '</h4><dl>' +
-          (s.rows || []).map((r) => '<div><dt>' + esc(r.label) + '</dt><dd>' + esc(r.value || '—') + '</dd></div>').join('') +
-          '</dl></div>').join('') + '</td>';
+        dr.hidden = !shown;
+        dr.innerHTML = '<td colspan="6"><div class="sd-card">' +
+          '<div class="sd-card-head">' +
+            '<h4 class="sd-card-title">Applicant Details</h4>' +
+            '<button class="btn btn-outline btn-sm" type="button" data-edit="' + a.id + '">Edit</button>' +
+          '</div>' +
+          (a.sections || []).map((s) =>
+            '<div class="sd-group"><h4>' + esc(s.title) + '</h4><dl>' +
+            (s.rows || []).map((r) => '<div><dt>' + esc(r.label) + '</dt><dd>' + esc(r.value || '—') + '</dd></div>').join('') +
+            '</dl></div>').join('') +
+          '</div></td>';
         savedRows.appendChild(dr);
       });
     }
@@ -477,6 +489,7 @@ function initApplicantProfilePage() {
     const a = getApplicants().find((x) => x.id === id);
     if (!a) return;
     isAddingApplicant = false;
+    viewOpen.clear();          // collapse the details card while its form is open above
     editingId = id;
     $$('input[name="applicantType"]').forEach((r) => { r.checked = r.value === a.type; });
     render();
@@ -536,22 +549,29 @@ function initApplicantProfilePage() {
     addMoreBtn.addEventListener('click', () => {
       isAddingApplicant = true;
       editingId = null;
+      viewOpen.clear();
       resetFormArea();
       render();
       if (panel) panel.scrollIntoView({ block: 'start', behavior: 'smooth' });
     });
   }
 
-  // table actions — Edit / Remove
+  // table actions — View (toggle details) / Edit (from the details card) / Remove
   if (savedRows) {
     savedRows.addEventListener('click', (e) => {
+      const v = e.target.closest('[data-view]');
       const ed = e.target.closest('[data-edit]');
       const d = e.target.closest('[data-remove]');
-      if (ed) {
+      if (v) {
+        const id = v.dataset.view;
+        if (viewOpen.has(id)) viewOpen.delete(id); else viewOpen.add(id);
+        render();
+      } else if (ed) {
         editApplicant(ed.dataset.edit);
       } else if (d) {
         const rid = d.dataset.remove;
         const list = getApplicants().filter((a) => a.id !== rid);
+        viewOpen.delete(rid);
         persist(list);
         if (editingId === rid) {
           endApplicantEntry();          // was editing the removed one

@@ -477,6 +477,33 @@ input[type="date"].input-plain { color: var(--ink); }
   background: var(--panel-tint);
   padding: 14px 16px;
 }
+
+/* expanded details card (revealed by the row's View button) */
+.sd-card {
+  background: #fff;
+  border: 1px solid var(--blue-100);
+  border-radius: 10px;
+  padding: 14px 16px;
+}
+.sd-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--blue-100);
+}
+.sd-card-title {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  color: var(--blue-900);
+}
+.sd-card-head .btn-sm { flex: none; }
+
 .sd-group + .sd-group { margin-top: 12px; }
 .sd-group h4 {
   font-size: 11px;
