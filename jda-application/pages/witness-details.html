@@ -31,7 +31,7 @@
 
     <main>
       <div id="witnessRoot">
-        <section class="form-card section">
+        <section class="form-card section" id="witnessForm">
           <div class="page-hero">
             <span class="hero-badge">WT</span>
             <div>
@@ -40,7 +40,10 @@
             </div>
           </div>
 
-          <div class="card-body">
+          <!-- Saved witness (read-only) — shown when witness data already exists -->
+          <div id="witnessSummary" hidden></div>
+
+          <div class="card-body" id="witnessFormBody">
             <div class="seg-tabs">
               <label class="seg-tab">
                 <input type="radio" name="aadhaar-witness" value="with" checked />
@@ -104,6 +107,7 @@
 
           <div class="card-foot">
             <a class="btn btn-outline" href="applicant-profile.html"><svg class="ic"><use href="#i-arrL"/></svg> Back</a>
+            <button class="btn btn-outline" type="button" id="saveWitnessEdit" hidden><svg class="ic"><use href="#i-check"/></svg> Save</button>
             <button class="btn btn-primary" type="button" id="continueWitness">Proceed <svg class="ic"><use href="#i-arrR"/></svg></button>
           </div>
         </section>

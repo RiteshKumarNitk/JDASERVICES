@@ -623,33 +623,79 @@ function initWitnessPage() {
   const container = $('#witnessRoot');
   if (!container) return;
 
+  const formBody = $('#witnessFormBody');
+  const summaryWrap = $('#witnessSummary');
+  const saveEditBtn = $('#saveWitnessEdit');
+  let witnessEditing = false;
+
   enhanceSelects(container);
   initCounters(container);
   bindFetches(container);
 
-  // prefill from a previously saved Witness section (Edit round-trip)
-  const savedWitness = (getFlow().formSections || []).find((s) => /witness/i.test(s.title || ''));
-  if (savedWitness) {
-    const byLabel = {};
-    (savedWitness.rows || []).forEach((r) => { byLabel[String(r.label).toLowerCase().trim()] = r.value; });
+  const savedWitness = () =>
+    (getFlow().formSections || []).find((s) => /witness/i.test(s.title || '')) || null;
 
-    // set Aadhaar mode first (it may lock/clear the identity fields)
+  // Persist the witness section, replacing any existing one (never duplicates).
+  function persistWitness() {
+    const kept = (getFlow().formSections || []).filter((s) => !/witness/i.test(s.title || ''));
+    const witnessSection = collectFormSections(container)[0];
+    setFlow({ formSections: witnessSection ? kept.concat([witnessSection]) : kept });
+  }
+
+  // Restore a saved Witness record back into the form fields.
+  function prefillForm() {
+    const saved = savedWitness();
+    if (!saved) return;
+    const byLabel = {};
+    (saved.rows || []).forEach((r) => { byLabel[String(r.label).toLowerCase().trim()] = r.value; });
+
+    // Aadhaar mode first — it locks / clears the identity fields
     const aad = byLabel['witness aadhaar'];
-    if (aad && /without/i.test(aad)) {
-      const r = $('input[name="aadhaar-witness"][value="without"]', container);
-      if (r && !r.checked) { r.checked = true; r.dispatchEvent(new Event('change', { bubbles: true })); }
-    }
+    const mode = aad && /without/i.test(aad) ? 'without' : 'with';
+    const r = $('input[name="aadhaar-witness"][value="' + mode + '"]', container);
+    if (r && !r.checked) { r.checked = true; r.dispatchEvent(new Event('change', { bubbles: true })); }
 
     const put = (id, label) => {
       const el = $('#' + id, container);
       const v = byLabel[label];
-      if (el && v != null && v !== '') el.value = v;
+      if (el && v != null && v !== '') { el.value = v; fireInput(el); }
     };
+    put('witnessAadhaar', 'aadhaar no');
     put('witnessName', 'name of witness');
     put('witnessFather', 'father / husband name');
     put('witnessAddress', 'address');
     const rel = $('#relWitness', container);
     if (rel && rel._ss && byLabel['relation']) rel._ss.setValue(byLabel['relation'], true);
+  }
+
+  // Read-only summary of the saved witness + an Edit action.
+  function renderWitnessSummary() {
+    const saved = savedWitness();
+    const show = !!saved && !witnessEditing;
+
+    if (summaryWrap) {
+      summaryWrap.hidden = !show;
+      summaryWrap.innerHTML = !show ? '' :
+        '<div class="summary-card"><h3>Witness Profile' +
+          '<button class="btn btn-outline btn-sm summary-edit" type="button" id="editWitness">Edit</button>' +
+        '</h3><dl class="summary-grid">' +
+        (saved.rows || []).map((row) =>
+          '<div class="summary-row"><dt>' + esc(row.label) + '</dt><dd>' + esc(row.value || '—') + '</dd></div>'
+        ).join('') +
+        '</dl></div>';
+    }
+    if (formBody) formBody.hidden = show;
+    if (saveEditBtn) saveEditBtn.hidden = !witnessEditing;
+
+    const eb = $('#editWitness');
+    if (eb) {
+      eb.addEventListener('click', () => {
+        witnessEditing = true;
+        prefillForm();
+        renderWitnessSummary();
+        if (formBody) formBody.scrollIntoView({ block: 'start', behavior: 'smooth' });
+      });
+    }
   }
 
   // With / Without Aadhaar toggle: show/hide the fetch row + lock/release Aadhaar fields
@@ -661,17 +707,33 @@ function initWitnessPage() {
     applyAadhaarMode(article, e.target.value === 'with');
   });
 
+  // Save (edit mode): update the same record, return to the summary.
+  if (saveEditBtn) {
+    saveEditBtn.addEventListener('click', () => {
+      if (validateScope(container)) return;
+      persistWitness();
+      witnessEditing = false;
+      renderWitnessSummary();
+      toast('Witness details updated.', true);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  }
+
   const continueBtn = $('#continueWitness');
   if (continueBtn) {
     continueBtn.addEventListener('click', () => {
-      const bad = validateScope(container);
-      if (bad) return;
-      const kept = (getFlow().formSections || []).filter((s) => s.title !== 'Witness Profile');
-      const witnessSection = collectFormSections(container)[0];
-      setFlow({ formSections: witnessSection ? kept.concat([witnessSection]) : kept });
-      window.location.href = getFlow().editReturn ? 'final-submission.html' : 'property-profile.html';
+      const next = getFlow().editReturn ? 'final-submission.html' : 'property-profile.html';
+      // showing the saved summary (not editing) -> nothing to re-validate, just go
+      if (!witnessEditing && savedWitness()) { window.location.href = next; return; }
+      if (validateScope(container)) return;
+      persistWitness();
+      window.location.href = next;
     });
   }
+
+  // Initial state: saved witness -> read-only summary; otherwise the blank form.
+  witnessEditing = false;
+  renderWitnessSummary();
 }
 
 /* ------------------------------------------------------------------ */
