@@ -964,7 +964,14 @@ a { text-decoration: none; color: inherit; }
 }
 
 /* Registry / Electricity sub-form rendered inside its document row */
-#docRows .doc-detail-row > .row-detail-cell { padding: 0; background: var(--panel-tint); }
+#docRows .doc-detail-row > .row-detail-cell,
+#docRows .doc-detail-row > td {
+  padding: 0;
+  background: var(--panel-tint);
+  /* keep the spanning cell from stretching the outer document table to fit
+     its nested content — the nested table wrapper scrolls on its own */
+  max-width: 0;
+}
 .row-detail {
   margin: 4px 10px 12px;
   padding: 16px;
@@ -973,7 +980,57 @@ a { text-decoration: none; color: inherit; }
   border-top: 3px solid var(--blue-600);
   border-radius: 10px;
   box-shadow: 0 8px 20px -14px rgba(31, 69, 114, .4);
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;          /* only the inner .table-wrap may scroll sideways */
 }
+.row-detail .detail-card,
+.row-detail .upload-fallback,
+.up-card {
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+.row-detail .table-wrap {
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+/* the reduced 8-column registry table needs far less width */
+.row-detail .tbl { min-width: 520px; }
+
+/* read-only "View" card for a Registry / Electricity row */
+.row-detail-ro .ro-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--blue-100);
+}
+.row-detail-ro .ro-title {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--blue-900);
+}
+.row-detail-ro .ro-head .btn-sm { flex: none; }
+.row-detail-ro .ro-line { margin: 8px 0; font-size: 13px; color: var(--ink-2); }
+.row-detail-ro .ro-key { color: var(--muted); font-weight: 600; margin-right: 6px; }
+.row-detail-ro .ro-val { font-weight: 600; word-break: break-word; }
+.row-detail-ro .ro-file {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 12px;
+  font-size: 13px;
+  color: var(--ink-2);
+}
+.row-detail-ro .ro-empty { margin: 4px 0; font-size: 13px; color: var(--muted); }
+.row-detail-ro .table-title { margin-top: 14px; }
 .row-detail-foot {
   display: flex;
   justify-content: flex-end;

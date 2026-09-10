@@ -478,35 +478,52 @@ function randDate() {
   return String(d.getDate()).padStart(2, '0') + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + d.getFullYear();
 }
 
-function fillDetailTable(panel, topic, refValue) {
-  const table = panel.querySelector('.tbl');
-  const tbody = table && table.querySelector('tbody');
-  if (!tbody) return;
+// Last fetched detail row per sub-form, so "View" can redraw it after the
+// user navigates away and back (persisted into flow on Save).
+const detailRows = { registry: null, electricity: null };
 
-  let cells;
-  if (topic === 'Registry Number') {
-    cells = [
-      '1', pick(NAME_POOL), pick(FATHER_POOL), pick(ADDR_POOL),
-      randDigits(4) + '/' + (2015 + Math.floor(Math.random() * 10)),
-      esc(refValue), randDate(), 'Jaipur', pick(TEHSIL_POOL), 'Registered'
-    ];
-  } else {
-    cells = [
-      '1', esc(refValue), pick(NAME_POOL), pick(FATHER_POOL), pick(ADDR_POOL),
-      pick(['Domestic', 'Commercial']), randDate()
-    ];
-  }
-
+// Paint one saved/fetched detail row into a sub-form's table.
+function renderDetailRows(block, cells) {
+  const tbody = block && block.querySelector('.tbl tbody');
+  if (!tbody || !cells || !cells.length) return;
   tbody.classList.remove('empty-state');
   tbody.innerHTML =
     '<tr>' + cells.map((c) => '<td>' + c + '</td>').join('') +
     '<td><button type="button" class="tbtn tbtn-del remove-detail">delete</button></td></tr>';
 }
 
+function fillDetailTable(panel, topic, refValue) {
+  const table = panel.querySelector('.tbl');
+  const tbody = table && table.querySelector('tbody');
+  if (!tbody) return;
+
+  let cells, kind;
+  if (topic === 'Registry Number') {
+    kind = 'registry';
+    // Reduced 8-column view: S.No, Party Name, Property Address, Document No,
+    // Registry No, Registry Date, Document Status, Action.
+    cells = [
+      '1', pick(NAME_POOL), pick(ADDR_POOL),
+      randDigits(4) + '/' + (2015 + Math.floor(Math.random() * 10)),
+      esc(refValue), randDate(), 'Registered'
+    ];
+  } else {
+    kind = 'electricity';
+    cells = [
+      '1', esc(refValue), pick(NAME_POOL), pick(FATHER_POOL), pick(ADDR_POOL),
+      pick(['Domestic', 'Commercial']), randDate()
+    ];
+  }
+
+  detailRows[kind] = cells;
+  renderDetailRows(panel, cells);
+}
+
 /* One reusable inline upload card, opened directly below the clicked row.
    Only one card open at a time. */
 const docFiles = {};       // DOCS index -> File (session only, for preview)
-let openDocIdx = null;     // index of the row whose card is open
+let openDocIdx = null;     // index of the row whose EDIT card is open
+let openViewIdx = null;    // index of the row whose READ-ONLY view is open
 let stagedDocFile = null;  // file picked in the open card, not yet saved
 
 function docActionHtml(item) {
@@ -645,14 +662,93 @@ function persistDocs() {
 
 function openDocCard(idx) {
   if (openDocIdx === idx) { closeDocCard(); return; }
+  openViewIdx = null;               // leaving read-only view for the edit card
   openDocIdx = idx;
   stagedDocFile = null;
   renderDocTable();
 }
 function closeDocCard() {
   openDocIdx = null;
+  openViewIdx = null;
   stagedDocFile = null;
   renderDocTable();
+}
+
+// READ-ONLY view of a Registry / Electricity row's saved details (no inputs)
+function openDocView(idx) {
+  if (openViewIdx === idx) { openViewIdx = null; renderDocTable(); return; }
+  openDocIdx = null;
+  stagedDocFile = null;
+  openViewIdx = idx;
+  renderDocTable();
+}
+
+function mountDocView(idx) {
+  const tbody = $('#docRows');
+  const rowTr = tbody && tbody.children[idx];
+  const item = DOCS[idx];
+  if (!rowTr || !item || !item.detail) return;
+
+  const kind = item.detail;
+  const data = getFlow()[kind + 'Data'] || {};
+  const cells = Array.isArray(data.rows) && data.rows.length ? data.rows : (detailRows[kind] || null);
+  const title = kind === 'registry' ? 'Registry Details' : 'Electricity Connection Details';
+  const refLabel = kind === 'registry' ? 'Registry Number' : 'K Number';
+  const docLabel = kind === 'registry' ? 'Registry Document' : 'Connection Document';
+  const detailTitle = kind === 'registry' ? 'Registry Detail' : 'Connection Detail';
+  const headers = kind === 'registry'
+    ? ['S.No', 'Party Name', 'Property Address', 'Document No', 'Registry No', 'Registry Date', 'Document Status', 'Action']
+    : ['S.No', 'K Number', 'Consumer Name', 'Fathers Name', 'Address', 'Category Of Connection', 'Date Of Connection', 'Action'];
+
+  const refHtml = data.ref
+    ? '<p class="ro-line"><span class="ro-key">' + esc(refLabel) + ':</span> <span class="ro-val">' + esc(data.ref) + '</span></p>'
+    : '';
+
+  let tableHtml = '';
+  if (cells && cells.length) {
+    tableHtml =
+      '<h4 class="table-title">' + esc(detailTitle) + '</h4>' +
+      '<div class="table-wrap"><table class="tbl"><thead><tr>' +
+        headers.map((h) => '<th>' + esc(h) + '</th>').join('') +
+      '</tr></thead><tbody><tr>' +
+        cells.map((c) => '<td>' + c + '</td>').join('') + '<td>—</td>' +
+      '</tr></tbody></table></div>';
+  }
+
+  let fileHtml = '';
+  if (data.method === 'upload' && data.fileName) {
+    fileHtml =
+      '<div class="ro-file"><span class="ro-key">' + esc(docLabel) + ':</span> ' +
+      '<span class="ro-val">' + esc(data.fileName) + '</span>' +
+      '<button type="button" class="tbtn tbtn-view" data-view-preview="' + idx + '">Preview</button></div>';
+  }
+
+  const bodyHtml = (refHtml || tableHtml || fileHtml)
+    ? (refHtml + tableHtml + fileHtml)
+    : '<p class="ro-empty">No saved details yet — click <strong>Edit</strong> to add them.</p>';
+
+  const tr = document.createElement('tr');
+  tr.className = 'doc-detail-row';
+  tr.dataset.docDetail = idx;
+  tr.innerHTML =
+    '<td colspan="6"><div class="row-detail row-detail-ro">' +
+      '<div class="ro-head">' +
+        '<h4 class="ro-title">' + esc(title) + '</h4>' +
+        '<button class="btn btn-outline btn-sm" type="button" data-detail-edit="' + idx + '">Edit</button>' +
+      '</div>' + bodyHtml +
+    '</div></td>';
+  rowTr.after(tr);
+
+  const pv = tr.querySelector('[data-view-preview]');
+  if (pv) pv.addEventListener('click', () => {
+    const f = docFiles[idx];
+    if (f) window.open(URL.createObjectURL(f), '_blank');
+    else toast('Preview not available for this file.');
+  });
+  const ed = tr.querySelector('[data-detail-edit]');
+  if (ed) ed.addEventListener('click', () => openDocCard(idx));
+
+  tr.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
 }
 
 function renderDocTable() {
@@ -680,6 +776,7 @@ function renderDocTable() {
   });
 
   if (openDocIdx != null) mountDocCard(openDocIdx);
+  else if (openViewIdx != null) mountDocView(openViewIdx);
 }
 
 function initDocumentsPage() {
@@ -708,18 +805,25 @@ function initDocumentsPage() {
       const act = btn.dataset.act;
 
       if (act === 'upload') {
-        openDocCard(idx);                 // Upload / Uploaded(replace) -> inline card below this row
+        openDocCard(idx);                 // "Upload" / green "Uploaded" -> document management / edit card
       } else if (act === 'view') {
-        const f = docFiles[idx];
-        if (f) window.open(URL.createObjectURL(f), '_blank');
-        else toast('Viewing ' + (item.name || 'document') + ' (no local preview).');
+        if (item.detail) {
+          openDocView(idx);              // Registry / Electricity -> READ-ONLY view of saved details
+        } else {
+          const f = docFiles[idx];
+          if (f) window.open(URL.createObjectURL(f), '_blank');
+          else toast('Viewing ' + (item.name || 'document') + ' (no local preview).');
+        }
       } else if (act === 'del') {
         item.uploaded = false;
         delete item.name;
         delete docFiles[idx];
         if (item.detail) {
           delete upFiles[item.detail];
-          setFlow(item.detail === 'registry' ? { registryDone: false } : { electricityDone: false });
+          detailRows[item.detail] = null;
+          setFlow(item.detail === 'registry'
+            ? { registryDone: false, registryData: null }
+            : { electricityDone: false, electricityData: null });
           const block = document.getElementById(item.detail + 'Detail');
           if (block) {
             const tb = block.querySelector('.tbl tbody');
@@ -728,9 +832,11 @@ function initDocumentsPage() {
             const ii = block.querySelector('#regNo, #kNo'); if (ii) ii.value = '';
             const fr = block.querySelector('[data-file-result]'); if (fr) fr.hidden = true;
             const fn = block.querySelector('[data-file-name]'); if (fn) fn.textContent = 'No file chosen';
+            const ub = block.querySelector('[data-file-upload]'); if (ub) ub.textContent = 'Upload';
           }
         }
         if (openDocIdx === idx) openDocIdx = null;
+        if (openViewIdx === idx) openViewIdx = null;
         persistDocs();
         renderDocTable();
         toast('Document removed.');
@@ -760,6 +866,9 @@ function initDocumentsPage() {
     const table = rm.closest('.tbl');
     const tb = table && table.querySelector('tbody');
     if (!tb) return;
+    const detailBlock = rm.closest('.row-detail');
+    if (detailBlock && detailBlock.id === 'registryDetail') detailRows.registry = null;
+    if (detailBlock && detailBlock.id === 'electricityDetail') detailRows.electricity = null;
     const cols = table.querySelectorAll('thead th').length;
     tb.classList.add('empty-state');
     tb.innerHTML = '<tr><td colspan="' + cols + '">No data available in table</td></tr>';
@@ -782,9 +891,15 @@ function initDocumentsPage() {
       const idInput = block.querySelector('#regNo, #kNo');
       if (idInput) idInput.value = d.ref;
     }
+    if (Array.isArray(d.rows) && d.rows.length) {
+      detailRows[kind] = d.rows;
+      renderDetailRows(block, d.rows);        // so "View" shows the saved fetched data
+    }
     if (d.method === 'upload' && d.fileName) {
       block.querySelector('[data-file-final]').textContent = d.fileName;
       block.querySelector('[data-file-result]').hidden = false;
+      const ub = block.querySelector('[data-file-upload]');
+      if (ub) ub.textContent = 'Re-upload';
     }
   });
 
@@ -796,12 +911,19 @@ function initDocumentsPage() {
     input.addEventListener('change', () => {
       box.querySelector('[data-file-name]').textContent = input.files[0] ? input.files[0].name : 'No file chosen';
     });
-    box.querySelector('[data-file-upload]').addEventListener('click', () => {
+    const uploadBtn = box.querySelector('[data-file-upload]');
+    uploadBtn.addEventListener('click', () => {
       const file = input.files[0];
-      if (!file) { toast('Please choose a file to upload.'); return; }
+      // Re-upload: only replace the existing file once a new one is chosen & this succeeds.
+      if (!file) {
+        toast(upFiles[kind] ? 'Choose a replacement file first.' : 'Please choose a file to upload.');
+        return;
+      }
       upFiles[kind] = file;
       box.querySelector('[data-file-final]').textContent = file.name;
+      box.querySelector('[data-file-name]').textContent = file.name;
       box.querySelector('[data-file-result]').hidden = false;
+      uploadBtn.textContent = 'Re-upload';       // stays "Re-upload" for every subsequent replace
       toast('Document uploaded.', true);
     });
     box.querySelector('[data-file-preview]').addEventListener('click', () => {
@@ -814,6 +936,7 @@ function initDocumentsPage() {
       input.value = '';
       box.querySelector('[data-file-name]').textContent = 'No file chosen';
       box.querySelector('[data-file-result]').hidden = true;
+      uploadBtn.textContent = 'Upload';
     });
   });
 
@@ -843,12 +966,18 @@ function initDocumentsPage() {
           : (idVal ? (kind === 'registry' ? 'Registry No. ' + idVal : 'K No. ' + idVal) : 'Fetched details');
         if (hasFile) docFiles[idx] = upFiles[kind];
       }
-      const data = { method: hasFile ? 'upload' : 'fetch', ref: idVal, fileName: hasFile ? upFiles[kind].name : '' };
+      const data = {
+        method: hasFile ? 'upload' : 'fetch',
+        ref: idVal,
+        fileName: hasFile ? upFiles[kind].name : '',
+        rows: hasRow ? detailRows[kind] : null      // keep fetched table so "View" can redraw it
+      };
       setFlow(kind === 'registry'
         ? { registryDone: true, registryData: data }
         : { electricityDone: true, electricityData: data });
       persistDocs();
       openDocIdx = null;
+      openViewIdx = idx >= 0 ? idx : null;   // Save -> back to READ-ONLY view with the updated data
       renderDocTable();
       toast((kind === 'registry' ? 'Registry' : 'Electricity connection') + ' details saved.', true);
     });
