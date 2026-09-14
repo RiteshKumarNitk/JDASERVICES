@@ -1102,6 +1102,30 @@ function finalSection(title, rows, editHref) {
   return '<div class="summary-card"><h3>' + esc(title) + edit + '</h3><dl class="summary-grid">' + body + '</dl></div>';
 }
 
+/* Documents card in Review / Final Submission: strictly S.No | Document Name | View
+   — read straight from the same uploaded-document collection the Document
+   Section already maintains (flow.uploadedDocNames), full filenames, no
+   truncation, no metadata columns. */
+function documentsReviewSection() {
+  const names = getFlow().uploadedDocNames || [];
+  const rows = names.length
+    ? names.map((n, i) =>
+        '<tr><td>' + (i + 1) + '</td>' +
+        '<td class="rv-doc-name">' + esc(n) + '</td>' +
+        '<td><button type="button" class="tbtn tbtn-view" data-review-doc="' + i + '">View</button></td></tr>'
+      ).join('')
+    : '<tr class="empty-state"><td colspan="3">No documents uploaded yet</td></tr>';
+
+  return '<div class="summary-card"><h3>Documents' +
+      '<a class="btn btn-outline btn-sm summary-edit" href="document-section.html" data-edit>Edit</a>' +
+    '</h3>' +
+    '<div class="table-wrap rv-doc-wrap"><table class="tbl rv-doc-tbl">' +
+      '<thead><tr><th>S.No</th><th>Document Name</th><th>View</th></tr></thead>' +
+      '<tbody>' + rows + '</tbody>' +
+    '</table></div>' +
+  '</div>';
+}
+
 /* Shared summary markup used by both Review Application and Final Submission */
 function buildSummaryHtml() {
   const flow = getFlow();
@@ -1139,18 +1163,8 @@ function buildSummaryHtml() {
   }
   html += finalSection('Property Profile', propRows, 'property-profile.html');
 
-  // Documents — document fields only
-  const docRows = [];
-  docRows.push(['Documents', flow.documentsVerified ? 'Verified' : null]);
-  (flow.uploadedDocNames || []).forEach((n, i) => docRows.push(['Document ' + (i + 1), n]));
-
-  const detailLabel = (d) => !d ? 'Provided'
-    : (d.method === 'upload' ? ('Uploaded — ' + (d.fileName || 'document'))
-       : ('Fetched' + (d.ref ? ' (' + d.ref + ')' : '')));
-  if (flow.registryDone) docRows.push(['Registry Details', detailLabel(flow.registryData)]);
-  if (flow.electricityDone) docRows.push(['Electricity Connection', detailLabel(flow.electricityData)]);
-
-  html += finalSection('Documents', docRows, 'document-section.html');
+  // Documents — strictly S.No | Document Name | View (see documentsReviewSection)
+  html += documentsReviewSection();
 
   return html;
 }
@@ -1245,6 +1259,15 @@ function initGlobal() {
     e.preventDefault();
     setFlow({ editReturn: true });
     window.location.href = link.getAttribute('href');
+  });
+
+  // Review Documents table — View is read-only preview, never the upload/edit UI
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-review-doc]');
+    if (!btn) return;
+    const idx = parseInt(btn.dataset.reviewDoc, 10);
+    const name = (getFlow().uploadedDocNames || [])[idx] || 'document';
+    toast('Viewing ' + name + ' (no local preview after navigation).');
   });
 
   // collapsible section bars

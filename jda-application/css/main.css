@@ -811,6 +811,18 @@ a { text-decoration: none; color: inherit; }
   letter-spacing: .2px;
 }
 
+/* Review Documents table (S.No | Document Name | View) — full filenames,
+   never truncated; the name column wraps instead of forcing a scrollbar. */
+.rv-doc-wrap { margin: 14px 18px 16px; width: auto; max-width: calc(100% - 36px); overflow-x: auto; }
+.rv-doc-tbl { min-width: 0; width: 100%; table-layout: fixed; }
+.rv-doc-tbl th:first-child, .rv-doc-tbl td:first-child { width: 56px; }
+.rv-doc-tbl th:last-child, .rv-doc-tbl td:last-child { width: 84px; text-align: left; }
+.rv-doc-tbl td.rv-doc-name {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
 .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
 .summary-row { padding: 11px 18px; border-bottom: 1px solid #eef2f8; display: flex; gap: 12px; }
 .summary-row:nth-child(odd) { border-right: 1px solid #eef2f8; }
