@@ -1124,19 +1124,23 @@ function buildSummaryHtml() {
     html += finalSection(t, sec.rows || [], href);
   });
 
-  // property + documents
+  // Property Profile — property fields only
   const props = flow.propertyRecords || [];
-  const docRows = [];
+  const propRows = [];
   if (props.length === 1) {
     const p = props[0];
-    docRows.push(
+    propRows.push(
       ['Property ID', p.id], ['Zone', p.zone], ['Scheme', p.scheme],
       ['Sector & Plot No', p.sectorPlot], ['Area', p.area],
       ['Area Unit', p.unit], ['Owner Name', p.owner]
     );
   } else if (props.length > 1) {
-    docRows.push(['Property', props.length + ' record(s) selected']);
+    propRows.push(['Property', props.length + ' record(s) selected']);
   }
+  html += finalSection('Property Profile', propRows, 'property-profile.html');
+
+  // Documents — document fields only
+  const docRows = [];
   docRows.push(['Documents', flow.documentsVerified ? 'Verified' : null]);
   (flow.uploadedDocNames || []).forEach((n, i) => docRows.push(['Document ' + (i + 1), n]));
 
@@ -1146,7 +1150,7 @@ function buildSummaryHtml() {
   if (flow.registryDone) docRows.push(['Registry Details', detailLabel(flow.registryData)]);
   if (flow.electricityDone) docRows.push(['Electricity Connection', detailLabel(flow.electricityData)]);
 
-  html += finalSection('Property & Documents', docRows, 'property-profile.html');
+  html += finalSection('Documents', docRows, 'document-section.html');
 
   return html;
 }
