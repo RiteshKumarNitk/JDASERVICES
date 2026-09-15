@@ -7,15 +7,19 @@
 
 // Main services. Only "Patta" appears in the provided reference, so only
 // it ships here. Add services with their sub-service / based-on lists.
+const BASED_ON = [
+  'Purchased from Original Allottee Through Sale Deed',
+  'Based on Death Certificate',
+  'On the basis of Gift Deed'
+];
+
 const SERVICES = [
   {
     label: 'Patta',
     subServices: [
-      { label: 'JDA Scheme', basedOn: ['Purchase from Original Allottee / Sale Deed'] },
-      // NOTE: placeholder sample options until the production catalogue is provided
-      { label: 'Co-Operative', basedOn: ['Transfer through Co-Operative Society', 'Purchase from Original Allottee / Sale Deed'] },
-      // NOTE: placeholder sample options until the production catalogue is provided
-      { label: 'Niji Khatedar', basedOn: ['Purchase / Sale Deed', 'Succession / Legal Heir', 'Gift Deed'] }
+      { label: 'Lease Hold E-Patta', basedOn: BASED_ON },
+      { label: 'Free Hold E-Patta', basedOn: BASED_ON },
+      { label: 'Free Hold E-Patta in lieu of already issued Patta (Lease Deed)', basedOn: BASED_ON }
     ]
   }
 ];
