@@ -6,7 +6,6 @@
   </div>
 
   <div class="card-body">
-    <p class="sec-sub">Fill in the details of the guardian acting for the minor applicant.</p>
     <div class="seg-tabs">
       <label class="seg-tab">
         <input type="radio" name="aadhaar-guardian" value="with" checked />
@@ -17,6 +16,10 @@
         <span>Without Aadhaar</span>
       </label>
     </div>
+
+    <p class="sec-sub" data-aadhaar-msg
+       data-with-msg="Fill in the required details to fetch the guardian's information."
+       data-without-msg="Enter the guardian's details manually to continue.">Fill in the required details to fetch the guardian's information.</p>
 
     <div class="fetch-block" data-block="guardian">
       <div class="field">

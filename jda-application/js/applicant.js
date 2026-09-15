@@ -128,6 +128,7 @@ async function loadForms(type, container) {
   initCounters(container);
   bindFetches(container);
   bindSameAddress(container);
+  syncAadhaarMessages(container);
 
   setFlow({ applicantType: type });
 }
@@ -249,6 +250,27 @@ function applyAadhaarMode(article, withAadhaar) {
 
   if (withAadhaar) syncWhatsApp(article);
   setAadhaarLock(article, withAadhaar);
+}
+
+// Swap the instructional text under the With/Without Aadhaar toggle. Each
+// [data-aadhaar-msg] paragraph carries its own contextual copy for both
+// modes via data-with-msg / data-without-msg, so this stays generic across
+// every form (Applicant, POA, Minor, Guardian, Company, Company POA, Witness).
+function updateAadhaarMessage(article, withAadhaar) {
+  if (!article) return;
+  const msg = article.querySelector('[data-aadhaar-msg]');
+  if (!msg) return;
+  msg.textContent = withAadhaar ? msg.dataset.withMsg : msg.dataset.withoutMsg;
+}
+
+// Sync every card's message (and, implicitly, nothing else) to whichever
+// Aadhaar mode is currently checked — called once after a form is mounted
+// so restored/default state is reflected even before any toggle click.
+function syncAadhaarMessages(scope) {
+  $$('.form-card.section', scope).forEach((card) => {
+    const checked = card.querySelector('input[type="radio"][name^="aadhaar-"]:checked');
+    if (checked) updateAadhaarMessage(card, checked.value === 'with');
+  });
 }
 
 function bindFetches(scope) {
@@ -599,6 +621,7 @@ function initApplicantProfilePage() {
       const block = article && article.querySelector('.fetch-block');
       if (block) block.hidden = t.value !== 'with';
       applyAadhaarMode(article, t.value === 'with');
+      updateAadhaarMessage(article, t.value === 'with');
     }
   });
 
@@ -710,6 +733,7 @@ function initWitnessPage() {
   initCounters(container);
   bindFetches(container);
   bindSameAddress(container);
+  syncAadhaarMessages(container);
 
   const savedWitness = () =>
     (getFlow().formSections || []).find((s) => /witness/i.test(s.title || '')) || null;
@@ -788,6 +812,7 @@ function initWitnessPage() {
     const block = container.querySelector('.fetch-block');
     if (block) block.hidden = e.target.value !== 'with';
     applyAadhaarMode(article, e.target.value === 'with');
+    updateAadhaarMessage(article, e.target.value === 'with');
   });
 
   // Save (edit mode): update the same record, return to the summary.
