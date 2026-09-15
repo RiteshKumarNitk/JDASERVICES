@@ -5,23 +5,24 @@
    ===================================================================== */
 'use strict';
 
-// Main services. Only "Patta" appears in the provided reference, so only
-// it ships here. Add services with their sub-service / based-on lists.
+// Main services (Select Service) with their Developer Type / Based On lists.
 const BASED_ON = [
   'Purchased from Original Allottee Through Sale Deed',
-  'Based on Death Certificate',
+  'On the basis of Death Certificate',
   'On the basis of Gift Deed'
 ];
 
+// Developer Type is unchanged — same three options under every service.
+const DEVELOPER_TYPES = [
+  { label: 'JDA Scheme', basedOn: BASED_ON },
+  { label: 'Co-Operative', basedOn: BASED_ON },
+  { label: 'Niji Khatedar', basedOn: BASED_ON }
+];
+
 const SERVICES = [
-  {
-    label: 'Patta',
-    subServices: [
-      { label: 'Lease Hold E-Patta', basedOn: BASED_ON },
-      { label: 'Free Hold E-Patta', basedOn: BASED_ON },
-      { label: 'Free Hold E-Patta in lieu of already issued Patta (Lease Deed)', basedOn: BASED_ON }
-    ]
-  }
+  { label: 'Lease Hold E-Patta', subServices: DEVELOPER_TYPES },
+  { label: 'Free Hold E-Patta', subServices: DEVELOPER_TYPES },
+  { label: 'Free Hold E-Patta in lieu of already issued Patta (Lease Deed)', subServices: DEVELOPER_TYPES }
 ];
 
 const SERVICE_FIELD = {
