@@ -127,6 +127,7 @@ async function loadForms(type, container) {
   enhanceSelects(container);
   initCounters(container);
   bindFetches(container);
+  bindSameAddress(container);
 
   setFlow({ applicantType: type });
 }
@@ -274,6 +275,7 @@ function bindFetches(scope) {
           if (val == null || val === '') return;
           if (el.classList.contains('ss-native') && el._ss) el._ss.setValue(val, true);
           else el.value = val;
+          fireInput(el);           // let listeners (e.g. Permanent Address sync) react
           const field = el.closest('.field');
           if (field) clearFieldError(field);
         });
@@ -284,6 +286,51 @@ function bindFetches(scope) {
         toast('Details fetched successfully.', true);
       }, 700);
     });
+  });
+}
+
+/* ------------------------------------------------------------------ */
+/* Current Address / Permanent Address ("Same as Current Address")     */
+/* ------------------------------------------------------------------ */
+// Lock (read-only) or release the Permanent Address field. While locked its
+// own [required] is dropped — Current Address's [required] already covers
+// "must not be empty" for the pair, so a locked mirror is never reported as
+// independently invalid; unlocking restores whatever the field originally
+// required.
+function setPermanentLock(target, locked) {
+  if (!target) return;
+  if (target.dataset.wasRequired == null) {
+    target.dataset.wasRequired = target.hasAttribute('required') ? '1' : '0';
+  }
+  target.readOnly = locked;
+  target.classList.toggle('is-locked', locked);
+  target.required = target.dataset.wasRequired === '1' && !locked;
+}
+
+// Wire every "Same as Current Address" checkbox inside scope:
+//   checked   -> Permanent Address is copied from Current Address and locked
+//   unchecked -> Permanent Address is released for independent editing,
+//                keeping whatever value it already had
+// Stays synced live while checked, including when Current Address changes
+// via typing, the Aadhaar With/Without toggle, or Fetch Detail.
+function bindSameAddress(scope) {
+  $$('[data-same-address]', scope).forEach((cb) => {
+    const source = $('#' + cb.dataset.source, scope);
+    const target = $('#' + cb.dataset.target, scope);
+    if (!source || !target) return;
+
+    const apply = () => {
+      if (cb.checked) {
+        target.value = source.value;
+        fireInput(target);
+      }
+      setPermanentLock(target, cb.checked);
+    };
+
+    cb.addEventListener('change', apply);
+    source.addEventListener('input', () => { if (cb.checked) apply(); });
+
+    apply(); // initial locked/copied state
   });
 }
 
@@ -324,6 +371,7 @@ function restoreSectionsIntoForm(container, sections) {
     if (!sec) return;
     const byLabel = {};
     (sec.rows || []).forEach((r) => { byLabel[String(r.label).toLowerCase().trim()] = r.value; });
+    migrateLegacyAddress(byLabel);
 
     // Aadhaar mode first — it can lock / clear the identity fields
     const aadRadio = card.querySelector('input[type="radio"][name^="aadhaar-"]');
@@ -348,7 +396,37 @@ function restoreSectionsIntoForm(container, sections) {
       const inp = field.querySelector('input:not([type="radio"]):not([type="checkbox"]), textarea');
       if (inp) { inp.value = v; fireInput(inp); }
     });
+
+    restoreSameAddress(card);
   });
+}
+
+// Existing saved records may only have one legacy "Address" value (any
+// label containing "address" that isn't the new Current/Permanent pair).
+// Seed both new fields from it so nothing is lost and old data comes back
+// as "Same as Current Address" checked, per the address-split migration.
+function migrateLegacyAddress(byLabel) {
+  if (byLabel['current address'] != null && byLabel['permanent address'] != null) return;
+  const legacyKey = Object.keys(byLabel).find((k) =>
+    /address/i.test(k) && k !== 'current address' && k !== 'permanent address');
+  const legacyVal = legacyKey ? byLabel[legacyKey] : null;
+  if (!legacyVal) return;
+  if (byLabel['current address'] == null) byLabel['current address'] = legacyVal;
+  if (byLabel['permanent address'] == null) byLabel['permanent address'] = legacyVal;
+}
+
+// After Current/Permanent Address are restored, re-derive "Same as Current
+// Address" from whether they actually came back equal — never force-lock a
+// Permanent Address that was deliberately saved as different.
+function restoreSameAddress(scope) {
+  const cb = scope.querySelector('[data-same-address]');
+  if (!cb) return;
+  const source = scope.querySelector('#' + cb.dataset.source);
+  const target = scope.querySelector('#' + cb.dataset.target);
+  if (!source || !target) return;
+  const same = source.value.trim() !== '' && source.value === target.value;
+  cb.checked = same;
+  setPermanentLock(target, same);
 }
 
 function initApplicantProfilePage() {
@@ -631,6 +709,7 @@ function initWitnessPage() {
   enhanceSelects(container);
   initCounters(container);
   bindFetches(container);
+  bindSameAddress(container);
 
   const savedWitness = () =>
     (getFlow().formSections || []).find((s) => /witness/i.test(s.title || '')) || null;
@@ -648,6 +727,7 @@ function initWitnessPage() {
     if (!saved) return;
     const byLabel = {};
     (saved.rows || []).forEach((r) => { byLabel[String(r.label).toLowerCase().trim()] = r.value; });
+    migrateLegacyAddress(byLabel);
 
     // Aadhaar mode first — it locks / clears the identity fields
     const aad = byLabel['witness aadhaar'];
@@ -663,9 +743,12 @@ function initWitnessPage() {
     put('witnessAadhaar', 'aadhaar no');
     put('witnessName', 'name of witness');
     put('witnessFather', 'father / husband name');
-    put('witnessAddress', 'address');
+    put('witnessAddress', 'current address');
+    put('witnessPermAddress', 'permanent address');
     const rel = $('#relWitness', container);
     if (rel && rel._ss && byLabel['relation']) rel._ss.setValue(byLabel['relation'], true);
+
+    restoreSameAddress(container);
   }
 
   // Read-only summary of the saved witness + an Edit action.

@@ -64,10 +64,25 @@
         </select>
       </div>
       <div class="field span-2">
-        <div class="field-head"><label class="f-label" for="minorAddress">Address <i>*</i></label></div>
+        <div class="field-head"><label class="f-label" for="minorAddress">Current Address <i>*</i></label></div>
         <div class="ta-wrap has-icon">
           <span class="ta-icon"><svg class="ic"><use href="#i-pin"/></svg></span>
           <textarea class="textarea" id="minorAddress" data-count data-auto="address" placeholder="Enter address" maxlength="500" required>12, Vidhyadhar Nagar, Sector 4, Jaipur, Rajasthan 302039</textarea>
+          <span class="char-count">0/500</span>
+        </div>
+      </div>
+      <div class="field span-2">
+        <div class="field-head">
+          <label class="f-label" for="minorPermAddress">Permanent Address <i>*</i></label>
+          <label class="check-row same-addr-check" for="minorSameAddress">
+            <input type="checkbox" id="minorSameAddress" data-same-address data-source="minorAddress" data-target="minorPermAddress" checked />
+            <span class="cb"><svg class="ic"><use href="#i-check"/></svg></span>
+            <span class="cb-label">Same as Current Address</span>
+          </label>
+        </div>
+        <div class="ta-wrap has-icon">
+          <span class="ta-icon"><svg class="ic"><use href="#i-pin"/></svg></span>
+          <textarea class="textarea is-locked" id="minorPermAddress" data-count placeholder="Enter permanent address" maxlength="500" required readonly></textarea>
           <span class="char-count">0/500</span>
         </div>
       </div>

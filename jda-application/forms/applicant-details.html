@@ -6,7 +6,7 @@
   </div>
 
   <div class="card-body">
-    <p class="sec-sub">Fill in the required details to fetch your application information.</p>
+    <p class="sec-sub">Aadhar Number of Applicant Details</p>
 
     <!-- With / Without Aadhaar -->
     <div class="seg-tabs">
@@ -72,10 +72,25 @@
       </div>
       <div class="field span-2">
         <div class="field-head">
-          <label class="f-label" for="apAddress">Applicant Address <i>*</i></label>        </div>
+          <label class="f-label" for="apAddress">Current Address <i>*</i></label>        </div>
         <div class="ta-wrap has-icon">
           <span class="ta-icon"><svg class="ic"><use href="#i-pin"/></svg></span>
           <textarea class="textarea is-locked" id="apAddress" data-count data-auto="address" data-aadhaar-lock placeholder="Enter complete address" maxlength="500" required readonly>12, Vidhyadhar Nagar, Sector 4, Jaipur, Rajasthan 302039</textarea>
+          <span class="char-count">0/500</span>
+        </div>
+      </div>
+      <div class="field span-2">
+        <div class="field-head">
+          <label class="f-label" for="apPermAddress">Permanent Address <i>*</i></label>
+          <label class="check-row same-addr-check" for="apSameAddress">
+            <input type="checkbox" id="apSameAddress" data-same-address data-source="apAddress" data-target="apPermAddress" checked />
+            <span class="cb"><svg class="ic"><use href="#i-check"/></svg></span>
+            <span class="cb-label">Same as Current Address</span>
+          </label>
+        </div>
+        <div class="ta-wrap has-icon">
+          <span class="ta-icon"><svg class="ic"><use href="#i-pin"/></svg></span>
+          <textarea class="textarea is-locked" id="apPermAddress" data-count placeholder="Enter permanent address" maxlength="500" required readonly></textarea>
           <span class="char-count">0/500</span>
         </div>
       </div>

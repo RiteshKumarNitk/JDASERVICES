@@ -65,10 +65,25 @@
         </div>
       </div>
       <div class="field span-2">
-        <div class="field-head"><label class="f-label" for="guardianAddress">Address <i>*</i></label></div>
+        <div class="field-head"><label class="f-label" for="guardianAddress">Current Address <i>*</i></label></div>
         <div class="ta-wrap has-icon">
           <span class="ta-icon"><svg class="ic"><use href="#i-pin"/></svg></span>
           <textarea class="textarea" id="guardianAddress" data-count data-auto="address" placeholder="Enter address" maxlength="500" required>12, Vidhyadhar Nagar, Sector 4, Jaipur, Rajasthan 302039</textarea>
+          <span class="char-count">0/500</span>
+        </div>
+      </div>
+      <div class="field span-2">
+        <div class="field-head">
+          <label class="f-label" for="guardianPermAddress">Permanent Address <i>*</i></label>
+          <label class="check-row same-addr-check" for="guardianSameAddress">
+            <input type="checkbox" id="guardianSameAddress" data-same-address data-source="guardianAddress" data-target="guardianPermAddress" checked />
+            <span class="cb"><svg class="ic"><use href="#i-check"/></svg></span>
+            <span class="cb-label">Same as Current Address</span>
+          </label>
+        </div>
+        <div class="ta-wrap has-icon">
+          <span class="ta-icon"><svg class="ic"><use href="#i-pin"/></svg></span>
+          <textarea class="textarea is-locked" id="guardianPermAddress" data-count placeholder="Enter permanent address" maxlength="500" required readonly></textarea>
           <span class="char-count">0/500</span>
         </div>
       </div>

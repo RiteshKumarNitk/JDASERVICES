@@ -26,6 +26,23 @@
 .f-label { font-size: 13.5px; font-weight: 600; color: var(--ink-2); letter-spacing: .2px; }
 .f-label i { color: var(--err); font-style: normal; margin-left: 1px; }
 
+/* "Same as Current Address" — compact checkbox pinned to the right of the
+   Permanent Address label, reusing the app's existing .check-row component */
+.field-head .same-addr-check {
+  margin-left: auto;
+  padding: 3px 8px 3px 6px;
+  gap: 6px;
+  flex: none;
+}
+.field-head .same-addr-check .cb { width: 16px; height: 16px; border-radius: 4px; }
+.field-head .same-addr-check .cb .ic { font-size: 9px; }
+.field-head .same-addr-check .cb-label { font-size: 12px; font-weight: 600; color: var(--muted); white-space: nowrap; }
+.field-head .same-addr-check input:checked ~ .cb-label { color: var(--blue-700); }
+@media (max-width: 460px) {
+  .field-head:has(.same-addr-check) { flex-wrap: wrap; }
+  .field-head .same-addr-check { margin-left: 0; }
+}
+
 .field + .field,
 .field + .seg-row,
 .field + .radio-cards { margin-top: 18px; }

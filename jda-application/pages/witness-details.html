@@ -95,10 +95,25 @@
               </div>
               <div class="field span-2">
                 <div class="field-head">
-                  <label class="f-label" for="witnessAddress">Address</label>                </div>
+                  <label class="f-label" for="witnessAddress">Current Address</label>                </div>
                 <div class="ta-wrap has-icon">
                   <span class="ta-icon"><svg class="ic"><use href="#i-pin"/></svg></span>
                   <textarea class="textarea is-locked" id="witnessAddress" data-count data-auto="address" data-aadhaar-lock placeholder="Enter address" maxlength="500" readonly>7, Bani Park, Jaipur, Rajasthan 302016</textarea>
+                  <span class="char-count">0/500</span>
+                </div>
+              </div>
+              <div class="field span-2">
+                <div class="field-head">
+                  <label class="f-label" for="witnessPermAddress">Permanent Address</label>
+                  <label class="check-row same-addr-check" for="witnessSameAddress">
+                    <input type="checkbox" id="witnessSameAddress" data-same-address data-source="witnessAddress" data-target="witnessPermAddress" checked />
+                    <span class="cb"><svg class="ic"><use href="#i-check"/></svg></span>
+                    <span class="cb-label">Same as Current Address</span>
+                  </label>
+                </div>
+                <div class="ta-wrap has-icon">
+                  <span class="ta-icon"><svg class="ic"><use href="#i-pin"/></svg></span>
+                  <textarea class="textarea is-locked" id="witnessPermAddress" data-count placeholder="Enter permanent address" maxlength="500" readonly></textarea>
                   <span class="char-count">0/500</span>
                 </div>
               </div>
