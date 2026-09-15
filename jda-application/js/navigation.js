@@ -6,11 +6,11 @@
 'use strict';
 
 const STEPS = [
-  ['CS', 'Choose', 'Service'],
+  ['SS', 'Select', 'Service'],
   ['AP', 'Applicant', 'Profile'],
-  ['WT', 'Witness', 'Detail'],
+  ['WP', 'Witness', ' Profile'],
   ['PP', 'Property', 'Profile'],
-  ['DS', 'Document', 'Section'],
+  ['UD', 'Upload', 'Documents'],
   ['FS', 'Final', 'Submission']
 ];
 
