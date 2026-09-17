@@ -105,7 +105,7 @@
                     <thead>
                       <tr>
                         <th>Property ID</th><th>Zone</th><th>Scheme</th><th>Sector &amp; Plot No</th>
-                        <th>Area</th><th>Area Unit</th><th>Owner Name</th><th>#</th>
+                        <th>Area</th><th>Area Unit</th><th>Owner Name</th><th>View</th><th>Remove</th>
                       </tr>
                     </thead>
                     <tbody id="ppResults"></tbody>
@@ -123,6 +123,22 @@
         </div>
       </div>
     </main>
+  </div>
+
+  <!-- Read-only "Property Details" modal, opened by [View] in the results table -->
+  <div class="modal-overlay" id="propertyViewModal" hidden>
+    <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="propertyViewTitle">
+      <div class="modal-head">
+        <h3 id="propertyViewTitle">Property Details</h3>
+        <button type="button" class="modal-close" data-modal-close aria-label="Close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <dl class="summary-grid" id="propertyViewGrid"></dl>
+      </div>
+      <div class="modal-foot">
+        <button type="button" class="btn btn-outline" data-modal-close>Close</button>
+      </div>
+    </div>
   </div>
 
   <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>

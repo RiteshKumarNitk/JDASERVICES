@@ -368,7 +368,7 @@ function renderPropertyRows() {
   if (!propertyRows.length) {
     const tr = document.createElement('tr');
     tr.className = 'empty-state';
-    tr.innerHTML = '<td colspan="8">No data available in table</td>';
+    tr.innerHTML = '<td colspan="9">No data available in table</td>';
     tbody.appendChild(tr);
     return;
   }
@@ -383,9 +383,35 @@ function renderPropertyRows() {
       '<td>' + esc(row.area) + '</td>' +
       '<td>' + esc(row.unit) + '</td>' +
       '<td>' + esc(row.owner) + '</td>' +
+      '<td><button type="button" class="tbtn tbtn-view view-link">View</button></td>' +
       '<td><button type="button" class="remove-link">Remove</button></td>';
     tbody.appendChild(tr);
   });
+}
+
+// Read-only "Property Details" modal for a selected result row — same
+// PROPERTY_RESULTS / propertyRows object already used by the table and by
+// persistProperty(), no extra lookup or API call.
+function openPropertyDetailModal(row) {
+  const modal = $('#propertyViewModal');
+  const grid = $('#propertyViewGrid');
+  if (!modal || !grid || !row) return;
+  const rows = [
+    ['Property ID', row.id], ['Zone', row.zone], ['Scheme', row.scheme],
+    ['Sector & Plot No', row.sectorPlot], ['Area', row.area],
+    ['Area Unit', row.unit], ['Owner Name', row.owner]
+  ];
+  grid.innerHTML = rows
+    .map((kv) => '<div class="summary-row"><dt>' + esc(kv[0]) + '</dt><dd>' + esc(kv[1] || '—') + '</dd></div>')
+    .join('');
+  modal.hidden = false;
+  document.body.classList.add('modal-open');
+}
+
+function closePropertyDetailModal() {
+  const modal = $('#propertyViewModal');
+  if (modal) modal.hidden = true;
+  document.body.classList.remove('modal-open');
 }
 
 function doPropertySearch(card) {
@@ -473,11 +499,28 @@ function initPropertyPage() {
   const tbody = $('#ppResults');
   if (tbody) {
     tbody.addEventListener('click', (e) => {
-      const btn = e.target.closest('.remove-link');
-      if (!btn) return;
-      const rowEl = btn.closest('tr');
+      const viewBtn = e.target.closest('.view-link');
+      const removeBtn = e.target.closest('.remove-link');
+      if (!viewBtn && !removeBtn) return;
+      const rowEl = (viewBtn || removeBtn).closest('tr');
       const idx = Array.prototype.indexOf.call(rowEl.parentNode.children, rowEl);
-      if (idx > -1) { propertyRows.splice(idx, 1); renderPropertyRows(); }
+      if (idx < 0) return;
+      if (viewBtn) {
+        openPropertyDetailModal(propertyRows[idx]);
+      } else {
+        propertyRows.splice(idx, 1);
+        renderPropertyRows();
+      }
+    });
+  }
+
+  // Property Details modal — close via button, backdrop click, or Escape
+  const viewModal = $('#propertyViewModal');
+  if (viewModal) {
+    $$('[data-modal-close]', viewModal).forEach((el) => el.addEventListener('click', closePropertyDetailModal));
+    viewModal.addEventListener('click', (e) => { if (e.target === viewModal) closePropertyDetailModal(); });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !viewModal.hidden) closePropertyDetailModal();
     });
   }
 

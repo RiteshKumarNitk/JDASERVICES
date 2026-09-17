@@ -66,4 +66,7 @@
   .portal-hint { justify-content: center; }
   .summary-row { flex-direction: column; gap: 2px; }
   .summary-row dt { width: auto; }
+  .modal-overlay { padding: 12px; }
+  .modal-head { padding: 14px 16px; }
+  .modal-foot { padding: 12px 16px; }
 }
