@@ -520,12 +520,14 @@ function initApplicantProfilePage() {
         dr.hidden = !shown;
         dr.innerHTML = '<td colspan="6"><div class="sd-card">' +
           '<div class="sd-card-head">' +
-            '<h4 class="sd-card-title">Applicant Details</h4>' +
+            '<h4 class="sd-card-title"></h4>' +
             '<button class="btn btn-outline btn-sm" type="button" data-edit="' + a.id + '">Edit</button>' +
           '</div>' +
           (a.sections || []).map((s) =>
-            '<div class="sd-group"><h4>' + esc(s.title) + '</h4><dl>' +
-            (s.rows || []).map((r) => '<div><dt>' + esc(r.label) + '</dt><dd>' + esc(r.value || '—') + '</dd></div>').join('') +
+            '<div class="sd-group"><h4><span class="section-title-underline">' + esc(s.title) + '</span></h4><dl>' +
+            (s.rows || [])
+              .filter((r) => !/aadhaar/i.test(r.label || ''))    // Aadhaar stays in the form only, never in the summary
+              .map((r) => '<div><dt>' + esc(r.label) + '</dt><dd>' + esc(r.value || '—') + '</dd></div>').join('') +
             '</dl></div>').join('') +
           '</div></td>';
         savedRows.appendChild(dr);
@@ -761,12 +763,14 @@ function initWitnessPage() {
     if (summaryWrap) {
       summaryWrap.hidden = !show;
       summaryWrap.innerHTML = !show ? '' :
-        '<div class="summary-card"><h3>Witness Profile' +
+        '<div class="summary-card"><h3><span class="section-title-underline">Witness Profile</span>' +
           '<button class="btn btn-outline btn-sm summary-edit" type="button" id="editWitness">Edit</button>' +
         '</h3><dl class="summary-grid">' +
-        (saved.rows || []).map((row) =>
-          '<div class="summary-row"><dt>' + esc(row.label) + '</dt><dd>' + esc(row.value || '—') + '</dd></div>'
-        ).join('') +
+        (saved.rows || [])
+          .filter((row) => !/aadhaar/i.test(row.label || ''))    // Aadhaar stays in the form only, never in the summary
+          .map((row) =>
+            '<div class="summary-row"><dt>' + esc(row.label) + '</dt><dd>' + esc(row.value || '—') + '</dd></div>'
+          ).join('') +
         '</dl></div>';
     }
     if (formBody) formBody.hidden = show;

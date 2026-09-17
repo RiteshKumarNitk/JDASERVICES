@@ -428,7 +428,7 @@ function renderPropertySummary() {
       const editBtn = i === 0
         ? '<button class="btn btn-outline btn-sm summary-edit" type="button" id="editProperty">Edit</button>'
         : '';
-      return '<div class="summary-card"><h3>' + esc(title) + editBtn + '</h3><dl class="summary-grid">' +
+      return '<div class="summary-card"><h3><span class="section-title-underline">' + esc(title) + '</span>' + editBtn + '</h3><dl class="summary-grid">' +
         rows.map((kv) => '<div class="summary-row"><dt>' + esc(kv[0]) + '</dt><dd>' + esc(kv[1] || '—') + '</dd></div>').join('') +
         '</dl></div>';
     }).join('');
@@ -787,7 +787,7 @@ function mountDocView(idx) {
   tr.innerHTML =
     '<td colspan="6"><div class="row-detail row-detail-ro">' +
       '<div class="ro-head">' +
-        '<h4 class="ro-title">' + esc(title) + '</h4>' +
+        '<h4 class="ro-title"><span class="section-title-underline">' + esc(title) + '</span></h4>' +
         '<button class="btn btn-outline btn-sm" type="button" data-detail-edit="' + idx + '">Edit</button>' +
       '</div>' + bodyHtml +
     '</div></td>';
@@ -1088,18 +1088,23 @@ function initReviewPage() {
 /* Final Submission                                                    */
 /* ------------------------------------------------------------------ */
 function finalSection(title, rows, editHref) {
-  const body = (rows || []).map((r) => {
-    if (r && !Array.isArray(r) && r.group) {
-      return '<div class="summary-row grp"><dt>' + esc(r.label) + '</dt></div>';
-    }
-    const label = Array.isArray(r) ? r[0] : r.label;
-    const value = Array.isArray(r) ? r[1] : r.value;
-    return '<div class="summary-row"><dt>' + esc(label) + '</dt><dd>' + esc(value || '\u2014') + '</dd></div>';
-  }).join('');
+  // Aadhaar mode/number stays functional in the actual forms \u2014 it never
+  // appears in Review / Final Submission (group sub-headings are untouched,
+  // their label is a form section title and never matches "aadhaar").
+  const body = (rows || [])
+    .filter((r) => !/aadhaar/i.test((Array.isArray(r) ? r[0] : r && r.label) || ''))
+    .map((r) => {
+      if (r && !Array.isArray(r) && r.group) {
+        return '<div class="summary-row grp"><dt><span class="section-title-underline">' + esc(r.label) + '</span></dt></div>';
+      }
+      const label = Array.isArray(r) ? r[0] : r.label;
+      const value = Array.isArray(r) ? r[1] : r.value;
+      return '<div class="summary-row"><dt>' + esc(label) + '</dt><dd>' + esc(value || '\u2014') + '</dd></div>';
+    }).join('');
   const edit = editHref
     ? '<a class="btn btn-outline btn-sm summary-edit" href="' + esc(editHref) + '" data-edit>Edit</a>'
     : '';
-  return '<div class="summary-card"><h3>' + esc(title) + edit + '</h3><dl class="summary-grid">' + body + '</dl></div>';
+  return '<div class="summary-card"><h3><span class="section-title-underline">' + esc(title) + '</span>' + edit + '</h3><dl class="summary-grid">' + body + '</dl></div>';
 }
 
 /* Documents card in Review / Final Submission: strictly S.No | Document Name | View
@@ -1116,7 +1121,7 @@ function documentsReviewSection() {
       ).join('')
     : '<tr class="empty-state"><td colspan="3">No documents uploaded yet</td></tr>';
 
-  return '<div class="summary-card"><h3>Documents' +
+  return '<div class="summary-card"><h3><span class="section-title-underline">Documents</span>' +
       '<a class="btn btn-outline btn-sm summary-edit" href="document-section.html" data-edit>Edit</a>' +
     '</h3>' +
     '<div class="table-wrap rv-doc-wrap"><table class="tbl rv-doc-tbl">' +
