@@ -28,7 +28,7 @@ const SERVICES = [
 const SERVICE_FIELD = {
   service: 'Please select a Service.',
   subService: 'Please select a Sub Service.',
-  basedOn: 'Please select Based On.'
+  basedOn: 'Please select Applicable Provision.'
 };
 
 function initChoosePage() {
