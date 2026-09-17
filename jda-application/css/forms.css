@@ -415,8 +415,10 @@ input[type="date"].input-plain { color: var(--ink); }
   gap: 18px;
 }
 
-/* the loaded form(s) = the panel the selected tab just opened */
-.type-panel #sectionsRoot .form-card.section {
+/* the loaded form(s) = the panel the selected tab just opened.
+   Unscoped so any standalone page (e.g. Witness Profile) that embeds a
+   .form-card.section directly gets the exact same card chrome. */
+.form-card.section {
   margin-top: 0;
   background: #fff;
   border: 1px solid var(--blue-100);

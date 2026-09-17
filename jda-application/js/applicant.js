@@ -763,7 +763,7 @@ function initWitnessPage() {
     if (summaryWrap) {
       summaryWrap.hidden = !show;
       summaryWrap.innerHTML = !show ? '' :
-        '<div class="summary-card"><h3><span class="section-title-underline">Witness Profile</span>' +
+        '<div class="summary-card"><h3><span class="section-title-underline">Witness Details</span>' +
           '<button class="btn btn-outline btn-sm summary-edit" type="button" id="editWitness">Edit</button>' +
         '</h3><dl class="summary-grid">' +
         (saved.rows || [])

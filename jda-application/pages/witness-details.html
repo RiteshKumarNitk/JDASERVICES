@@ -31,7 +31,7 @@
 
     <main>
       <div id="witnessRoot">
-        <section class="form-card section" id="witnessForm">
+        <div class="form-card" id="witnessForm">
           <div class="page-hero">
             <span class="hero-badge">WP</span>
             <div>
@@ -40,84 +40,93 @@
             </div>
           </div>
 
-          <!-- Saved witness (read-only) — shown when witness data already exists -->
-          <div id="witnessSummary" hidden></div>
+          <div class="card-body">
+            <!-- Saved witness (read-only) — shown when witness data already exists -->
+            <div id="witnessSummary" hidden></div>
 
-          <div class="card-body" id="witnessFormBody">
-            <div class="seg-tabs">
-              <label class="seg-tab">
-                <input type="radio" name="aadhaar-witness" value="with" checked />
-                <span>With Aadhaar</span>
-              </label>
-              <label class="seg-tab">
-                <input type="radio" name="aadhaar-witness" value="without" />
-                <span>Without Aadhaar</span>
-              </label>
-            </div>
+            <!-- Same form-card.section component as Applicant Details, POA Details, etc. -->
+            <section class="form-card section">
+              <div class="block-bar" style="cursor:default">
+                <span class="block-title">Witness Details</span>
+              </div>
 
-            <div class="fetch-block" data-block="witness">
-              <div class="field">
-                <div class="field-head"><label class="f-label" for="witnessAadhaar">Aadhaar Number of Witness</label></div>
-                <div class="fetch-row">
-                  <input class="input" type="text" id="witnessAadhaar" data-aadhaar value="6789 0123 4567" placeholder="Enter Aadhaar No" inputmode="numeric" maxlength="14" autocomplete="off" data-vtype="aadhaar" />
-                  <button class="btn btn-primary fetch-btn" type="button" data-fetch>
-                    <svg class="ic"><use href="#i-search"/></svg> Fetch Detail
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <div class="form-grid">
-              <div class="field">
-                <div class="field-head">
-                  <label class="f-label" for="witnessName">Name of Witness</label>                </div>
-                <div class="input-group">
-                  <span class="ig-icon"><svg class="ic"><use href="#i-user"/></svg></span>
-                  <input class="input-plain is-locked" type="text" id="witnessName" data-auto="name" data-aadhaar-lock value="DEEPAK VERMA" placeholder="Enter name of witness" readonly />
-                </div>
-              </div>
-              <div class="field">
-                <div class="field-head"><label class="f-label" for="witnessFather">Father / Husband Name</label></div>
-                <div class="input-group">
-                  <span class="ig-icon"><svg class="ic"><use href="#i-user"/></svg></span>
-                  <input class="input-plain" type="text" id="witnessFather" data-auto="father" value="RAMESH VERMA" placeholder="Enter father / husband name" />
-                </div>
-              </div>
-              <div class="field">
-                <div class="field-head"><label class="f-label" for="relWitness">Relation</label></div>
-                <select class="ss-native" id="relWitness" data-placeholder="Select relation" data-auto="relation" hidden>
-                  <option value="Father">Father</option>
-                  <option value="Husband">Husband</option>
-                  <option value="Mother">Mother</option>
-                  <option value="Guardian">Guardian</option>
-                  <option value="Other" selected>Other</option>
-                </select>
-              </div>
-              <div class="field span-2">
-                <div class="field-head">
-                  <label class="f-label" for="witnessAddress">Current Address</label>                </div>
-                <div class="ta-wrap has-icon">
-                  <span class="ta-icon"><svg class="ic"><use href="#i-pin"/></svg></span>
-                  <textarea class="textarea is-locked" id="witnessAddress" data-count data-auto="address" data-aadhaar-lock placeholder="Enter address" maxlength="500" readonly>7, Bani Park, Jaipur, Rajasthan 302016</textarea>
-                  <span class="char-count">0/500</span>
-                </div>
-              </div>
-              <div class="field span-2">
-                <div class="field-head">
-                  <label class="f-label" for="witnessPermAddress">Permanent Address</label>
-                  <label class="check-row same-addr-check" for="witnessSameAddress">
-                    <input type="checkbox" id="witnessSameAddress" data-same-address data-source="witnessAddress" data-target="witnessPermAddress" checked />
-                    <span class="cb"><svg class="ic"><use href="#i-check"/></svg></span>
-                    <span class="cb-label">Same as Current Address</span>
+              <div class="card-body" id="witnessFormBody">
+                <div class="seg-tabs">
+                  <label class="seg-tab">
+                    <input type="radio" name="aadhaar-witness" value="with" checked />
+                    <span>With Aadhaar</span>
+                  </label>
+                  <label class="seg-tab">
+                    <input type="radio" name="aadhaar-witness" value="without" />
+                    <span>Without Aadhaar</span>
                   </label>
                 </div>
-                <div class="ta-wrap has-icon">
-                  <span class="ta-icon"><svg class="ic"><use href="#i-pin"/></svg></span>
-                  <textarea class="textarea is-locked" id="witnessPermAddress" data-count placeholder="Enter permanent address" maxlength="500" readonly></textarea>
-                  <span class="char-count">0/500</span>
+
+                <div class="fetch-block" data-block="witness">
+                  <div class="field">
+                    <div class="field-head"><label class="f-label" for="witnessAadhaar">Aadhaar Number of Witness</label></div>
+                    <div class="fetch-row">
+                      <input class="input" type="text" id="witnessAadhaar" data-aadhaar value="6789 0123 4567" placeholder="Enter Aadhaar No" inputmode="numeric" maxlength="14" autocomplete="off" data-vtype="aadhaar" />
+                      <button class="btn btn-primary fetch-btn" type="button" data-fetch>
+                        <svg class="ic"><use href="#i-search"/></svg> Fetch Detail
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-grid">
+                  <div class="field">
+                    <div class="field-head">
+                      <label class="f-label" for="witnessName">Name of Witness</label>                </div>
+                    <div class="input-group">
+                      <span class="ig-icon"><svg class="ic"><use href="#i-user"/></svg></span>
+                      <input class="input-plain is-locked" type="text" id="witnessName" data-auto="name" data-aadhaar-lock value="DEEPAK VERMA" placeholder="Enter name of witness" readonly />
+                    </div>
+                  </div>
+                  <div class="field">
+                    <div class="field-head"><label class="f-label" for="witnessFather">Father / Husband Name</label></div>
+                    <div class="input-group">
+                      <span class="ig-icon"><svg class="ic"><use href="#i-user"/></svg></span>
+                      <input class="input-plain" type="text" id="witnessFather" data-auto="father" value="RAMESH VERMA" placeholder="Enter father / husband name" />
+                    </div>
+                  </div>
+                  <div class="field">
+                    <div class="field-head"><label class="f-label" for="relWitness">Relation</label></div>
+                    <select class="ss-native" id="relWitness" data-placeholder="Select relation" data-auto="relation" hidden>
+                      <option value="Father">Father</option>
+                      <option value="Husband">Husband</option>
+                      <option value="Mother">Mother</option>
+                      <option value="Guardian">Guardian</option>
+                      <option value="Other" selected>Other</option>
+                    </select>
+                  </div>
+                  <div class="field span-2">
+                    <div class="field-head">
+                      <label class="f-label" for="witnessAddress">Current Address</label>                </div>
+                    <div class="ta-wrap has-icon">
+                      <span class="ta-icon"><svg class="ic"><use href="#i-pin"/></svg></span>
+                      <textarea class="textarea is-locked" id="witnessAddress" data-count data-auto="address" data-aadhaar-lock placeholder="Enter address" maxlength="500" readonly>7, Bani Park, Jaipur, Rajasthan 302016</textarea>
+                      <span class="char-count">0/500</span>
+                    </div>
+                  </div>
+                  <div class="field span-2">
+                    <div class="field-head">
+                      <label class="f-label" for="witnessPermAddress">Permanent Address</label>
+                      <label class="check-row same-addr-check" for="witnessSameAddress">
+                        <input type="checkbox" id="witnessSameAddress" data-same-address data-source="witnessAddress" data-target="witnessPermAddress" checked />
+                        <span class="cb"><svg class="ic"><use href="#i-check"/></svg></span>
+                        <span class="cb-label">Same as Current Address</span>
+                      </label>
+                    </div>
+                    <div class="ta-wrap has-icon">
+                      <span class="ta-icon"><svg class="ic"><use href="#i-pin"/></svg></span>
+                      <textarea class="textarea is-locked" id="witnessPermAddress" data-count placeholder="Enter permanent address" maxlength="500" readonly></textarea>
+                      <span class="char-count">0/500</span>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
+            </section>
           </div>
 
           <div class="card-foot">
@@ -125,7 +134,7 @@
             <button class="btn btn-outline" type="button" id="saveWitnessEdit" hidden><svg class="ic"><use href="#i-check"/></svg> Save</button>
             <button class="btn btn-primary" type="button" id="continueWitness">Proceed <svg class="ic"><use href="#i-arrR"/></svg></button>
           </div>
-        </section>
+        </div>
       </div>
     </main>
   </div>

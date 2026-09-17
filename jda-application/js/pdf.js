@@ -148,7 +148,7 @@ function buildApplicationPdf() {
   // ---- Witness Profile (only if it exists) ------------------------------
   witnessSecs.forEach((s) => {
     const rows = pdfSectionRows(s);
-    if (rows.length) y = addPdfSection(doc, y, String(s.title || 'Witness Profile').toUpperCase(), rows, pageWidth, margin);
+    if (rows.length) y = addPdfSection(doc, y, String(s.title || 'Witness Details').toUpperCase(), rows, pageWidth, margin);
   });
 
   // ---- Property Profile --------------------------------------------------
