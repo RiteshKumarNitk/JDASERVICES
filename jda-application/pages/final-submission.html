@@ -9,6 +9,9 @@
   <link rel="stylesheet" href="../css/responsive.css" />
   <script src="../js/navigation.js" defer></script>
   <script src="../js/main.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js" defer></script>
+  <script src="../js/pdf.js" defer></script>
 </head>
 <body data-page="final" data-step="5">
 
@@ -140,6 +143,7 @@
             <div class="app-no" id="applicationNo">JDA/2026/00000</div>
             <div style="margin-top:28px; display:flex; gap:12px; justify-content:center; flex-wrap:wrap">
               <a class="btn btn-primary" href="../index.html">Go to Home</a>
+              <button class="btn btn-success" type="button" id="downloadPdf">Download PDF</button>
               <button class="btn btn-outline" type="button" onclick="window.print()">Print Receipt</button>
             </div>
           </div>

@@ -1220,7 +1220,7 @@ function initFinalPage() {
     }
     if (box) box.classList.remove('is-invalid');
     const appNo = 'JDA/2026/' + String(Math.floor(10000 + Math.random() * 89999));
-    setFlow({ submitted: true, applicationNo: appNo });
+    setFlow({ submitted: true, applicationNo: appNo, submittedAt: new Date().toISOString() });
     const noEl = $('#applicationNo');
     if (noEl) noEl.textContent = appNo;
     if (form) form.hidden = true;
