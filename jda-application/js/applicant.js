@@ -703,7 +703,9 @@ function initWitnessPage() {
   const container = $('#witnessRoot');
   if (!container) return;
 
-  const formBody = $('#witnessFormBody');
+  // The whole "Witness Details" card (blue bar + fields) — hidden as one
+  // unit in summary mode so its header bar never shows above an empty body.
+  const formCard = $('#witnessFormCard');
   const summaryWrap = $('#witnessSummary');
   const saveEditBtn = $('#saveWitnessEdit');
   let witnessEditing = false;
@@ -773,7 +775,7 @@ function initWitnessPage() {
           ).join('') +
         '</dl></div>';
     }
-    if (formBody) formBody.hidden = show;
+    if (formCard) formCard.hidden = show;
     if (saveEditBtn) saveEditBtn.hidden = !witnessEditing;
 
     const eb = $('#editWitness');
@@ -782,7 +784,7 @@ function initWitnessPage() {
         witnessEditing = true;
         prefillForm();
         renderWitnessSummary();
-        if (formBody) formBody.scrollIntoView({ block: 'start', behavior: 'smooth' });
+        if (formCard) formCard.scrollIntoView({ block: 'start', behavior: 'smooth' });
       });
     }
   }
