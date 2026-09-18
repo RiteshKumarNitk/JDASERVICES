@@ -188,15 +188,20 @@ input[type="date"].input-plain { color: var(--ink); }
 .input-group:has(.input-plain[readonly]) .ig-icon { background: #e9eef4; }
 .input-group:has(.input-plain[readonly]) .ig-prefix { background: #e9eef4; }
 
-/* ---------- segmented tabs (With / Without Aadhaar) ---------- */
+/* ---------- segmented tabs (With / Without Aadhaar) ----------
+   Full-width switch bar: the checked side becomes the filled pill, the
+   other stays plain text — same two .seg-tab elements, no markup change,
+   just a smooth animated swap between the two ends of the full-width bar. */
 .seg-tabs {
-  display: inline-flex;
-  gap: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
   padding: 6px;
-  max-width: 100%;
   background: var(--blue-50);
   border: 1px solid var(--blue-200);
-  border-radius: 12px;
+  border-radius: 999px;
 }
 .card-body > .seg-tabs { margin: 0 0 18px; }
 
@@ -205,15 +210,16 @@ input[type="date"].input-plain { color: var(--ink); }
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 9px 22px;
-  border-radius: 9px;
+  padding: 10px 24px;
+  border-radius: 999px;
+  background: transparent;
   font-size: 13px;
   font-weight: 600;
   color: var(--muted);
   cursor: pointer;
   user-select: none;
   white-space: nowrap;
-  transition: background .15s ease, color .15s ease, box-shadow .15s ease;
+  transition: background .25s ease, color .25s ease, box-shadow .25s ease, transform .25s ease;
 }
 .seg-tabs .seg-tab input { position: absolute; opacity: 0; pointer-events: none; }
 .seg-tabs .seg-tab:hover { color: var(--ink-2); }
@@ -221,6 +227,7 @@ input[type="date"].input-plain { color: var(--ink); }
   background: var(--blue-600);
   color: #fff;
   box-shadow: 0 2px 8px -3px rgba(61, 129, 197, .55);
+  transform: scale(1.02);
 }
 .seg-tabs .seg-tab input:focus-visible + span { outline: 2px solid var(--blue-600); outline-offset: 3px; border-radius: 4px; }
 

@@ -29,8 +29,7 @@
   .radio-cards-grid { grid-template-columns: repeat(2, 1fr); }
   .fetch-row { flex-direction: column; }
   .fetch-btn { width: 100%; }
-  .seg-tabs { display: flex; width: 100%; }
-  .seg-tabs .seg-tab { flex: 1; padding: 9px 12px; }
+  .seg-tabs .seg-tab { padding: 9px 16px; }
   .type-panel { padding: 12px; }
   .type-tabs .radio-card { min-width: 96px; padding: 10px 8px; }
   .type-tabs .radio-text { font-size: 12.5px; }
