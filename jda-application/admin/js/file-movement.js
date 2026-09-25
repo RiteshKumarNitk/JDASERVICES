@@ -74,6 +74,78 @@
       return { app, movement };
     },
 
+    /* ---------------------------------------------------------------
+       FORWARD TO ZONE — Citizen Care Center (HQ) → Deputy Commissioner.
+       Ends the counselling stage; from here the normal DC file-movement
+       workflow continues (Proceed → Role → Employee → next officer).
+       BACKEND INTEGRATION:
+       Submit file movement / forwarding request (movement row + owner
+       change + original-document receipt) in one transaction.
+       --------------------------------------------------------------- */
+    forwardToZone(appNo, details) {
+      const app = ApplicationStore.get(appNo);
+      const dc = ChargeStore.dcForZone(app.zoneId);
+      const from = party(Session.getCharge().id);
+      const to = party(dc.id);
+      const movement = MovementStore.add({
+        ...movementRecord(appNo, from, to, "Forwarded to Zone", details.remark),
+        caseStatus: details.currentStatus
+      });
+      const now = AdminData.nowIso();
+      const due = new Date();
+      due.setDate(due.getDate() + (app.service.slaDays || 30));
+      const updated = ApplicationStore.update(appNo, {
+        stage: AdminData.STAGE.ZONE,
+        currentChargeId: dc.id,
+        status: STATUS.PENDING,
+        startDate: now,
+        dueDate: due.toISOString().slice(0, 19),
+        caseStatus: AdminData.CASE_STATUS.FORWARDED_TO_DC,
+        property: { ...app.property, originalDocumentReceived: details.originalDocumentsReceived },
+        forwardToZone: { ...details, toChargeId: dc.id, at: now, by: from.name }
+      });
+      return { app: updated, movement, dc };
+    },
+
+    /* ---------------------------------------------------------------
+       FILE MOVEMENT HISTORY — timeline markup (newest first).
+       Used by application-detail.html and application-review.html.
+       --------------------------------------------------------------- */
+    ACTION_TONE: {
+      "Submitted": "blue", "Received": "blue", "Forwarded": "blue", "Returned": "blue", "Transferred": "blue",
+      "Forwarded to Zone": "green", "Verification Completed": "green",
+      "Case On Hold": "amber", "Hold Released": "blue", "Sent to Applicant": "amber",
+      "Query from Other Department": "slate", "Details Edited": "slate", "Property Changed": "slate", "Disposed": "green"
+    },
+
+    timelineHtml(app, movements) {
+      const partyHtml = (label, role, name) =>
+        `<div class="admin-tl-party"><span>${label}</span><strong>${escapeHtml(role)}</strong><small>${escapeHtml(name)}</small></div>`;
+      const list = movements.slice().reverse();
+      if (!list.length) return `<li class="admin-empty-inline">No movement recorded yet.</li>`;
+      return list.map((m, i) => {
+        const moved = m.toChargeId && m.fromChargeId !== m.toChargeId;
+        const status = i === 0 ? (app.status === STATUS.DISPOSED ? "Disposed" : "Pending") : "Completed";
+        return `
+          <li class="admin-tl-item admin-tl-item--${this.ACTION_TONE[m.action] || "slate"}">
+            <span class="admin-tl-dot" aria-hidden="true"></span>
+            <div class="admin-tl-card">
+              <div class="admin-tl-top">
+                <strong class="admin-tl-action">${escapeHtml(m.action)}</strong>
+                ${AdminUtil.statusBadge(status)}
+                ${m.caseStatus ? `<span class="admin-tl-case">Status: <strong>${escapeHtml(m.caseStatus)}</strong></span>` : ""}
+                <time datetime="${m.at}">${AdminUtil.formatDateTime(m.at)}</time>
+              </div>
+              <div class="admin-tl-route${moved ? "" : " admin-tl-route--single"}">
+                ${partyHtml(moved ? "From" : "By", m.fromRole, m.fromName)}
+                ${moved ? icon("i-arrow-right", "admin-tl-arrow") + partyHtml("To", m.toRole, m.toName) : ""}
+              </div>
+              ${m.remarks ? `<p class="admin-tl-remark">${escapeHtml(m.remarks)}</p>` : ""}
+            </div>
+          </li>`;
+      }).join("");
+    },
+
     /* Roles that have at least one OTHER officer in the zone. */
     rolesForZone(zoneId) {
       const me = Session.getCharge();
@@ -135,7 +207,7 @@
         AdminForm.clearAll(form);
         formBox.hidden = false;
         doneBox.hidden = true;
-        appLbl.textContent = `Application No. ${app.appNo} · ${app.service}`;
+        appLbl.textContent = `Application No. ${app.appNo} · ${app.service.name}`;
         roleSel.innerHTML = `<option value="">Select Role</option>` +
           self.rolesForZone(app.zoneId).map(r => `<option value="${escapeHtml(r)}">${escapeHtml(r)}</option>`).join("");
         if (presetChargeId) {

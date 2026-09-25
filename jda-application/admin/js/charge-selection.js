@@ -18,7 +18,10 @@
 
   function cardHtml(c, selectedId) {
     const selected = c.id === selectedId;
-    const zoneLabel = c.zone.replace("ZONE-", "Zone ");
+    const zoneLabel = c.kind === "counselling" ? c.department : c.zone.replace("ZONE-", "Zone ");
+    const metrics = c.kind === "counselling"
+      ? [["Pending Counselling", countFor("pending-counselling", c.id)], ["Forward Without Counselling", countFor("forward-without-counselling", c.id)]]
+      : [["Pending Applications", countFor("my-pending", c.id)], ["Received Applications", countFor("received", c.id)]];
     return `
       <article class="admin-charge-card${selected ? " is-selected" : ""}" aria-labelledby="charge-${c.id}">
         <div class="admin-charge-head">
@@ -36,8 +39,7 @@
             <div><dt>Role</dt><dd>${escapeHtml(c.role)}</dd></div>
           </dl>
           <div class="admin-charge-metrics">
-            <div><span>Pending Applications</span><strong>${formatNumber(countFor("my-pending", c.id))}</strong></div>
-            <div><span>Received Applications</span><strong>${formatNumber(countFor("received", c.id))}</strong></div>
+            ${metrics.map(([label, n]) => `<div><span>${escapeHtml(label)}</span><strong>${formatNumber(n)}</strong></div>`).join("")}
           </div>
         </div>
         <div class="admin-charge-foot">
@@ -74,7 +76,7 @@
     grid.querySelectorAll(".admin-charge-card").forEach(card => card.classList.remove("is-selected"));
     btn.closest(".admin-charge-card").classList.add("is-selected");
     AdminUtil.setButtonLoading(btn, true, "Opening dashboard...");
-    setTimeout(() => { window.location.href = "dashboard.html"; }, 300);
+    setTimeout(() => { window.location.href = AdminData.homePage(c); }, 300);
   });
 
   render();

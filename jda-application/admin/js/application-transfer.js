@@ -20,7 +20,7 @@
 
   function visible() {
     const q = $("transferSearch").value.trim().toLowerCase();
-    return inbox.filter(a => !q || `${a.appNo} ${a.applicant.name} ${a.service}`.toLowerCase().includes(q));
+    return inbox.filter(a => !q || `${a.appNo} ${a.applicant.name} ${a.service.name}`.toLowerCase().includes(q));
   }
 
   function render() {
@@ -32,7 +32,7 @@
       <tr class="${picked.has(a.appNo) ? "is-selected" : ""}">
         <td class="admin-col-check"><input type="checkbox" data-pick="${a.appNo}" ${picked.has(a.appNo) ? "checked" : ""} aria-label="Select application ${a.appNo}"></td>
         <td><a class="admin-app-link" href="application-detail.html?app=${a.appNo}&from=received">${a.appNo}</a></td>
-        <td>${escapeHtml(a.service)}</td>
+        <td>${escapeHtml(a.service.name)}</td>
         <td>${escapeHtml(a.applicant.name)}</td>
         <td class="admin-col-amount">${Math.max(0, -daysFromToday(a.startDate))}</td>
         <td>${statusBadge(a.status)}</td>

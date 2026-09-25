@@ -574,3 +574,21 @@
   .admin-shell { margin: 0 !important; }
   .admin-card { box-shadow: none; }
 }
+
+/* Rejected / incomplete statuses (verification) */
+.admin-status--danger { background: var(--admin-danger-bg); color: var(--admin-danger); }
+.admin-block { display: block; }
+
+/* Wide work-lists: the Action column stays pinned to the right edge while
+   the rest of the table scrolls inside its container. */
+.admin-cl-table th:last-child, .admin-cl-table td:last-child,
+.admin-app-table th:last-child, .admin-app-table td:last-child {
+  position: sticky;
+  right: 0;
+  z-index: 1;
+  background: var(--admin-white);
+  box-shadow: -8px 0 10px -8px rgba(24, 50, 74, .25);
+}
+.admin-cl-table th:last-child, .admin-app-table th:last-child { background: #F6F9FC; z-index: 2; }
+.admin-cl-table tbody tr:hover td:last-child, .admin-app-table tbody tr:hover td:last-child { background: #F9FBFD; }
+.admin-cl-table tbody tr.is-selected td:last-child, .admin-app-table tbody tr.is-selected td:last-child { background: var(--admin-light-blue); }

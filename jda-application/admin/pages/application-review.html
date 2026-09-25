@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%277%27 fill=%27%2318324A%27/%3E%3Ctext x=%2716%27 y=%2721%27 font-family=%27Arial%27 font-size=%2711%27 font-weight=%27700%27 fill=%27%23fff%27 text-anchor=%27middle%27%3EJDA%3C/text%3E%3C/svg%3E" />
+  <title>Application Verification — JDA Admin Panel</title>
+  <link rel="stylesheet" href="../css/admin-layout.css" />
+  <link rel="stylesheet" href="../css/admin-components.css" />
+  <link rel="stylesheet" href="../css/admin-pages.css" />
+  <link rel="stylesheet" href="../css/admin-verification.css" />
+  <link rel="stylesheet" href="../css/responsive.css" />
+</head>
+<!--
+  APPLICATION VERIFICATION (Citizen Care Center HQ)   ?app=<no>&from=<list>
+  The counselor REVIEWS what the client submitted — same sections as the
+  client application:
+    1 Applicant Detail          → Mark Verified / Reject
+    2 Choose Service            → Approve Service / Reject
+    3 Selected Property Detail  → Approve Property / Reject
+    4 Selected Witness Detail   → Approve Witness / Reject
+    5 Registry Detail           → Approve / Skip / Reject
+    6 Enclosures                → Preview · Approve / Reject each document
+    7 Final Submission          → LOCKED until 1–6 are done and every
+                                  mandatory document is Approved
+                                  → Current Status "Case Found OK" + Remark → Submit
+  After Submit → #forwardModal (Forward to Zone) → confirmation →
+  file moves to the zone DC (existing DC file-movement workflow continues).
+  Scripts: application-review.js · document-verification.js ·
+           final-submission.js · forward-to-zone.js · file-movement.js
+-->
+<body class="admin-body" data-charge-kind="counselling" data-admin-page="application-review">
+
+  <main class="admin-main" id="adminMain">
+    <div class="admin-page-header">
+      <div>
+        <ol class="admin-breadcrumb" aria-label="Breadcrumb">
+          <li><a href="counselor-dashboard.html">Counselor Dashboard</a></li>
+          <li><a href="forward-without-counselling.html" id="crumbList">Forward Without Counselling</a></li>
+          <li><span aria-current="page" id="crumbApp">Application</span></li>
+        </ol>
+        <h1 class="admin-page-title" id="rvTitle">Application Verification</h1>
+        <p class="admin-page-subtitle" id="rvSubtitle"></p>
+      </div>
+      <div class="admin-page-actions">
+        <a class="admin-btn admin-btn-outline" href="forward-without-counselling.html" id="rvBack">
+          <svg class="admin-ic" aria-hidden="true"><use href="#i-arrow-left"/></svg> Back to list
+        </a>
+      </div>
+    </div>
+
+    <section class="admin-card admin-empty-state" id="rvNotFound" hidden>
+      <span class="admin-empty-icon"><svg class="admin-ic" aria-hidden="true"><use href="#i-search"/></svg></span>
+      <h3>Application not found</h3>
+      <p>This application number does not exist in the counselling queue.</p>
+      <a class="admin-btn admin-btn-primary" href="forward-without-counselling.html">Back to Forward Without Counselling</a>
+    </section>
+
+    <!-- Announces each verification decision to screen readers -->
+    <p class="admin-sr-only" id="rvLive" aria-live="polite"></p>
+
+    <div id="rvWorkspace" hidden>
+      <!-- Summary strip -->
+      <section class="admin-card admin-app-summary" aria-label="Application summary">
+        <dl class="admin-app-summary-grid admin-rv-summary" id="rvSummary"></dl>
+      </section>
+
+      <!-- Read-only banner once the file has left the counselling stage -->
+      <div class="admin-alert admin-alert--success admin-ownership" id="rvForwardedBanner" role="status" hidden></div>
+
+      <div class="admin-rv-layout">
+        <div class="admin-rv-main">
+
+          <!-- 1. APPLICANT DETAIL -->
+          <section class="admin-card admin-vsec" id="sec-applicant" data-section="applicant" aria-labelledby="h-applicant">
+            <div class="admin-vsec-head">
+              <span class="admin-vsec-no" aria-hidden="true">1</span>
+              <h2 class="admin-vsec-title" id="h-applicant">Applicant Detail</h2>
+              <span class="admin-vsec-status" data-status-for="applicant"></span>
+            </div>
+            <div class="admin-card-body" id="body-applicant"></div>
+            <div class="admin-vsec-foot" data-actions-for="applicant"></div>
+          </section>
+
+          <!-- 2. CHOOSE SERVICE -->
+          <section class="admin-card admin-vsec" id="sec-service" data-section="service" aria-labelledby="h-service">
+            <div class="admin-vsec-head">
+              <span class="admin-vsec-no" aria-hidden="true">2</span>
+              <h2 class="admin-vsec-title" id="h-service">Choose Service</h2>
+              <span class="admin-vsec-status" data-status-for="service"></span>
+            </div>
+            <div class="admin-card-body" id="body-service"></div>
+            <div class="admin-vsec-foot" data-actions-for="service"></div>
+          </section>
+
+          <!-- 3. SELECTED PROPERTY DETAIL -->
+          <section class="admin-card admin-vsec" id="sec-property" data-section="property" aria-labelledby="h-property">
+            <div class="admin-vsec-head">
+              <span class="admin-vsec-no" aria-hidden="true">3</span>
+              <h2 class="admin-vsec-title" id="h-property">Selected Property Detail</h2>
+              <span class="admin-vsec-status" data-status-for="property"></span>
+            </div>
+            <div class="admin-table-wrap">
+              <table class="admin-table admin-table--compact admin-table--wide">
+                <thead>
+                  <tr>
+                    <th scope="col">Service No</th><th scope="col">Zone</th><th scope="col">Developer</th><th scope="col">Scheme</th>
+                    <th scope="col">Sector</th><th scope="col">Plot No</th><th scope="col" class="admin-col-amount">Area</th>
+                    <th scope="col">Area Unit</th><th scope="col">Property Details</th><th scope="col" class="admin-col-amount">Deposit</th>
+                  </tr>
+                </thead>
+                <tbody id="body-property"></tbody>
+              </table>
+            </div>
+            <div class="admin-vsec-foot" data-actions-for="property"></div>
+          </section>
+
+          <!-- 4. SELECTED WITNESS DETAIL -->
+          <section class="admin-card admin-vsec" id="sec-witness" data-section="witness" aria-labelledby="h-witness">
+            <div class="admin-vsec-head">
+              <span class="admin-vsec-no" aria-hidden="true">4</span>
+              <h2 class="admin-vsec-title" id="h-witness">Selected Witness Detail</h2>
+              <span class="admin-vsec-status" data-status-for="witness"></span>
+            </div>
+            <div class="admin-table-wrap">
+              <table class="admin-table admin-table--compact admin-table--wide">
+                <thead>
+                  <tr>
+                    <th scope="col" class="admin-col-num">S.No</th><th scope="col">Name of Witness</th><th scope="col">Relation</th>
+                    <th scope="col">Father / Husband Name</th><th scope="col">Mobile Number</th><th scope="col">Aadhaar Number</th>
+                    <th scope="col">Current Address</th><th scope="col">Permanent Address</th>
+                  </tr>
+                </thead>
+                <tbody id="body-witness"></tbody>
+              </table>
+            </div>
+            <div class="admin-vsec-foot" data-actions-for="witness"></div>
+          </section>
+
+          <!-- 5. REGISTRY DETAIL -->
+          <section class="admin-card admin-vsec" id="sec-registry" data-section="registry" aria-labelledby="h-registry">
+            <div class="admin-vsec-head">
+              <span class="admin-vsec-no" aria-hidden="true">5</span>
+              <h2 class="admin-vsec-title" id="h-registry">Registry Detail</h2>
+              <span class="admin-vsec-status" data-status-for="registry"></span>
+            </div>
+            <div class="admin-table-wrap">
+              <table class="admin-table admin-table--compact admin-table--wide">
+                <thead>
+                  <tr>
+                    <th scope="col" class="admin-col-num">S.No</th><th scope="col">Party Name</th><th scope="col">Father's Name</th>
+                    <th scope="col">Party Address</th><th scope="col">Document No</th><th scope="col">Registry No</th>
+                    <th scope="col">Registry Date</th><th scope="col">District Name</th><th scope="col">Tehsil Name</th><th scope="col">Document Status</th>
+                  </tr>
+                </thead>
+                <tbody id="body-registry"></tbody>
+              </table>
+            </div>
+            <div class="admin-vsec-foot" data-actions-for="registry"></div>
+          </section>
+
+          <!-- 6. ENCLOSURES (document-verification.js) -->
+          <section class="admin-card admin-vsec" id="sec-documents" data-section="documents" aria-labelledby="h-documents">
+            <div class="admin-vsec-head">
+              <span class="admin-vsec-no" aria-hidden="true">6</span>
+              <h2 class="admin-vsec-title" id="h-documents">Enclosures</h2>
+              <span class="admin-vsec-status" data-status-for="documents"></span>
+            </div>
+            <div class="admin-card-body admin-doc-summary" id="docSummary"></div>
+            <div class="admin-table-wrap">
+              <table class="admin-table admin-table--compact admin-doc-table">
+                <thead>
+                  <tr>
+                    <th scope="col" class="admin-col-num">S.No</th><th scope="col">Document Type</th><th scope="col">File Type</th>
+                    <th scope="col">Uploaded Date</th><th scope="col">Preview</th><th scope="col">Status</th>
+                    <th scope="col" class="admin-col-actions">Action</th>
+                  </tr>
+                </thead>
+                <tbody id="docBody"></tbody>
+              </table>
+            </div>
+          </section>
+
+          <!-- 7. FINAL SUBMISSION (final-submission.js) -->
+          <section class="admin-card admin-vsec" id="sec-final" data-section="final" aria-labelledby="h-final">
+            <div class="admin-vsec-head">
+              <span class="admin-vsec-no" aria-hidden="true">7</span>
+              <h2 class="admin-vsec-title" id="h-final">Final Submission</h2>
+              <span class="admin-vsec-status" data-status-for="final"></span>
+            </div>
+            <div class="admin-card-body" id="finalBody"></div>
+          </section>
+
+          <!-- FILE MOVEMENT HISTORY -->
+          <section class="admin-card admin-section" aria-labelledby="h-history">
+            <div class="admin-card-head">
+              <h2 class="admin-section-title" id="h-history"><svg class="admin-ic" aria-hidden="true"><use href="#i-git"/></svg> File Movement History</h2>
+              <span class="admin-count-pill" id="rvHistoryCount">0</span>
+            </div>
+            <div class="admin-card-body"><ol class="admin-timeline" id="rvHistory"></ol></div>
+          </section>
+        </div>
+
+        <!-- ================= VERIFICATION PROGRESS ================= -->
+        <aside class="admin-rv-aside" aria-labelledby="progressTitle">
+          <section class="admin-card admin-progress-card">
+            <div class="admin-card-head">
+              <h2 class="admin-section-title" id="progressTitle">Verification Progress</h2>
+              <span class="admin-count-pill" id="progressCount"></span>
+            </div>
+            <ol class="admin-progress-list" id="progressList"></ol>
+            <div class="admin-card-body admin-progress-next" id="progressNext"></div>
+          </section>
+        </aside>
+      </div>
+    </div>
+  </main>
+
+  <!-- REJECT (section or document) — remark required -->
+  <div class="admin-modal" id="rejectModal" hidden role="dialog" aria-modal="true" aria-labelledby="rejectTitle">
+    <div class="admin-modal-backdrop" data-modal-close></div>
+    <div class="admin-modal-dialog admin-modal-dialog--sm">
+      <div class="admin-modal-head">
+        <div><h2 class="admin-modal-title" id="rejectTitle">Reject</h2><p class="admin-modal-subtitle" id="rejectSubtitle"></p></div>
+        <button type="button" class="admin-modal-close" data-modal-close aria-label="Close"><svg class="admin-ic" aria-hidden="true"><use href="#i-x"/></svg></button>
+      </div>
+      <form id="rejectForm" novalidate>
+        <div class="admin-modal-body">
+          <div class="admin-field">
+            <label for="rejectRemark">Rejection Remark <span class="admin-req">*</span></label>
+            <textarea id="rejectRemark" class="admin-textarea" rows="3" maxlength="300" data-autofocus
+                      placeholder="e.g. Affidavit is not notarised."></textarea>
+            <p class="admin-hint">The applicant will see this remark.</p>
+            <p class="admin-field-error"></p>
+          </div>
+        </div>
+        <div class="admin-modal-foot">
+          <button type="button" class="admin-btn admin-btn-outline" data-modal-close>Cancel</button>
+          <button type="submit" class="admin-btn admin-btn-danger" id="rejectSubmit">Reject</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- DOCUMENT PREVIEW — opening it does NOT approve the document -->
+  <div class="admin-modal" id="previewModal" hidden role="dialog" aria-modal="true" aria-labelledby="previewTitle">
+    <div class="admin-modal-backdrop" data-modal-close></div>
+    <div class="admin-modal-dialog admin-modal-dialog--lg">
+      <div class="admin-modal-head">
+        <div><h2 class="admin-modal-title" id="previewTitle">Document Preview</h2><p class="admin-modal-subtitle" id="previewMeta"></p></div>
+        <button type="button" class="admin-modal-close" data-modal-close aria-label="Close"><svg class="admin-ic" aria-hidden="true"><use href="#i-x"/></svg></button>
+      </div>
+      <div class="admin-modal-body admin-preview-body">
+        <!-- BACKEND INTEGRATION: replace this placeholder with an <iframe>/<img> pointing to the document URL -->
+        <div class="admin-paper" id="previewPaper"></div>
+      </div>
+      <div class="admin-modal-foot admin-preview-foot">
+        <div class="admin-preview-nav">
+          <button type="button" class="admin-btn admin-btn-ghost admin-btn-sm" id="previewPrev"><svg class="admin-ic" aria-hidden="true"><use href="#i-chev-left"/></svg> Previous</button>
+          <span id="previewPos" class="admin-muted"></span>
+          <button type="button" class="admin-btn admin-btn-ghost admin-btn-sm" id="previewNext">Next <svg class="admin-ic" aria-hidden="true"><use href="#i-chev-right"/></svg></button>
+        </div>
+        <span id="previewStatus"></span>
+        <button type="button" class="admin-btn admin-btn-danger-outline" id="previewReject">Reject</button>
+        <button type="button" class="admin-btn admin-btn-primary" id="previewApprove"><svg class="admin-ic" aria-hidden="true"><use href="#i-check"/></svg> Approve</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FORWARD TO ZONE (forward-to-zone.js) -->
+  <div class="admin-modal" id="forwardModal" hidden role="dialog" aria-modal="true" aria-labelledby="forwardTitle">
+    <div class="admin-modal-backdrop" data-modal-close></div>
+    <div class="admin-modal-dialog">
+      <div class="admin-modal-head">
+        <div><h2 class="admin-modal-title" id="forwardTitle">Forward to Zone</h2><p class="admin-modal-subtitle" id="forwardAppLabel"></p></div>
+        <button type="button" class="admin-modal-close" data-modal-close aria-label="Close"><svg class="admin-ic" aria-hidden="true"><use href="#i-x"/></svg></button>
+      </div>
+
+      <form id="forwardForm" novalidate>
+        <div id="forwardFormView">
+          <div class="admin-modal-body admin-stack">
+            <div class="admin-field">
+              <label for="fzTo">Forward To</label>
+              <input type="text" id="fzTo" class="admin-input" readonly aria-readonly="true" tabindex="-1">
+              <p class="admin-hint">Decided by the zone of the selected property.</p>
+            </div>
+
+            <div class="admin-field">
+              <label for="fzOriginal">Original Documents Received <span class="admin-req">*</span></label>
+              <select id="fzOriginal" class="admin-select" data-autofocus>
+                <option value="">Select</option>
+                <option value="No">No</option>
+                <option value="Yes">Yes</option>
+              </select>
+              <p class="admin-field-error"></p>
+            </div>
+
+            <!-- Shown only when Original Documents Received = Yes -->
+            <div class="admin-field" id="fzOriginalBox" hidden>
+              <span class="admin-field-label">Mark Original Documents <span class="admin-req">*</span></span>
+              <div class="admin-table-wrap admin-originals-wrap">
+                <table class="admin-table admin-table--compact">
+                  <thead><tr><th scope="col">Document</th><th scope="col" class="admin-col-center">Received</th><th scope="col" class="admin-col-center">Verified</th></tr></thead>
+                  <tbody id="fzOriginalBody"></tbody>
+                </table>
+              </div>
+              <input type="hidden" id="fzOriginalCheck" class="admin-input">
+              <p class="admin-field-error"></p>
+            </div>
+
+            <div class="admin-field">
+              <label for="fzStatus">Current Status <span class="admin-req">*</span></label>
+              <select id="fzStatus" class="admin-select"><option value="">Select Current Status</option></select>
+              <p class="admin-field-error"></p>
+            </div>
+
+            <div class="admin-field">
+              <label for="fzRemark">Remark <span class="admin-req">*</span></label>
+              <textarea id="fzRemark" class="admin-textarea" rows="3" maxlength="500"
+                        placeholder="e.g. Documents verified. Original documents received and application forwarded to concerned zone."></textarea>
+              <p class="admin-field-error"></p>
+            </div>
+          </div>
+          <div class="admin-modal-foot">
+            <button type="button" class="admin-btn admin-btn-outline" data-modal-close>Cancel</button>
+            <button type="submit" class="admin-btn admin-btn-primary" id="fzSubmit">
+              <svg class="admin-ic" aria-hidden="true"><use href="#i-send"/></svg> Forward to Zone
+            </button>
+          </div>
+        </div>
+
+        <!-- After the file has moved -->
+        <div id="forwardDoneView" hidden>
+          <div class="admin-modal-body admin-done">
+            <span class="admin-done-icon"><svg class="admin-ic" aria-hidden="true"><use href="#i-check-circle"/></svg></span>
+            <h3>Forwarded to DC</h3>
+            <p id="fzDoneText"></p>
+            <p class="admin-muted">The file has left the counselling queue. The DC continues with the normal file-movement workflow.</p>
+          </div>
+          <div class="admin-modal-foot admin-modal-foot--wrap">
+            <a class="admin-btn admin-btn-ghost" href="forward-without-counselling.html" id="fzBackList">Back to list</a>
+            <button type="button" class="admin-btn admin-btn-outline" id="fzSwitch"></button>
+            <button type="button" class="admin-btn admin-btn-primary" data-modal-close>View file history</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- CONFIRM FORWARD -->
+  <div class="admin-modal" id="forwardConfirm" hidden role="alertdialog" aria-modal="true" aria-labelledby="fcTitle" aria-describedby="fcText">
+    <div class="admin-modal-backdrop" data-modal-close></div>
+    <div class="admin-modal-dialog admin-modal-dialog--sm">
+      <div class="admin-confirm">
+        <span class="admin-confirm-icon admin-confirm-icon--info"><svg class="admin-ic" aria-hidden="true"><use href="#i-send"/></svg></span>
+        <h2 id="fcTitle">Forward Application?</h2>
+        <p id="fcText"></p>
+      </div>
+      <div class="admin-modal-foot admin-modal-foot--center">
+        <button type="button" class="admin-btn admin-btn-outline" data-modal-close data-autofocus>Cancel</button>
+        <button type="button" class="admin-btn admin-btn-primary" id="fcSubmit">Confirm &amp; Forward</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/admin-data.js"></script>
+  <script src="../js/admin-common.js"></script>
+  <script src="../js/admin-layout.js"></script>
+  <script src="../js/file-movement.js"></script>
+  <script src="../js/document-verification.js"></script>
+  <script src="../js/final-submission.js"></script>
+  <script src="../js/forward-to-zone.js"></script>
+  <script src="../js/application-review.js"></script>
+</body>
+</html>

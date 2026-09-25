@@ -51,6 +51,23 @@
     ]}
   ];
 
+  /* Sidebar of the Citizen Care Center (HQ) — counselling / verification.
+     Shown when the selected charge has kind "counselling". */
+  const COUNSELLING_NAV_SECTIONS = [
+    { heading: null, items: [
+      { key: "counselor-dashboard", label: "Counselor Dashboard", icon: "i-grid",   href: "counselor-dashboard.html" },
+      { key: "find",                label: "Find Application",    icon: "i-search", href: "application-list.html?list=find" }
+    ]},
+    { heading: "Counselling", items: [
+      { key: "pending-counselling",         label: "Pending Counselling",         icon: "i-calendar", href: "forward-without-counselling.html?list=pending-counselling",         count: "pending-counselling" },
+      { key: "forward-without-counselling", label: "Forward Without Counselling", icon: "i-send",     href: "forward-without-counselling.html?list=forward-without-counselling", count: "forward-without-counselling" },
+      { key: "applicant-not-appeared",      label: "Applicant Not Appeared",      icon: "i-user",     href: "forward-without-counselling.html?list=applicant-not-appeared",      count: "applicant-not-appeared" }
+    ]},
+    { heading: "Files", items: [
+      { key: "outbox", label: "Outbox", icon: "i-inbox", href: "application-list.html?list=outbox", count: "outbox" }
+    ]}
+  ];
+
   const MOBILE_QUERY = window.matchMedia("(max-width: 991.98px)");
   let layoutEl, sidebarEl, toggleBtn;
 
@@ -60,6 +77,8 @@
     const params = new URLSearchParams(window.location.search);
     if (page === "application-list") return params.get("list") || "received";
     if (page === "application-detail") return params.get("from") || "received";
+    if (page === "counselling-list") return params.get("list") || "forward-without-counselling";
+    if (page === "application-review") return params.get("from") || "forward-without-counselling";
     return page;
   }
 
@@ -91,12 +110,12 @@
 
         <div class="admin-sidebar-charge" title="${escapeHtml(charge.name)}">
           <span class="admin-sidebar-charge-label">Current Charge</span>
-          <strong>${escapeHtml(charge.name)}</strong>
+          <strong>${escapeHtml(AdminData.chargeLabel(charge))}</strong>
           <a href="select-charge.html" class="admin-sidebar-charge-switch">${icon("i-refresh")} Switch Charge</a>
         </div>
 
         <nav class="admin-nav">
-          ${NAV_SECTIONS.map(sec => `
+          ${(charge.kind === "counselling" ? COUNSELLING_NAV_SECTIONS : NAV_SECTIONS).map(sec => `
             ${sec.heading ? `<p class="admin-nav-heading">${escapeHtml(sec.heading)}</p>` : ""}
             <ul class="admin-nav-list">${sec.items.map(i => renderNavItem(i, active, charge.id)).join("")}</ul>`).join("")}
         </nav>
@@ -105,19 +124,19 @@
   }
 
   function renderHeader(user, charge, plain) {
-    const subtitle = charge ? charge.name : "No charge selected";
+    const subtitle = charge ? AdminData.chargeLabel(charge) : "No charge selected";
     return `
       <header class="admin-header">
         <div class="admin-header-left">
           ${plain ? "" : `<button type="button" class="admin-icon-btn admin-hamburger" id="adminNavToggle"
                   aria-label="Toggle navigation" aria-controls="adminSidebar" aria-expanded="true">${icon("i-menu")}</button>`}
-          <a class="admin-header-logo${plain ? " is-always" : ""}" href="${charge ? "dashboard.html" : "select-charge.html"}" aria-label="JDA Admin home">
+          <a class="admin-header-logo${plain ? " is-always" : ""}" href="${charge ? AdminData.homePage(charge) : "select-charge.html"}" aria-label="JDA Admin home">
             <span class="admin-brand-mark admin-brand-mark--sm" aria-hidden="true">JDA</span>
           </a>
           <div class="admin-header-title">
             <span class="admin-header-title-full">Jaipur Development Authority : Property Services</span>
             <span class="admin-header-title-short">JDA : Property Services</span>
-            ${charge ? `<span class="admin-header-charge">${icon("i-map-pin")}${escapeHtml(charge.name)}</span>` : ""}
+            ${charge ? `<span class="admin-header-charge">${icon("i-map-pin")}${escapeHtml(AdminData.chargeLabel(charge))}</span>` : ""}
           </div>
         </div>
 
@@ -364,6 +383,17 @@
     const plain = document.body.dataset.layout === "plain";
     if (!AdminAuth.requireAuth()) return;
     if (!plain && !AdminAuth.requireCharge()) return;
+
+    /* A page can belong to one kind of charge only:
+       <body data-charge-kind="zone">         DC / zone officer pages
+       <body data-charge-kind="counselling">  Citizen Care Center (HQ) pages
+       Opening the wrong kind sends the user to their own home page. */
+    const needKind = document.body.dataset.chargeKind;
+    const selected = AdminData.Session.getCharge();
+    if (!plain && needKind && selected && (selected.kind || "zone") !== needKind) {
+      window.location.replace(AdminData.homePage(selected));
+      return;
+    }
 
     const user = AdminAuth.getSession();
     const charge = plain ? null : AdminData.Session.getCharge();

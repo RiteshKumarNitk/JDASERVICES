@@ -76,9 +76,9 @@
     return rows.filter(r => {
       const a = r.app;
       if (status && a.status !== status) return false;
-      if (service && a.service !== service) return false;
+      if (service && a.service.name !== service) return false;
       if (!q) return true;
-      return [a.appNo, a.applicant.name, a.service, a.property.sectorPlot, a.property.serviceNo, a.property.scheme]
+      return [a.appNo, a.applicant.name, a.service.name, a.property.sectorPlot, a.property.serviceNo, a.property.scheme]
         .join(" ").toLowerCase().includes(q);
     });
   }
@@ -86,7 +86,13 @@
   /* ===================================================================
      RENDER
      =================================================================== */
-  const detailUrl = appNo => `application-detail.html?app=${encodeURIComponent(appNo)}&from=${listKey}`;
+  /* Files still in counselling open the Citizen Care Center review page. */
+  const detailUrl = appNo => {
+    const a = ApplicationStore.get(appNo);
+    return a && a.stage === AdminData.STAGE.COUNSELLING
+      ? `application-review.html?app=${encodeURIComponent(appNo)}&from=forward-without-counselling`
+      : `application-detail.html?app=${encodeURIComponent(appNo)}&from=${listKey}`;
+  };
 
   function daysLeftHtml(n, status) {
     if (status === STATUS.DISPOSED) return `<span class="admin-muted">Disposed</span>`;
@@ -136,7 +142,7 @@
       return `<tr class="${selected}">
         <td class="admin-col-num">${index}</td>
         <td>${appNoCell(a)}</td>
-        <td>${escapeHtml(a.service)}</td>
+        <td>${escapeHtml(a.service.name)}</td>
         <td>${escapeHtml(a.applicant.name)}</td>
         <td class="admin-col-nowrap">${formatDateTime(m.at)}</td>
         <td><div class="admin-cell-title">${escapeHtml(m.toName)}</div><div class="admin-cell-sub">${escapeHtml(m.toRole)} · ${escapeHtml(m.action)}</div></td>
@@ -150,7 +156,7 @@
       <td class="admin-col-amount">${r.pendingDays}</td>
       <td class="admin-col-nowrap">${formatDate(a.startDate)}<br><span class="admin-muted">to ${formatDate(a.dueDate)}</span></td>
       <td>${daysLeftHtml(r.daysLeft, a.status)}</td>
-      <td><div class="admin-cell-title">${escapeHtml(a.service)}</div></td>
+      <td><div class="admin-cell-title">${escapeHtml(a.service.name)}</div></td>
       <td>${escapeHtml(a.applicant.name)}</td>
       <td>${escapeHtml(a.property.sectorPlot)}<div class="admin-cell-sub">S.No. ${escapeHtml(a.property.serviceNo)}</div></td>
       <td>${escapeHtml(a.property.scheme)}<div class="admin-cell-sub">${escapeHtml(a.property.developerName)}</div></td>
@@ -207,7 +213,7 @@
   function fillFilters() {
     const statuses = mode === "find" ? Object.values(STATUS) : Object.values(STATUS).filter(s => s !== STATUS.DISPOSED);
     $("statusFilter").insertAdjacentHTML("beforeend", statuses.map(s => `<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`).join(""));
-    const services = [...new Set(rows.map(r => r.app.service))].sort();
+    const services = [...new Set(rows.map(r => r.app.service.name))].sort();
     $("serviceFilter").insertAdjacentHTML("beforeend", services.map(s => `<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`).join(""));
     if (params.get("service")) $("serviceFilter").value = params.get("service");
     if (params.get("q")) $("listSearch").value = params.get("q");

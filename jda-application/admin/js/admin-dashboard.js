@@ -73,7 +73,7 @@
       <li class="admin-activity-item">
         <span class="admin-activity-icon ${left < 0 ? "admin-activity-icon--danger" : "admin-activity-icon--warn"}">${icon(left < 0 ? "i-alert" : "i-clock")}</span>
         <div>
-          <p class="admin-activity-text"><a href="${detailUrl(a.appNo, left < 0 ? "due-expired" : "received")}">#${escapeHtml(a.appNo)}</a> ${escapeHtml(a.service)}</p>
+          <p class="admin-activity-text"><a href="${detailUrl(a.appNo, left < 0 ? "due-expired" : "received")}">#${escapeHtml(a.appNo)}</a> ${escapeHtml(a.service.name)}</p>
           <p class="admin-activity-meta">
             <span class="${left < 0 ? "admin-text-danger" : "admin-text-warning"}">${left < 0 ? `Expired ${-left} day${left === -1 ? "" : "s"} ago` : left === 0 ? "Due today" : `${left} day${left === 1 ? "" : "s"} left`}</span>
             <span>${escapeHtml(a.applicant.name)}</span>
@@ -95,9 +95,9 @@
       </tr>`).join("");
 
     const inbox = ApplicationStore.inbox(charge.id);
-    const services = [...new Set(inbox.map(a => a.service))].sort();
+    const services = [...new Set(inbox.map(a => a.service.name))].sort();
     const cell = (key, svc) => {
-      const n = listApplications(key, charge.id).filter(a => a.service === svc).length;
+      const n = listApplications(key, charge.id).filter(a => a.service.name === svc).length;
       return n ? `<a class="admin-count-link" href="${listUrl(key, "&service=" + encodeURIComponent(svc))}">${n}</a>` : `<span class="admin-muted">0</span>`;
     };
     document.getElementById("serviceBody").innerHTML = services.length ? services.map(svc => `

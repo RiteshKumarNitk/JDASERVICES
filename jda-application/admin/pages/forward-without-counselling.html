@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%277%27 fill=%27%2318324A%27/%3E%3Ctext x=%2716%27 y=%2721%27 font-family=%27Arial%27 font-size=%2711%27 font-weight=%27700%27 fill=%27%23fff%27 text-anchor=%27middle%27%3EJDA%3C/text%3E%3C/svg%3E" />
+  <title>Forward Without Counselling — JDA Admin Panel</title>
+  <link rel="stylesheet" href="../css/admin-layout.css" />
+  <link rel="stylesheet" href="../css/admin-components.css" />
+  <link rel="stylesheet" href="../css/admin-pages.css" />
+  <link rel="stylesheet" href="../css/admin-verification.css" />
+  <link rel="stylesheet" href="../css/responsive.css" />
+</head>
+<!--
+  COUNSELLING APPLICATION LIST (Citizen Care Center HQ)
+    ?list=forward-without-counselling (default) | pending-counselling | applicant-not-appeared
+    optional &q=<search>  &status=<CASE_STATUS code>
+  [Proceed] → application-review.html?app=<no>&from=<list>
+-->
+<body class="admin-body" data-charge-kind="counselling" data-admin-page="counselling-list">
+
+  <main class="admin-main" id="adminMain">
+    <div class="admin-page-header">
+      <div>
+        <ol class="admin-breadcrumb" aria-label="Breadcrumb">
+          <li><a href="counselor-dashboard.html">Counselor Dashboard</a></li>
+          <li><span aria-current="page" id="crumbTitle">Forward Without Counselling</span></li>
+        </ol>
+        <h1 class="admin-page-title" id="listTitle">Forward Without Counselling</h1>
+        <p class="admin-page-subtitle" id="listDescription"></p>
+      </div>
+      <div class="admin-page-actions">
+        <a class="admin-btn admin-btn-outline" href="counselor-dashboard.html">
+          <svg class="admin-ic" aria-hidden="true"><use href="#i-arrow-left"/></svg> Counselor Dashboard
+        </a>
+      </div>
+    </div>
+
+    <section class="admin-card" aria-labelledby="listTitle">
+      <div class="admin-card-head admin-list-toolbar">
+        <div class="admin-toolbar">
+          <label class="admin-entries">
+            Show
+            <select id="pageSize" class="admin-select admin-select--sm">
+              <option value="10">10</option>
+              <option value="25">25</option>
+              <option value="50">50</option>
+            </select>
+            entries
+          </label>
+          <div class="admin-search">
+            <svg class="admin-ic" aria-hidden="true"><use href="#i-search"/></svg>
+            <label for="clSearch" class="admin-sr-only">Search applications</label>
+            <input type="search" id="clSearch" class="admin-input" placeholder="Application No., applicant name or service" autocomplete="off" />
+          </div>
+          <label for="clStatus" class="admin-sr-only">Verification status</label>
+          <select id="clStatus" class="admin-select admin-filter">
+            <option value="">All verification statuses</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="admin-table-wrap" id="clTableWrap">
+        <table class="admin-table admin-cl-table">
+          <caption class="admin-sr-only" id="clCaption"></caption>
+          <thead>
+            <tr>
+              <th scope="col" class="admin-col-num">S.No</th>
+              <th scope="col">Application Source</th>
+              <th scope="col">Service Name</th>
+              <th scope="col">Application Number</th>
+              <th scope="col">Property Detail</th>
+              <th scope="col">Counselling Date</th>
+              <th scope="col">Time Slot</th>
+              <th scope="col">Applicant Name</th>
+              <th scope="col">Is Free Hold Patta</th>
+              <th scope="col" class="admin-col-actions">Action</th>
+            </tr>
+          </thead>
+          <tbody id="clBody"></tbody>
+        </table>
+      </div>
+
+      <div class="admin-empty-state" id="clEmpty" hidden>
+        <span class="admin-empty-icon"><svg class="admin-ic" aria-hidden="true"><use href="#i-inbox"/></svg></span>
+        <h3 id="clEmptyTitle">No applications</h3>
+        <p id="clEmptyText"></p>
+        <button type="button" class="admin-btn admin-btn-outline" id="clClear" hidden>Clear search &amp; filter</button>
+      </div>
+
+      <div class="admin-card-foot admin-pager" id="clPager">
+        <p id="clPagerInfo" aria-live="polite"></p>
+        <nav aria-label="Pagination"><ul class="admin-pagination" id="clPagerLinks"></ul></nav>
+      </div>
+    </section>
+  </main>
+
+  <script src="../js/admin-data.js"></script>
+  <script src="../js/admin-common.js"></script>
+  <script src="../js/admin-layout.js"></script>
+  <script src="../js/forward-without-counselling.js"></script>
+</body>
+</html>

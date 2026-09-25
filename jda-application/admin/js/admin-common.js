@@ -147,7 +147,7 @@
       if (!c || !c.holder) return;
       D.Session.start(c.holder, false);
       D.Session.setCharge(c);
-      window.location.href = "application-list.html?list=received";
+      window.location.href = c.kind === "counselling" ? D.homePage(c) : "application-list.html?list=received";
     }
   };
 
@@ -239,7 +239,12 @@
         "active": "active", "completed": "active", "disposed": "active",
         "pending": "pending", "forwarded": "pending", "returned": "pending", "received": "pending", "transferred": "pending",
         "on hold": "hold", "case on hold": "hold", "pending at applicant": "hold", "sent to applicant": "hold",
-        "query - other department": "muted", "query from other department": "muted", "inactive": "muted"
+        "query - other department": "muted", "query from other department": "muted", "inactive": "muted",
+        /* counselling / verification statuses */
+        "approved": "active", "verified": "active", "case found ok": "active", "forwarded to dc": "active",
+        "forwarded to zone": "active", "verification completed": "active", "submitted": "pending",
+        "pending verification": "pending", "ready": "pending", "skipped": "muted", "locked": "muted",
+        "rejected": "danger", "incomplete documents": "danger", "not received": "muted"
       };
       const tone = map[String(status).toLowerCase()] || "muted";
       return `<span class="admin-status admin-status--${tone}">` +

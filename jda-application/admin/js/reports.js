@@ -31,10 +31,10 @@
     const svc = $("rService").value, st = $("rStatus").value;
     const apps = ApplicationStore.byZone(charge.zoneId).filter(a => {
       const d = a.startDate.slice(0, 10);
-      return (!from || d >= from) && (!to || d <= to) && (!svc || a.service === svc) && (!st || a.status === st);
+      return (!from || d >= from) && (!to || d <= to) && (!svc || a.service.name === svc) && (!st || a.status === st);
     });
-    const services = [...new Set(apps.map(a => a.service))].sort();
-    table = services.map(s => [s, ...COLS.map(([, fn]) => apps.filter(a => a.service === s && fn(a)).length)]);
+    const services = [...new Set(apps.map(a => a.service.name))].sort();
+    table = services.map(s => [s, ...COLS.map(([, fn]) => apps.filter(a => a.service.name === s && fn(a)).length)]);
     return apps.length;
   }
 
@@ -62,7 +62,7 @@
   }
 
   $("reportSubtitle").textContent = `Service-wise application status report for ${charge.department} (${charge.zone}).`;
-  const services = [...new Set(ApplicationStore.byZone(charge.zoneId).map(a => a.service))].sort();
+  const services = [...new Set(ApplicationStore.byZone(charge.zoneId).map(a => a.service.name))].sort();
   $("rService").insertAdjacentHTML("beforeend", services.map(s => `<option>${escapeHtml(s)}</option>`).join(""));
   $("rStatus").insertAdjacentHTML("beforeend", Object.values(STATUS).map(s => `<option>${escapeHtml(s)}</option>`).join(""));
   AdminForm.liveClear($("reportFilters"));

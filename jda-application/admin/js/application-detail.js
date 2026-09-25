@@ -47,7 +47,7 @@
     $("backToList").href = listUrl;
     $("crumbApp").textContent = `Application #${app.appNo}`;
     $("appTitle").textContent = `Application Number : ${app.appNo}`;
-    $("appSubtitle").textContent = `Service : ${app.service}`;
+    $("appSubtitle").textContent = `Service : ${app.service.name}`;
     document.title = `Application ${app.appNo} — JDA Admin Panel`;
 
     const holder = ChargeStore.getById(app.currentChargeId);
@@ -102,6 +102,30 @@
       </li>`).join("");
   }
 
+  /* Counselling Verification — result of the Citizen Care Center (HQ) review. */
+  function renderCounselling() {
+    const f = app.finalSubmission, z = app.forwardToZone;
+    $("counsellingCard").hidden = !f;
+    if (!f) return;
+    const v = app.verification || {};
+    const L = AdminData.statusLabel;
+    const docs = AdminData.Verification.docSummary(app);
+    const originals = z && z.originalDocuments && z.originalDocuments.length
+      ? `<ul class="admin-orig-list">${z.originalDocuments.map(d =>
+          `<li>${icon(d.received ? "i-check" : "i-x")} ${escapeHtml(d.name)} — ${d.received ? "Received" : "Not received"}${d.verified ? ", Verified" : ""}</li>`).join("")}</ul>`
+      : "";
+    $("counsellingSummary").innerHTML = `
+      <dl class="admin-detail-grid admin-detail-grid--4">
+        <div><dt>Case Status</dt><dd>${statusBadge(L(f.caseStatus))}</dd></div>
+        <div><dt>Verified By</dt><dd>${escapeHtml(f.by)}<small class="admin-block admin-muted">${formatDateTime(f.at)}</small></dd></div>
+        <div><dt>Registry</dt><dd>${statusBadge(L(v.registry))}</dd></div>
+        <div><dt>Mandatory Documents</dt><dd>${docs.approved}/${docs.mandatory} approved</dd></div>
+        <div><dt>Current Status at Forward</dt><dd>${escapeHtml(z ? z.currentStatus : "—")}</dd></div>
+        <div><dt>Original Documents Received</dt><dd>${escapeHtml(z ? z.originalDocumentsReceived : "—")}</dd></div>
+        <div class="admin-detail-span"><dt>Counselling Remark</dt><dd>${escapeHtml(z ? z.remark : f.remark)}</dd></div>
+      </dl>${originals}`;
+  }
+
   /* Users Of Department — every charge of the application's zone. */
   function renderUsers() {
     const canAct = AdminFileMovement.canAct(app);
@@ -124,38 +148,11 @@
     }).join("");
   }
 
-  const ACTION_TONE = { "Received": "blue", "Forwarded": "blue", "Returned": "blue", "Transferred": "blue",
-    "Case On Hold": "amber", "Hold Released": "blue", "Sent to Applicant": "amber", "Query from Other Department": "slate",
-    "Details Edited": "slate", "Property Changed": "slate", "Disposed": "green" };
-
-  function partyHtml(label, role, name) {
-    return `<div class="admin-tl-party"><span>${label}</span><strong>${escapeHtml(role)}</strong><small>${escapeHtml(name)}</small></div>`;
-  }
-
-  /* File Movement History — newest first. */
+  /* File Movement History — shared renderer in file-movement.js */
   function renderHistory() {
-    const list = MovementStore.forApp(app.appNo).reverse();
+    const list = MovementStore.forApp(app.appNo);
     $("historyCount").textContent = list.length;
-    $("historyList").innerHTML = list.map((m, i) => {
-      const moved = m.toChargeId && m.fromChargeId !== m.toChargeId;
-      const status = i === 0 ? (app.status === STATUS.DISPOSED ? "Disposed" : "Pending") : "Completed";
-      return `
-        <li class="admin-tl-item admin-tl-item--${ACTION_TONE[m.action] || "slate"}">
-          <span class="admin-tl-dot" aria-hidden="true"></span>
-          <div class="admin-tl-card">
-            <div class="admin-tl-top">
-              <strong class="admin-tl-action">${escapeHtml(m.action)}</strong>
-              ${statusBadge(status)}
-              <time datetime="${m.at}">${formatDateTime(m.at)}</time>
-            </div>
-            <div class="admin-tl-route${moved ? "" : " admin-tl-route--single"}">
-              ${partyHtml(moved ? "From" : "By", m.fromRole, m.fromName)}
-              ${moved ? icon("i-arrow-right", "admin-tl-arrow") + partyHtml("To", m.toRole, m.toName) : ""}
-            </div>
-            ${m.remarks ? `<p class="admin-tl-remark">${escapeHtml(m.remarks)}</p>` : ""}
-          </div>
-        </li>`;
-    }).join("");
+    $("historyList").innerHTML = AdminFileMovement.timelineHtml(app, list);
   }
 
   function renderActions() {
@@ -174,6 +171,7 @@
     renderHeader();
     renderOwnership();
     renderSections();
+    renderCounselling();
     renderUsers();
     renderHistory();
     renderActions();

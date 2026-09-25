@@ -71,9 +71,15 @@
     }
 
     AdminAuth.startSession(user, remember.checked);
+
+    /* Citizen Care Center (HQ) users hold one counselling charge — they go
+       straight to the Counselor Dashboard. Everyone else selects a charge. */
+    const held = AdminData.ChargeStore.getForEmployee(user.employeeId);
+    const direct = held.length === 1 && held[0].kind === "counselling" ? held[0] : null;
+    if (direct) AdminData.Session.setCharge(direct);
     loginBtn.innerHTML = AdminUtil.icon("i-check") + "<span>Login successful — redirecting...</span>";
     showAlert("success", `Welcome, ${user.name}. Loading your charges...`);
-    setTimeout(() => { window.location.href = nextPage(); }, 600);
+    setTimeout(() => { window.location.href = direct ? AdminData.homePage(direct) : nextPage(); }, 600);
   }
 
   function togglePassword() {
@@ -135,7 +141,7 @@
         ${charges.filter(c => c.department === d).map(c => `
           <li><button type="button" class="admin-demo-account" data-demo-id="${c.holderId}">
             <code>${c.holderId}</code>
-            <span><strong>${escapeHtml(c.holder.name)}</strong>${escapeHtml(c.name)}</span>
+            <span><strong>${escapeHtml(c.holder.name)}</strong>${escapeHtml(AdminData.chargeLabel(c))}</span>
           </button></li>`).join("")}
       </ul>`).join("");
 
