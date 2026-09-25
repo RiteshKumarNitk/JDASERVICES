@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%277%27 fill=%27%2318324A%27/%3E%3Ctext x=%2716%27 y=%2721%27 font-family=%27Arial%27 font-size=%2711%27 font-weight=%27700%27 fill=%27%23fff%27 text-anchor=%27middle%27%3EJDA%3C/text%3E%3C/svg%3E" />
+  <title>Applications — JDA Admin Panel</title>
+  <link rel="stylesheet" href="../css/admin-layout.css" />
+  <link rel="stylesheet" href="../css/admin-components.css" />
+  <link rel="stylesheet" href="../css/admin-pages.css" />
+  <link rel="stylesheet" href="../css/responsive.css" />
+</head>
+<!--
+  APPLICATION LIST — one page for every list:
+    ?list=received | my-pending | pending-client | pending-other-dept | on-hold |
+          agenda | layout | checklist | pdc | due-expired | pending-applicant |
+          case-open | vigyapti          → filters of the charge's INBOX
+    ?list=outbox                         → files forwarded BY this charge
+    ?list=find                           → every application of the zone
+  Optional: &service=<name>  &q=<search>
+  Application Number / [View] → application-detail.html?app=<no>&from=<list>
+  Definitions: AdminData.LISTS (js/admin-data.js)
+-->
+<body class="admin-body" data-admin-page="application-list">
+
+  <main class="admin-main" id="adminMain">
+    <div class="admin-page-header">
+      <div>
+        <ol class="admin-breadcrumb" aria-label="Breadcrumb">
+          <li><a href="dashboard.html">Dashboard</a></li>
+          <li><span aria-current="page" id="crumbTitle">Applications</span></li>
+        </ol>
+        <h1 class="admin-page-title" id="listTitle">Applications</h1>
+        <p class="admin-page-subtitle" id="listDescription"></p>
+      </div>
+      <div class="admin-page-actions">
+        <a class="admin-btn admin-btn-outline" href="dashboard.html">
+          <svg class="admin-ic" aria-hidden="true"><use href="#i-arrow-left"/></svg> Dashboard
+        </a>
+      </div>
+    </div>
+
+    <section class="admin-card" aria-labelledby="listTitle">
+      <div class="admin-card-head admin-list-toolbar">
+        <div class="admin-toolbar">
+          <label class="admin-entries">
+            Show
+            <select id="pageSize" class="admin-select admin-select--sm">
+              <option value="10">10</option>
+              <option value="25">25</option>
+              <option value="50">50</option>
+              <option value="100">100</option>
+            </select>
+            entries
+          </label>
+          <div class="admin-search">
+            <svg class="admin-ic" aria-hidden="true"><use href="#i-search"/></svg>
+            <label for="listSearch" class="admin-sr-only">Search applications</label>
+            <input type="search" id="listSearch" class="admin-input" placeholder="Application No., applicant, service or property no." autocomplete="off" />
+          </div>
+          <label for="statusFilter" class="admin-sr-only">Filter by status</label>
+          <select id="statusFilter" class="admin-select admin-filter">
+            <option value="">All statuses</option>
+          </select>
+          <label for="serviceFilter" class="admin-sr-only">Filter by service</label>
+          <select id="serviceFilter" class="admin-select admin-filter">
+            <option value="">All services</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="admin-table-wrap" id="tableWrap">
+        <table class="admin-table admin-app-table" id="appTable">
+          <caption class="admin-sr-only" id="tableCaption"></caption>
+          <thead id="tableHead"></thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </div>
+
+      <div class="admin-empty-state" id="listEmpty" hidden>
+        <span class="admin-empty-icon"><svg class="admin-ic" aria-hidden="true"><use href="#i-inbox"/></svg></span>
+        <h3 id="listEmptyTitle">No applications</h3>
+        <p id="listEmptyText"></p>
+        <button type="button" class="admin-btn admin-btn-outline" id="clearFilters" hidden>Clear search &amp; filters</button>
+      </div>
+
+      <div class="admin-card-foot admin-pager" id="pager">
+        <p id="pagerInfo" aria-live="polite"></p>
+        <nav aria-label="Pagination"><ul class="admin-pagination" id="pagerLinks"></ul></nav>
+      </div>
+    </section>
+  </main>
+
+  <script src="../js/admin-data.js"></script>
+  <script src="../js/admin-common.js"></script>
+  <script src="../js/admin-layout.js"></script>
+  <script src="../js/application-list.js"></script>
+</body>
+</html>

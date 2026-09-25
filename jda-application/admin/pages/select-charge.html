@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%277%27 fill=%27%2318324A%27/%3E%3Ctext x=%2716%27 y=%2721%27 font-family=%27Arial%27 font-size=%2711%27 font-weight=%27700%27 fill=%27%23fff%27 text-anchor=%27middle%27%3EJDA%3C/text%3E%3C/svg%3E" />
+  <title>Select Charge — JDA Admin Panel</title>
+  <link rel="stylesheet" href="../css/admin-layout.css" />
+  <link rel="stylesheet" href="../css/admin-components.css" />
+  <link rel="stylesheet" href="../css/admin-pages.css" />
+  <link rel="stylesheet" href="../css/responsive.css" />
+</head>
+<!--
+  SELECT CHARGE — first screen after login (no sidebar yet).
+  Shows every charge (post) held by the logged-in employee.
+  [Select Charge] → saves selectedCharge (localStorage) → dashboard.html
+  Data: AdminData.ChargeStore.getForEmployee(employeeId)
+-->
+<body class="admin-body" data-admin-page="select-charge" data-layout="plain">
+
+  <main class="admin-main admin-main--narrow" id="adminMain">
+    <div class="admin-page-header">
+      <div>
+        <h1 class="admin-page-title">Select Charge</h1>
+        <p class="admin-page-subtitle" id="chargeIntro">Select the charge you want to work in. The menu, dashboard and applications will be shown for that charge.</p>
+      </div>
+    </div>
+
+    <!-- Charge cards are rendered by charge-selection.js -->
+    <div class="admin-charge-grid" id="chargeGrid" aria-busy="true"></div>
+
+    <!-- The employee holds no charge -->
+    <section class="admin-card admin-empty-state" id="noCharges" hidden>
+      <span class="admin-empty-icon"><svg class="admin-ic" aria-hidden="true"><use href="#i-briefcase"/></svg></span>
+      <h3>No charge assigned</h3>
+      <p>You do not currently hold any charge. Please contact the system administrator or ask the officer to hand over a charge to you.</p>
+      <p class="admin-muted">Prototype: if your charge was handed over during testing, reset the demo data to restore every officer's original charge.</p>
+      <div class="admin-done-actions">
+        <button type="button" class="admin-btn admin-btn-primary" data-reset-demo>Reset demo data</button>
+        <button type="button" class="admin-btn admin-btn-outline" data-logout>Logout</button>
+      </div>
+    </section>
+  </main>
+
+  <script src="../js/admin-data.js"></script>
+  <script src="../js/admin-common.js"></script>
+  <script src="../js/admin-layout.js"></script>
+  <script src="../js/charge-selection.js"></script>
+</body>
+</html>

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%277%27 fill=%27%2318324A%27/%3E%3Ctext x=%2716%27 y=%2721%27 font-family=%27Arial%27 font-size=%2711%27 font-weight=%27700%27 fill=%27%23fff%27 text-anchor=%27middle%27%3EJDA%3C/text%3E%3C/svg%3E" />
+  <title>Handover Charge — JDA Admin Panel</title>
+  <link rel="stylesheet" href="../css/admin-layout.css" />
+  <link rel="stylesheet" href="../css/admin-components.css" />
+  <link rel="stylesheet" href="../css/admin-pages.css" />
+  <link rel="stylesheet" href="../css/responsive.css" />
+</head>
+<!--
+  HANDOVER CHARGE — give the selected charge (and every file in it) to
+  another officer. Confirmation required.
+  After handover the current user no longer holds the charge →
+  success panel → Select Charge / Logout / continue as new holder (demo).
+-->
+<body class="admin-body" data-admin-page="handover">
+
+  <main class="admin-main" id="adminMain">
+    <div class="admin-page-header">
+      <div>
+        <ol class="admin-breadcrumb" aria-label="Breadcrumb">
+          <li><a href="dashboard.html">Dashboard</a></li>
+          <li><span aria-current="page">Handover Charge</span></li>
+        </ol>
+        <h1 class="admin-page-title">Handover Charge</h1>
+        <p class="admin-page-subtitle">Hand over your current charge to another officer. All files in this charge move with it.</p>
+      </div>
+    </div>
+
+    <div class="admin-handover-layout">
+      <section class="admin-card" aria-labelledby="hoTitle" id="handoverCard">
+        <div class="admin-card-head"><h2 class="admin-section-title" id="hoTitle">Handover Details</h2></div>
+        <form id="handoverForm" class="admin-card-body" novalidate>
+          <div class="admin-form-grid">
+            <div class="admin-field">
+              <label for="hoCharge">Current Charge</label>
+              <input type="text" id="hoCharge" class="admin-input" readonly aria-readonly="true" tabindex="-1">
+            </div>
+            <div class="admin-field">
+              <label for="hoUser">Current User</label>
+              <input type="text" id="hoUser" class="admin-input" readonly aria-readonly="true" tabindex="-1">
+            </div>
+            <div class="admin-field admin-field--full">
+              <label for="hoOfficer">Select New Officer <span class="admin-req">*</span></label>
+              <select id="hoOfficer" class="admin-select"></select>
+              <p class="admin-field-error"></p>
+            </div>
+            <div class="admin-field admin-field--full">
+              <label for="hoReason">Reason <span class="admin-req">*</span></label>
+              <textarea id="hoReason" class="admin-textarea" rows="4" maxlength="500" placeholder="e.g. Proceeding on leave from 25 Sep to 05 Oct"></textarea>
+              <p class="admin-field-error"></p>
+            </div>
+          </div>
+          <div class="admin-alert admin-alert--warning admin-mt">
+            <svg class="admin-ic" aria-hidden="true"><use href="#i-alert"/></svg>
+            <span><strong id="hoFiles">0</strong> open file(s) in this charge will move to the new officer. You will no longer be able to act on them.</span>
+          </div>
+          <div class="admin-form-actions">
+            <button type="submit" class="admin-btn admin-btn-primary">
+              <svg class="admin-ic" aria-hidden="true"><use href="#i-handover"/></svg> Handover Charge
+            </button>
+          </div>
+        </form>
+
+        <!-- After a successful handover -->
+        <div class="admin-card-body admin-done" id="handoverDone" hidden>
+          <span class="admin-done-icon"><svg class="admin-ic" aria-hidden="true"><use href="#i-check-circle"/></svg></span>
+          <h3>Charge handed over</h3>
+          <p id="hoDoneText"></p>
+          <div class="admin-done-actions">
+            <a class="admin-btn admin-btn-primary" href="select-charge.html">Select another charge</a>
+            <button type="button" class="admin-btn admin-btn-outline" id="hoSwitch"></button>
+            <button type="button" class="admin-btn admin-btn-ghost" data-logout>Logout</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="admin-card" aria-labelledby="hoLogTitle">
+        <div class="admin-card-head"><h2 class="admin-section-title" id="hoLogTitle">Recent Handovers</h2></div>
+        <ul class="admin-activity-list" id="hoLog"></ul>
+      </section>
+    </div>
+  </main>
+
+  <!-- CONFIRM HANDOVER -->
+  <div class="admin-modal" id="hoConfirm" hidden role="alertdialog" aria-modal="true" aria-labelledby="hcTitle" aria-describedby="hcText">
+    <div class="admin-modal-backdrop" data-modal-close></div>
+    <div class="admin-modal-dialog admin-modal-dialog--sm">
+      <div class="admin-confirm">
+        <span class="admin-confirm-icon"><svg class="admin-ic" aria-hidden="true"><use href="#i-handover"/></svg></span>
+        <h2 id="hcTitle">Handover Charge?</h2>
+        <p id="hcText"></p>
+      </div>
+      <div class="admin-modal-foot admin-modal-foot--center">
+        <button type="button" class="admin-btn admin-btn-outline" data-modal-close data-autofocus>Cancel</button>
+        <button type="button" class="admin-btn admin-btn-danger" id="hcSubmit">Handover Charge</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/admin-data.js"></script>
+  <script src="../js/admin-common.js"></script>
+  <script src="../js/admin-layout.js"></script>
+  <script src="../js/handover-charge.js"></script>
+</body>
+</html>

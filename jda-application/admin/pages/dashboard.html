@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%277%27 fill=%27%2318324A%27/%3E%3Ctext x=%2716%27 y=%2721%27 font-family=%27Arial%27 font-size=%2711%27 font-weight=%27700%27 fill=%27%23fff%27 text-anchor=%27middle%27%3EJDA%3C/text%3E%3C/svg%3E" />
+  <title>Dashboard — JDA Admin Panel</title>
+  <link rel="stylesheet" href="../css/admin-layout.css" />
+  <link rel="stylesheet" href="../css/admin-components.css" />
+  <link rel="stylesheet" href="../css/admin-pages.css" />
+  <link rel="stylesheet" href="../css/responsive.css" />
+</head>
+<!--
+  CHARGE DASHBOARD — shown after a charge is selected.
+  Every counter card is a link → application-list.html?list=<key>
+  Counts = AdminData.countFor(key, selectedCharge.id)
+-->
+<body class="admin-body" data-admin-page="dashboard">
+
+  <main class="admin-main" id="adminMain">
+    <div class="admin-page-header">
+      <div>
+        <ol class="admin-breadcrumb" aria-label="Breadcrumb">
+          <li><span aria-current="page">Dashboard</span></li>
+        </ol>
+        <h1 class="admin-page-title">Dashboard</h1>
+        <p class="admin-page-subtitle" id="dashSubtitle"></p>
+      </div>
+      <div class="admin-page-actions">
+        <a class="admin-btn admin-btn-outline" href="application-list.html?list=find">
+          <svg class="admin-ic" aria-hidden="true"><use href="#i-search"/></svg> Find Application
+        </a>
+        <a class="admin-btn admin-btn-primary" href="application-list.html?list=my-pending">
+          <svg class="admin-ic" aria-hidden="true"><use href="#i-clock"/></svg> My Pending Applications
+        </a>
+      </div>
+    </div>
+
+    <!-- Counter cards (clickable) -->
+    <section aria-label="Application counters">
+      <div class="admin-counter-grid" id="counterGrid"></div>
+    </section>
+
+    <div class="admin-dash-grid">
+      <section class="admin-card" aria-labelledby="movementsTitle">
+        <div class="admin-card-head">
+          <h2 class="admin-section-title" id="movementsTitle">Recent File Movements</h2>
+          <a href="application-list.html?list=outbox" class="admin-link-btn">Open Outbox</a>
+        </div>
+        <ul class="admin-activity-list" id="movementList"></ul>
+      </section>
+
+      <section class="admin-card" aria-labelledby="dueTitle">
+        <div class="admin-card-head">
+          <h2 class="admin-section-title" id="dueTitle">Due Date Alerts</h2>
+          <a href="application-list.html?list=due-expired" class="admin-link-btn">Due Date Expired</a>
+        </div>
+        <ul class="admin-activity-list" id="dueList"></ul>
+      </section>
+    </div>
+  </main>
+
+  <script src="../js/admin-data.js"></script>
+  <script src="../js/admin-common.js"></script>
+  <script src="../js/admin-layout.js"></script>
+  <script src="../js/admin-dashboard.js"></script>
+</body>
+</html>

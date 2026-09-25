@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%277%27 fill=%27%2318324A%27/%3E%3Ctext x=%2716%27 y=%2721%27 font-family=%27Arial%27 font-size=%2711%27 font-weight=%27700%27 fill=%27%23fff%27 text-anchor=%27middle%27%3EJDA%3C/text%3E%3C/svg%3E" />
+  <title>Application Detail — JDA Admin Panel</title>
+  <link rel="stylesheet" href="../css/admin-layout.css" />
+  <link rel="stylesheet" href="../css/admin-components.css" />
+  <link rel="stylesheet" href="../css/admin-pages.css" />
+  <link rel="stylesheet" href="../css/responsive.css" />
+</head>
+<!--
+  APPLICATION DETAIL   ?app=<applicationNo>&from=<list key>
+  Left:  Applicant Detail · Property Detail · Selected Property Details ·
+         Documents · Users Of Department · File Movement History
+  Right: ACTION PANEL — enabled only when the file is with the selected charge
+         Proceed (primary)               → #proceedModal  (Role ▸ Employee ▸ Remarks)
+         Edit Detail                      → #editModal
+         Case On Hold / Release Hold      → #holdModal
+         Change Property                  → #propertyModal
+         Query from Other Department      → #queryModal
+         Dispose Ticket (danger)          → #disposeModal (confirmation)
+-->
+<body class="admin-body" data-admin-page="application-detail">
+
+  <main class="admin-main" id="adminMain">
+    <div class="admin-page-header">
+      <div>
+        <ol class="admin-breadcrumb" aria-label="Breadcrumb">
+          <li><a href="dashboard.html">Dashboard</a></li>
+          <li><a href="application-list.html?list=received" id="crumbList">Received Applications</a></li>
+          <li><span aria-current="page" id="crumbApp">Application</span></li>
+        </ol>
+        <h1 class="admin-page-title" id="appTitle">Application</h1>
+        <p class="admin-page-subtitle" id="appSubtitle"></p>
+      </div>
+      <div class="admin-page-actions">
+        <a class="admin-btn admin-btn-outline" href="application-list.html?list=received" id="backToList">
+          <svg class="admin-ic" aria-hidden="true"><use href="#i-arrow-left"/></svg> Back to list
+        </a>
+        <!-- Shortcut shown below 1200px, where the action panel sits under the content -->
+        <button type="button" class="admin-btn admin-btn-primary admin-narrow-only" id="headerProceed" hidden>
+          <svg class="admin-ic" aria-hidden="true"><use href="#i-send"/></svg> Proceed
+        </button>
+      </div>
+    </div>
+
+    <!-- Application not found -->
+    <section class="admin-card admin-empty-state" id="appNotFound" hidden>
+      <span class="admin-empty-icon"><svg class="admin-ic" aria-hidden="true"><use href="#i-search"/></svg></span>
+      <h3>Application not found</h3>
+      <p>The application number in the link does not exist. Use Find Application to search for it.</p>
+      <a class="admin-btn admin-btn-primary" href="application-list.html?list=find">Find Application</a>
+    </section>
+
+    <div id="appWorkspace" hidden>
+      <!-- Summary strip: who holds the file, dates, status -->
+      <section class="admin-card admin-app-summary" aria-label="Application summary">
+        <dl class="admin-app-summary-grid" id="appSummary"></dl>
+      </section>
+
+      <!-- Ownership banner (file with me / with another officer / disposed) -->
+      <div class="admin-alert" id="ownershipBanner" role="status"></div>
+
+      <div class="admin-detail-layout">
+        <div class="admin-detail-main">
+
+          <section class="admin-card admin-section" aria-labelledby="secApplicant">
+            <div class="admin-card-head"><h2 class="admin-section-title" id="secApplicant"><svg class="admin-ic" aria-hidden="true"><use href="#i-user"/></svg> Applicant Detail</h2></div>
+            <div class="admin-card-body"><dl class="admin-detail-grid admin-detail-grid--4" id="applicantDetail"></dl></div>
+          </section>
+
+          <section class="admin-card admin-section" aria-labelledby="secProperty">
+            <div class="admin-card-head"><h2 class="admin-section-title" id="secProperty"><svg class="admin-ic" aria-hidden="true"><use href="#i-home"/></svg> Property Detail</h2></div>
+            <div class="admin-card-body"><dl class="admin-detail-grid admin-detail-grid--4" id="propertyDetail"></dl></div>
+          </section>
+
+          <section class="admin-card admin-section" aria-labelledby="secSelected">
+            <div class="admin-card-head"><h2 class="admin-section-title" id="secSelected"><svg class="admin-ic" aria-hidden="true"><use href="#i-map"/></svg> Selected Property Details</h2></div>
+            <div class="admin-table-wrap">
+              <table class="admin-table admin-table--compact admin-table--wide">
+                <thead>
+                  <tr>
+                    <th scope="col">Service No.</th><th scope="col">Zone</th><th scope="col">Developer</th><th scope="col">Scheme</th>
+                    <th scope="col">Sector</th><th scope="col">Plot No.</th><th scope="col" class="admin-col-amount">Area</th>
+                    <th scope="col">Area Unit</th><th scope="col">Property Details</th><th scope="col" class="admin-col-amount">Deposit</th>
+                  </tr>
+                </thead>
+                <tbody id="selectedProperty"></tbody>
+              </table>
+            </div>
+          </section>
+
+          <section class="admin-card admin-section" aria-labelledby="secDocs">
+            <div class="admin-card-head"><h2 class="admin-section-title" id="secDocs"><svg class="admin-ic" aria-hidden="true"><use href="#i-files"/></svg> Documents</h2></div>
+            <div class="admin-card-body">
+              <h3 class="admin-subheading">Document Uploaded By Applicant</h3>
+              <ul class="admin-doc-list" id="docList"></ul>
+              <h3 class="admin-subheading">Verification Tools</h3>
+              <div class="admin-doc-tools">
+                <button type="button" class="admin-doc-tool" data-doc="Document Comparison"><svg class="admin-ic" aria-hidden="true"><use href="#i-columns"/></svg> Document Comparison</button>
+                <button type="button" class="admin-doc-tool" data-doc="Scheme Map"><svg class="admin-ic" aria-hidden="true"><use href="#i-map"/></svg> Scheme Map</button>
+                <button type="button" class="admin-doc-tool" data-doc="Membership List"><svg class="admin-ic" aria-hidden="true"><use href="#i-users"/></svg> Membership List</button>
+              </div>
+            </div>
+          </section>
+
+          <section class="admin-card admin-section" aria-labelledby="secUsers">
+            <div class="admin-card-head">
+              <h2 class="admin-section-title" id="secUsers"><svg class="admin-ic" aria-hidden="true"><use href="#i-users"/></svg> Users Of Department</h2>
+              <span class="admin-muted" id="usersDept"></span>
+            </div>
+            <div class="admin-table-wrap">
+              <table class="admin-table admin-table--compact">
+                <thead>
+                  <tr>
+                    <th scope="col" class="admin-col-num">S.No</th><th scope="col">Role</th><th scope="col">Employee Name</th>
+                    <th scope="col">Employee ID</th><th scope="col" class="admin-col-amount">Files in Inbox</th>
+                    <th scope="col" class="admin-col-actions">Action</th>
+                  </tr>
+                </thead>
+                <tbody id="usersBody"></tbody>
+              </table>
+            </div>
+          </section>
+
+          <section class="admin-card admin-section" aria-labelledby="secHistory">
+            <div class="admin-card-head">
+              <h2 class="admin-section-title" id="secHistory"><svg class="admin-ic" aria-hidden="true"><use href="#i-git"/></svg> File Movement History</h2>
+              <span class="admin-count-pill" id="historyCount">0</span>
+            </div>
+            <div class="admin-card-body"><ol class="admin-timeline" id="historyList"></ol></div>
+          </section>
+        </div>
+
+        <!-- ================= ACTION PANEL ================= -->
+        <aside class="admin-detail-aside" aria-labelledby="actionsTitle">
+          <section class="admin-card admin-action-panel">
+            <div class="admin-card-head"><h2 class="admin-section-title" id="actionsTitle">Actions</h2></div>
+            <div class="admin-card-body">
+              <p class="admin-action-note" id="actionNote"></p>
+              <button type="button" class="admin-btn admin-btn-primary admin-btn-block" data-action="proceed">
+                <svg class="admin-ic" aria-hidden="true"><use href="#i-send"/></svg> Proceed
+              </button>
+              <div class="admin-action-group">
+                <button type="button" class="admin-btn admin-btn-outline admin-btn-block" data-action="edit">
+                  <svg class="admin-ic" aria-hidden="true"><use href="#i-edit"/></svg> Edit Detail
+                </button>
+                <button type="button" class="admin-btn admin-btn-outline admin-btn-block" data-action="hold" id="holdBtn">
+                  <svg class="admin-ic" aria-hidden="true"><use href="#i-pause"/></svg> <span>Case On Hold</span>
+                </button>
+                <button type="button" class="admin-btn admin-btn-outline admin-btn-block" data-action="property">
+                  <svg class="admin-ic" aria-hidden="true"><use href="#i-home"/></svg> Change Property
+                </button>
+                <button type="button" class="admin-btn admin-btn-outline admin-btn-block" data-action="query">
+                  <svg class="admin-ic" aria-hidden="true"><use href="#i-building"/></svg> Query from Other Department
+                </button>
+              </div>
+              <button type="button" class="admin-btn admin-btn-danger-outline admin-btn-block" data-action="dispose">
+                <svg class="admin-ic" aria-hidden="true"><use href="#i-ban"/></svg> Dispose Ticket
+              </button>
+            </div>
+          </section>
+        </aside>
+      </div>
+    </div>
+  </main>
+
+  <!-- ===============================================================
+       PROCEED APPLICATION (file movement) — wired by file-movement.js
+       Role ▸ Employee (filtered by role) ▸ Remarks ▸ Submit
+       =============================================================== -->
+  <div class="admin-modal" id="proceedModal" hidden role="dialog" aria-modal="true" aria-labelledby="proceedTitle">
+    <div class="admin-modal-backdrop" data-modal-close></div>
+    <div class="admin-modal-dialog">
+      <div class="admin-modal-head">
+        <div>
+          <h2 class="admin-modal-title" id="proceedTitle">Proceed Application</h2>
+          <p class="admin-modal-subtitle" id="proceedAppLabel"></p>
+        </div>
+        <button type="button" class="admin-modal-close" data-modal-close aria-label="Close">
+          <svg class="admin-ic" aria-hidden="true"><use href="#i-x"/></svg>
+        </button>
+      </div>
+
+      <form id="proceedForm" novalidate>
+        <div id="proceedFormView">
+          <div class="admin-modal-body">
+            <div class="admin-form-grid">
+              <div class="admin-field">
+                <label for="proceedRole">Role <span class="admin-req">*</span></label>
+                <select id="proceedRole" class="admin-select" data-autofocus></select>
+                <p class="admin-field-error"></p>
+              </div>
+              <div class="admin-field">
+                <label for="proceedEmployee">Employee <span class="admin-req">*</span></label>
+                <select id="proceedEmployee" class="admin-select" disabled></select>
+                <p class="admin-field-error"></p>
+              </div>
+              <div class="admin-route admin-field--full" id="proceedRoute" hidden></div>
+              <div class="admin-field admin-field--full">
+                <div class="admin-field-row">
+                  <label for="proceedRemarks">Remarks / Instructions <span class="admin-req">*</span></label>
+                  <span class="admin-desc-count" id="proceedRemarksCount">0 / 500</span>
+                </div>
+                <textarea id="proceedRemarks" class="admin-textarea" rows="4" maxlength="500"
+                          placeholder="e.g. Please verify documents and site, and put up report."></textarea>
+                <p class="admin-field-error"></p>
+              </div>
+            </div>
+          </div>
+          <div class="admin-modal-foot">
+            <button type="button" class="admin-btn admin-btn-outline" data-modal-close>Cancel</button>
+            <button type="submit" class="admin-btn admin-btn-primary" id="proceedSubmit">
+              <svg class="admin-ic" aria-hidden="true"><use href="#i-send"/></svg> Submit / Proceed
+            </button>
+          </div>
+        </div>
+
+        <!-- Shown after a successful move -->
+        <div id="proceedDoneView" hidden>
+          <div class="admin-modal-body admin-done">
+            <span class="admin-done-icon"><svg class="admin-ic" aria-hidden="true"><use href="#i-check-circle"/></svg></span>
+            <h3>File moved successfully</h3>
+            <p id="proceedDoneText"></p>
+            <p class="admin-muted">It has left your inbox, is listed in your Outbox, and now appears in the receiving officer's Received Applications.</p>
+          </div>
+          <div class="admin-modal-foot admin-modal-foot--wrap">
+            <button type="button" class="admin-btn admin-btn-ghost" data-modal-close>Stay on this file</button>
+            <button type="button" class="admin-btn admin-btn-outline" id="proceedSwitchBtn"></button>
+            <a class="admin-btn admin-btn-primary" href="application-list.html?list=outbox" id="proceedOutboxBtn">
+              <svg class="admin-ic" aria-hidden="true"><use href="#i-send"/></svg> Go to Outbox
+            </a>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- EDIT DETAIL -->
+  <div class="admin-modal" id="editModal" hidden role="dialog" aria-modal="true" aria-labelledby="editTitle">
+    <div class="admin-modal-backdrop" data-modal-close></div>
+    <div class="admin-modal-dialog">
+      <div class="admin-modal-head">
+        <div><h2 class="admin-modal-title" id="editTitle">Edit Detail</h2><p class="admin-modal-subtitle">Only the fields below are editable by the office.</p></div>
+        <button type="button" class="admin-modal-close" data-modal-close aria-label="Close"><svg class="admin-ic" aria-hidden="true"><use href="#i-x"/></svg></button>
+      </div>
+      <form id="editForm" novalidate>
+        <div class="admin-modal-body">
+          <div class="admin-form-grid">
+            <div class="admin-field">
+              <label for="editName">Applicant Name</label>
+              <input type="text" id="editName" class="admin-input" readonly aria-readonly="true" tabindex="-1">
+              <p class="admin-hint">Read-only</p>
+            </div>
+            <div class="admin-field">
+              <label for="editMobile">Mobile Number <span class="admin-req">*</span></label>
+              <input type="tel" id="editMobile" class="admin-input" maxlength="10" inputmode="numeric" data-autofocus>
+              <p class="admin-field-error"></p>
+            </div>
+            <div class="admin-field">
+              <label for="editEmail">Email ID <span class="admin-req">*</span></label>
+              <input type="email" id="editEmail" class="admin-input" maxlength="100">
+              <p class="admin-field-error"></p>
+            </div>
+            <div class="admin-field">
+              <label for="editOriginalDoc">Original Document Received <span class="admin-req">*</span></label>
+              <select id="editOriginalDoc" class="admin-select"><option>Yes</option><option>No</option></select>
+            </div>
+            <div class="admin-field admin-field--full">
+              <label for="editBarcode">File Barcode No. <span class="admin-req">*</span></label>
+              <input type="text" id="editBarcode" class="admin-input" maxlength="20">
+              <p class="admin-field-error"></p>
+            </div>
+          </div>
+        </div>
+        <div class="admin-modal-foot">
+          <button type="button" class="admin-btn admin-btn-outline" data-modal-close>Cancel</button>
+          <button type="submit" class="admin-btn admin-btn-primary" id="editSubmit">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- CASE ON HOLD / RELEASE HOLD -->
+  <div class="admin-modal" id="holdModal" hidden role="dialog" aria-modal="true" aria-labelledby="holdTitle">
+    <div class="admin-modal-backdrop" data-modal-close></div>
+    <div class="admin-modal-dialog admin-modal-dialog--sm">
+      <div class="admin-modal-head">
+        <div><h2 class="admin-modal-title" id="holdTitle">Case On Hold</h2><p class="admin-modal-subtitle" id="holdSubtitle"></p></div>
+        <button type="button" class="admin-modal-close" data-modal-close aria-label="Close"><svg class="admin-ic" aria-hidden="true"><use href="#i-x"/></svg></button>
+      </div>
+      <form id="holdForm" novalidate>
+        <div class="admin-modal-body">
+          <div class="admin-field">
+            <label for="holdReason">Reason <span class="admin-req">*</span></label>
+            <textarea id="holdReason" class="admin-textarea" rows="3" maxlength="300" data-autofocus></textarea>
+            <p class="admin-field-error"></p>
+          </div>
+        </div>
+        <div class="admin-modal-foot">
+          <button type="button" class="admin-btn admin-btn-outline" data-modal-close>Cancel</button>
+          <button type="submit" class="admin-btn admin-btn-primary" id="holdSubmit">Put On Hold</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- CHANGE PROPERTY -->
+  <div class="admin-modal" id="propertyModal" hidden role="dialog" aria-modal="true" aria-labelledby="propertyTitle">
+    <div class="admin-modal-backdrop" data-modal-close></div>
+    <div class="admin-modal-dialog admin-modal-dialog--sm">
+      <div class="admin-modal-head">
+        <div><h2 class="admin-modal-title" id="propertyTitle">Change Property</h2><p class="admin-modal-subtitle">Link this application to a different property (Service No.).</p></div>
+        <button type="button" class="admin-modal-close" data-modal-close aria-label="Close"><svg class="admin-ic" aria-hidden="true"><use href="#i-x"/></svg></button>
+      </div>
+      <form id="propertyForm" novalidate>
+        <div class="admin-modal-body admin-stack">
+          <div class="admin-field">
+            <label for="propCurrent">Current Service No.</label>
+            <input type="text" id="propCurrent" class="admin-input" readonly aria-readonly="true" tabindex="-1">
+          </div>
+          <div class="admin-field">
+            <label for="propNew">New Service No. <span class="admin-req">*</span></label>
+            <input type="text" id="propNew" class="admin-input" maxlength="10" inputmode="numeric" data-autofocus>
+            <p class="admin-hint">6–10 digits.</p>
+            <p class="admin-field-error"></p>
+          </div>
+          <div class="admin-field">
+            <label for="propReason">Reason <span class="admin-req">*</span></label>
+            <textarea id="propReason" class="admin-textarea" rows="3" maxlength="300"></textarea>
+            <p class="admin-field-error"></p>
+          </div>
+        </div>
+        <div class="admin-modal-foot">
+          <button type="button" class="admin-btn admin-btn-outline" data-modal-close>Cancel</button>
+          <button type="submit" class="admin-btn admin-btn-primary" id="propSubmit">Change Property</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- QUERY FROM OTHER DEPARTMENT -->
+  <div class="admin-modal" id="queryModal" hidden role="dialog" aria-modal="true" aria-labelledby="queryTitle">
+    <div class="admin-modal-backdrop" data-modal-close></div>
+    <div class="admin-modal-dialog admin-modal-dialog--sm">
+      <div class="admin-modal-head">
+        <div><h2 class="admin-modal-title" id="queryTitle">Query from Other Department</h2><p class="admin-modal-subtitle">The file stays with you; status becomes “Query - Other Department”.</p></div>
+        <button type="button" class="admin-modal-close" data-modal-close aria-label="Close"><svg class="admin-ic" aria-hidden="true"><use href="#i-x"/></svg></button>
+      </div>
+      <form id="queryForm" novalidate>
+        <div class="admin-modal-body admin-stack">
+          <div class="admin-field">
+            <label for="queryDept">Department <span class="admin-req">*</span></label>
+            <select id="queryDept" class="admin-select" data-autofocus><option value="">Select Department</option></select>
+            <p class="admin-field-error"></p>
+          </div>
+          <div class="admin-field">
+            <label for="queryText">Query <span class="admin-req">*</span></label>
+            <textarea id="queryText" class="admin-textarea" rows="3" maxlength="500"></textarea>
+            <p class="admin-field-error"></p>
+          </div>
+        </div>
+        <div class="admin-modal-foot">
+          <button type="button" class="admin-btn admin-btn-outline" data-modal-close>Cancel</button>
+          <button type="submit" class="admin-btn admin-btn-primary" id="querySubmit">Send Query</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- DISPOSE TICKET (destructive — confirmation) -->
+  <div class="admin-modal" id="disposeModal" hidden role="alertdialog" aria-modal="true" aria-labelledby="disposeTitle" aria-describedby="disposeText">
+    <div class="admin-modal-backdrop" data-modal-close></div>
+    <div class="admin-modal-dialog admin-modal-dialog--sm">
+      <form id="disposeForm" novalidate>
+        <div class="admin-confirm">
+          <span class="admin-confirm-icon"><svg class="admin-ic" aria-hidden="true"><use href="#i-ban"/></svg></span>
+          <h2 id="disposeTitle">Dispose Ticket?</h2>
+          <p id="disposeText">Application <strong id="disposeAppNo"></strong> will be closed and removed from every pending list. This cannot be undone.</p>
+        </div>
+        <div class="admin-modal-body">
+          <div class="admin-field">
+            <label for="disposeRemarks">Disposal Remarks <span class="admin-req">*</span></label>
+            <textarea id="disposeRemarks" class="admin-textarea" rows="3" maxlength="300" data-autofocus></textarea>
+            <p class="admin-field-error"></p>
+          </div>
+        </div>
+        <div class="admin-modal-foot admin-modal-foot--center">
+          <button type="button" class="admin-btn admin-btn-outline" data-modal-close>Cancel</button>
+          <button type="submit" class="admin-btn admin-btn-danger" id="disposeSubmit">
+            <svg class="admin-ic" aria-hidden="true"><use href="#i-ban"/></svg> Dispose Ticket
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- DOCUMENT VIEWER (placeholder — backend serves the real file) -->
+  <div class="admin-modal" id="docModal" hidden role="dialog" aria-modal="true" aria-labelledby="docTitle">
+    <div class="admin-modal-backdrop" data-modal-close></div>
+    <div class="admin-modal-dialog admin-modal-dialog--lg">
+      <div class="admin-modal-head">
+        <div><h2 class="admin-modal-title" id="docTitle">Document</h2><p class="admin-modal-subtitle" id="docMeta"></p></div>
+        <button type="button" class="admin-modal-close" data-modal-close aria-label="Close"><svg class="admin-ic" aria-hidden="true"><use href="#i-x"/></svg></button>
+      </div>
+      <div class="admin-modal-body">
+        <div class="admin-doc-preview">
+          <svg class="admin-ic" aria-hidden="true"><use href="#i-files"/></svg>
+          <p><strong>Document preview</strong></p>
+          <p class="admin-muted">In the live system this area shows the PDF / image served by the application (e.g. an &lt;iframe&gt; or &lt;img&gt; pointing to the document URL).</p>
+        </div>
+      </div>
+      <div class="admin-modal-foot"><button type="button" class="admin-btn admin-btn-outline" data-modal-close>Close</button></div>
+    </div>
+  </div>
+
+  <script src="../js/admin-data.js"></script>
+  <script src="../js/admin-common.js"></script>
+  <script src="../js/admin-layout.js"></script>
+  <script src="../js/file-movement.js"></script>
+  <script src="../js/application-detail.js"></script>
+</body>
+</html>

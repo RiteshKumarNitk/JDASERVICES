@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%277%27 fill=%27%2318324A%27/%3E%3Ctext x=%2716%27 y=%2721%27 font-family=%27Arial%27 font-size=%2711%27 font-weight=%27700%27 fill=%27%23fff%27 text-anchor=%27middle%27%3EJDA%3C/text%3E%3C/svg%3E" />
+  <title>Reports — JDA Admin Panel</title>
+  <link rel="stylesheet" href="../css/admin-layout.css" />
+  <link rel="stylesheet" href="../css/admin-components.css" />
+  <link rel="stylesheet" href="../css/admin-pages.css" />
+  <link rel="stylesheet" href="../css/responsive.css" />
+</head>
+<!--
+  REPORTS — service-wise status report for the selected charge's zone.
+  Filters: date range (application start), service, status.
+  Export CSV = real download of the visible table; Excel = server placeholder; Print = browser print.
+-->
+<body class="admin-body" data-admin-page="reports">
+
+  <main class="admin-main" id="adminMain">
+    <div class="admin-page-header">
+      <div>
+        <ol class="admin-breadcrumb" aria-label="Breadcrumb">
+          <li><a href="dashboard.html">Dashboard</a></li>
+          <li><span aria-current="page">Reports</span></li>
+        </ol>
+        <h1 class="admin-page-title">Reports</h1>
+        <p class="admin-page-subtitle" id="reportSubtitle">Service-wise application status report.</p>
+      </div>
+      <div class="admin-page-actions admin-no-print">
+        <button type="button" class="admin-btn admin-btn-outline" id="exportExcel"><svg class="admin-ic" aria-hidden="true"><use href="#i-download"/></svg> Export Excel</button>
+        <button type="button" class="admin-btn admin-btn-outline" id="exportCsv"><svg class="admin-ic" aria-hidden="true"><use href="#i-download"/></svg> Export CSV</button>
+        <button type="button" class="admin-btn admin-btn-outline" id="printReport"><svg class="admin-ic" aria-hidden="true"><use href="#i-printer"/></svg> Print</button>
+      </div>
+    </div>
+
+    <section class="admin-card admin-no-print admin-filter-card" aria-label="Report filters">
+      <form id="reportFilters" class="admin-filter-bar" novalidate>
+        <div class="admin-field">
+          <label for="rFrom">From Date</label>
+          <input type="date" id="rFrom" class="admin-input">
+        </div>
+        <div class="admin-field">
+          <label for="rTo">To Date</label>
+          <input type="date" id="rTo" class="admin-input">
+          <p class="admin-field-error"></p>
+        </div>
+        <div class="admin-field">
+          <label for="rService">Service</label>
+          <select id="rService" class="admin-select"><option value="">All services</option></select>
+        </div>
+        <div class="admin-field">
+          <label for="rStatus">Status</label>
+          <select id="rStatus" class="admin-select"><option value="">All statuses</option></select>
+        </div>
+        <div class="admin-filter-actions">
+          <button type="submit" class="admin-btn admin-btn-primary">Apply</button>
+          <button type="button" class="admin-btn admin-btn-ghost" id="rReset">Reset</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="admin-card" aria-labelledby="reportTitle">
+      <div class="admin-card-head">
+        <h2 class="admin-section-title" id="reportTitle">Service-wise Report</h2>
+        <span class="admin-muted" id="reportMeta"></span>
+      </div>
+      <div class="admin-table-wrap">
+        <table class="admin-table admin-table--compact" id="reportTable">
+          <thead>
+            <tr>
+              <th scope="col">Service Name</th>
+              <th scope="col" class="admin-col-amount">Total</th>
+              <th scope="col" class="admin-col-amount">Pending</th>
+              <th scope="col" class="admin-col-amount">On Hold</th>
+              <th scope="col" class="admin-col-amount">Pending At Applicant</th>
+              <th scope="col" class="admin-col-amount">Other Department</th>
+              <th scope="col" class="admin-col-amount">Disposed</th>
+              <th scope="col" class="admin-col-amount">Due Expired</th>
+            </tr>
+          </thead>
+          <tbody id="reportBody"></tbody>
+          <tfoot id="reportFoot"></tfoot>
+        </table>
+      </div>
+      <div class="admin-empty-state" id="reportEmpty" hidden>
+        <span class="admin-empty-icon"><svg class="admin-ic" aria-hidden="true"><use href="#i-chart"/></svg></span>
+        <h3>No data for these filters</h3>
+        <p>Change the date range, service or status and apply again.</p>
+      </div>
+    </section>
+  </main>
+
+  <script src="../js/admin-data.js"></script>
+  <script src="../js/admin-common.js"></script>
+  <script src="../js/admin-layout.js"></script>
+  <script src="../js/reports.js"></script>
+</body>
+</html>

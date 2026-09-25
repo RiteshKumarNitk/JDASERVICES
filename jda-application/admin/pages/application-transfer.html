@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%277%27 fill=%27%2318324A%27/%3E%3Ctext x=%2716%27 y=%2721%27 font-family=%27Arial%27 font-size=%2711%27 font-weight=%27700%27 fill=%27%23fff%27 text-anchor=%27middle%27%3EJDA%3C/text%3E%3C/svg%3E" />
+  <title>Application Transfer To — JDA Admin Panel</title>
+  <link rel="stylesheet" href="../css/admin-layout.css" />
+  <link rel="stylesheet" href="../css/admin-components.css" />
+  <link rel="stylesheet" href="../css/admin-pages.css" />
+  <link rel="stylesheet" href="../css/responsive.css" />
+</head>
+<!--
+  APPLICATION TRANSFER TO — move several files from my inbox to another
+  charge (same zone or another zone) in one step.
+  1. tick applications   2. choose "Transfer To" charge   3. remarks
+  4. confirmation modal  5. every file moves (action "Transferred")
+-->
+<body class="admin-body" data-admin-page="transfer">
+
+  <main class="admin-main" id="adminMain">
+    <div class="admin-page-header">
+      <div>
+        <ol class="admin-breadcrumb" aria-label="Breadcrumb">
+          <li><a href="dashboard.html">Dashboard</a></li>
+          <li><span aria-current="page">Application Transfer To</span></li>
+        </ol>
+        <h1 class="admin-page-title">Application Transfer To</h1>
+        <p class="admin-page-subtitle">Transfer one or more files from your inbox to another charge — for example to another zone.</p>
+      </div>
+    </div>
+
+    <div class="admin-transfer-layout">
+      <section class="admin-card" aria-labelledby="pickTitle">
+        <div class="admin-card-head">
+          <h2 class="admin-section-title" id="pickTitle">1. Select Applications <span class="admin-count-pill" id="selectedCount">0 selected</span></h2>
+          <div class="admin-search admin-search--sm">
+            <svg class="admin-ic" aria-hidden="true"><use href="#i-search"/></svg>
+            <label for="transferSearch" class="admin-sr-only">Search</label>
+            <input type="search" id="transferSearch" class="admin-input" placeholder="Search application or applicant" autocomplete="off" />
+          </div>
+        </div>
+        <div class="admin-table-wrap">
+          <table class="admin-table admin-table--compact">
+            <thead>
+              <tr>
+                <th scope="col" class="admin-col-check"><input type="checkbox" id="checkAll" aria-label="Select all visible applications"></th>
+                <th scope="col">Application Number</th><th scope="col">Service Name</th><th scope="col">Applicant Name</th>
+                <th scope="col" class="admin-col-amount">Pending Days</th><th scope="col">Status</th>
+              </tr>
+            </thead>
+            <tbody id="transferBody"></tbody>
+          </table>
+        </div>
+        <div class="admin-empty-state" id="transferEmpty" hidden>
+          <span class="admin-empty-icon"><svg class="admin-ic" aria-hidden="true"><use href="#i-inbox"/></svg></span>
+          <h3>No files to transfer</h3>
+          <p>Your inbox for this charge is empty.</p>
+        </div>
+      </section>
+
+      <section class="admin-card" aria-labelledby="targetTitle">
+        <div class="admin-card-head"><h2 class="admin-section-title" id="targetTitle">2. Transfer To</h2></div>
+        <form id="transferForm" class="admin-card-body admin-stack" novalidate>
+          <div class="admin-field">
+            <label for="transferFrom">From Charge</label>
+            <input type="text" id="transferFrom" class="admin-input" readonly aria-readonly="true" tabindex="-1">
+          </div>
+          <div class="admin-field">
+            <label for="transferTo">Transfer To <span class="admin-req">*</span></label>
+            <select id="transferTo" class="admin-select"></select>
+            <p class="admin-field-error"></p>
+          </div>
+          <div class="admin-field">
+            <label for="transferRemarks">Remarks <span class="admin-req">*</span></label>
+            <textarea id="transferRemarks" class="admin-textarea" rows="4" maxlength="500" placeholder="Reason for transfer"></textarea>
+            <p class="admin-field-error"></p>
+          </div>
+          <div class="admin-field" id="transferPickField">
+            <input type="hidden" id="transferPick" class="admin-input">
+            <p class="admin-field-error"></p>
+          </div>
+          <button type="submit" class="admin-btn admin-btn-primary admin-btn-block">
+            <svg class="admin-ic" aria-hidden="true"><use href="#i-transfer"/></svg> Transfer Applications
+          </button>
+        </form>
+      </section>
+    </div>
+  </main>
+
+  <!-- CONFIRM TRANSFER -->
+  <div class="admin-modal" id="transferConfirm" hidden role="alertdialog" aria-modal="true" aria-labelledby="tcTitle" aria-describedby="tcText">
+    <div class="admin-modal-backdrop" data-modal-close></div>
+    <div class="admin-modal-dialog admin-modal-dialog--sm">
+      <div class="admin-confirm">
+        <span class="admin-confirm-icon admin-confirm-icon--info"><svg class="admin-ic" aria-hidden="true"><use href="#i-transfer"/></svg></span>
+        <h2 id="tcTitle">Transfer Applications?</h2>
+        <p id="tcText"></p>
+      </div>
+      <div class="admin-modal-foot admin-modal-foot--center">
+        <button type="button" class="admin-btn admin-btn-outline" data-modal-close data-autofocus>Cancel</button>
+        <button type="button" class="admin-btn admin-btn-primary" id="tcSubmit">Transfer</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/admin-data.js"></script>
+  <script src="../js/admin-common.js"></script>
+  <script src="../js/admin-layout.js"></script>
+  <script src="../js/file-movement.js"></script>
+  <script src="../js/application-transfer.js"></script>
+</body>
+</html>

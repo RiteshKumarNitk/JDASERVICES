@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%277%27 fill=%27%2318324A%27/%3E%3Ctext x=%2716%27 y=%2721%27 font-family=%27Arial%27 font-size=%2711%27 font-weight=%27700%27 fill=%27%23fff%27 text-anchor=%27middle%27%3EJDA%3C/text%3E%3C/svg%3E" />
+  <title>Admin Login — JDA Property Services</title>
+  <link rel="stylesheet" href="../css/admin-layout.css" />
+  <link rel="stylesheet" href="../css/admin-components.css" />
+  <link rel="stylesheet" href="../css/admin-pages.css" />
+  <link rel="stylesheet" href="../css/responsive.css" />
+</head>
+<!--
+  ADMIN LOGIN (separate from the client login)
+  Flow:  submit → validate → loading → success → select-charge.html
+                                     → failure → inline error
+  BACKEND HANDOFF: form posts EmployeeId, Password, RememberMe.
+-->
+<body class="admin-body admin-login-page">
+
+  <main class="admin-login-card" aria-labelledby="loginTitle">
+    <div class="admin-login-brand">
+      <span class="admin-brand-mark" aria-hidden="true">JDA</span>
+      <h1 id="loginTitle">Admin Panel</h1>
+      <p>Jaipur Development Authority · Property Services</p>
+    </div>
+
+    <form class="admin-login-form" id="loginForm" novalidate>
+      <!-- Status message (error / logged out / session expired) -->
+      <div class="admin-alert" id="loginAlert" role="alert" hidden></div>
+
+      <div class="admin-field">
+        <label for="employeeId">Employee ID <span class="admin-req">*</span></label>
+        <div class="admin-input-icon">
+          <svg class="admin-ic" aria-hidden="true"><use href="#i-id-card"/></svg>
+          <input type="text" id="employeeId" name="employeeId" class="admin-input"
+                 placeholder="Enter your Employee ID" autocomplete="username"
+                 maxlength="20" aria-describedby="employeeId-error" />
+        </div>
+        <p class="admin-field-error" id="employeeId-error"></p>
+      </div>
+
+      <div class="admin-field">
+        <label for="password">Password <span class="admin-req">*</span></label>
+        <div class="admin-input-icon admin-input-icon--toggle">
+          <svg class="admin-ic" aria-hidden="true"><use href="#i-lock"/></svg>
+          <input type="password" id="password" name="password" class="admin-input"
+                 placeholder="Enter your password" autocomplete="current-password"
+                 maxlength="64" aria-describedby="password-error" />
+          <button type="button" class="admin-input-toggle" id="togglePassword" aria-label="Show password" aria-pressed="false">
+            <svg class="admin-ic" aria-hidden="true"><use href="#i-eye"/></svg>
+          </button>
+        </div>
+        <p class="admin-field-error" id="password-error"></p>
+      </div>
+
+      <div class="admin-login-row">
+        <label class="admin-check">
+          <input type="checkbox" id="rememberMe" name="rememberMe" />
+          Remember Me
+        </label>
+        <a href="#" id="forgotPasswordLink">Forgot Password?</a>
+      </div>
+
+      <button type="submit" class="admin-btn admin-btn-primary admin-btn-lg admin-btn-block" id="loginBtn">
+        Login
+        <svg class="admin-ic" aria-hidden="true"><use href="#i-arrow-right"/></svg>
+      </button>
+    </form>
+
+    <!-- PROTOTYPE ONLY — remove when real authentication is connected -->
+    <div class="admin-demo-note">
+      <strong>Demo accounts (frontend prototype)</strong><br />
+      Password for every account: <code>Admin@123</code><br />
+      Main account: <code>JDA1001</code> Deputy Commissioner (Zone 11 &amp; Zone 19)
+      <details class="admin-demo-accounts">
+        <summary>Show all officer accounts</summary>
+        <p class="admin-demo-hint">Click an officer to fill in the login form.</p>
+        <!-- Rendered by admin-login.js from AdminData (same data as “Users Of Department”) -->
+        <div id="demoAccounts"></div>
+      </details>
+    </div>
+  </main>
+
+  <p class="admin-login-foot">© Jaipur Development Authority, Government of Rajasthan</p>
+
+  <!-- Forgot Password modal -->
+  <div class="admin-modal" id="forgotModal" hidden role="dialog" aria-modal="true" aria-labelledby="forgotTitle">
+    <div class="admin-modal-backdrop" data-modal-close></div>
+    <div class="admin-modal-dialog admin-modal-dialog--sm">
+      <div class="admin-modal-head">
+        <div>
+          <h2 class="admin-modal-title" id="forgotTitle">Forgot Password</h2>
+          <p class="admin-modal-subtitle">We will send a reset link to your registered email.</p>
+        </div>
+        <button type="button" class="admin-modal-close" data-modal-close aria-label="Close">
+          <svg class="admin-ic" aria-hidden="true"><use href="#i-x"/></svg>
+        </button>
+      </div>
+      <form id="forgotForm" novalidate>
+        <div class="admin-modal-body">
+          <div class="admin-alert admin-alert--success" id="forgotSuccess" hidden>
+            <svg class="admin-ic" aria-hidden="true"><use href="#i-check-circle"/></svg>
+            <span>If this Employee ID is registered, a password reset link has been sent to the registered email address.</span>
+          </div>
+          <div class="admin-field" id="forgotField">
+            <label for="forgotEmployeeId">Employee ID <span class="admin-req">*</span></label>
+            <input type="text" id="forgotEmployeeId" class="admin-input" placeholder="Enter your Employee ID"
+                   maxlength="20" aria-describedby="forgotEmployeeId-error" data-autofocus />
+            <p class="admin-field-error" id="forgotEmployeeId-error"></p>
+          </div>
+        </div>
+        <div class="admin-modal-foot">
+          <button type="button" class="admin-btn admin-btn-outline" data-modal-close>Cancel</button>
+          <button type="submit" class="admin-btn admin-btn-primary" id="forgotSubmit">Send Reset Link</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="../js/admin-data.js"></script>
+  <script src="../js/admin-common.js"></script>
+  <script src="../js/admin-login.js"></script>
+</body>
+</html>
