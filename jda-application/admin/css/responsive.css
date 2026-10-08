@@ -103,7 +103,8 @@
 }
 
 @media (max-width: 575.98px) {
-  .admin-modal { padding: 10px; align-items: flex-end; }
+  .admin-modal { --bs-modal-margin: 10px; }
+  .admin-modal .modal-dialog-centered { align-items: flex-end; }   /* bottom sheet on phones */
   .admin-modal-dialog { max-height: calc(100vh - 20px); }
   .admin-modal-head, .admin-modal-body { padding-left: 16px; padding-right: 16px; }
   .admin-modal-foot { padding: 12px 16px; }

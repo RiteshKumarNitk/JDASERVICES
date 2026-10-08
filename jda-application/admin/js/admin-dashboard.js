@@ -5,7 +5,7 @@
    All numbers are computed for the SELECTED CHARGE only.
    ===================================================================== */
 
-(function (window, document) {
+(function (window, document, $) {
   "use strict";
 
   if (!window.AdminLayout.ready) return;
@@ -22,7 +22,7 @@
 
   /* BACKEND INTEGRATION: counters → dashboard-summary API for the charge. */
   function renderCounters() {
-    document.getElementById("counterGrid").innerHTML = DASHBOARD_LISTS.map(key => {
+    $("#counterGrid").html(DASHBOARD_LISTS.map(key => {
       const def = LISTS[key];
       return `
         <a class="admin-counter admin-counter--${def.tone}" href="${listUrl(key)}">
@@ -33,7 +33,7 @@
           </span>
           <span class="admin-counter-link">View list ${icon("i-arrow-right")}</span>
         </a>`;
-    }).join("");
+    }).join(""));
   }
 
   function renderMovements() {
@@ -42,7 +42,7 @@
       .sort((a, b) => b.at.localeCompare(a.at) || b.id - a.id)
       .slice(0, 6);
 
-    document.getElementById("movementList").innerHTML = list.length ? list.map(m => {
+    $("#movementList").html(list.length ? list.map(m => {
       const outgoing = m.fromChargeId === charge.id;
       return `
         <li class="admin-activity-item">
@@ -59,7 +59,7 @@
             </p>
           </div>
         </li>`;
-    }).join("") : `<li class="admin-empty-inline">No file movements yet for this charge.</li>`;
+    }).join("") : `<li class="admin-empty-inline">No file movements yet for this charge.</li>`);
   }
 
   function renderDueAlerts() {
@@ -69,7 +69,7 @@
       .sort((x, y) => x.left - y.left)
       .slice(0, 6);
 
-    document.getElementById("dueList").innerHTML = list.length ? list.map(({ a, left }) => `
+    $("#dueList").html(list.length ? list.map(({ a, left }) => `
       <li class="admin-activity-item">
         <span class="admin-activity-icon ${left < 0 ? "admin-activity-icon--danger" : "admin-activity-icon--warn"}">${icon(left < 0 ? "i-alert" : "i-clock")}</span>
         <div>
@@ -79,7 +79,7 @@
             <span>${escapeHtml(a.applicant.name)}</span>
           </p>
         </div>
-      </li>`).join("") : `<li class="admin-empty-inline">No files are close to their due date.</li>`;
+      </li>`).join("") : `<li class="admin-empty-inline">No files are close to their due date.</li>`);
   }
 
   /* ---------------- PENDING SUMMARY ---------------- */
@@ -87,12 +87,12 @@
   function renderSummary() {
     const categories = ["received", "my-pending", "due-expired", "pending-applicant", "pending-other-dept", "on-hold",
                         "case-open", "vigyapti", "agenda", "layout", "checklist", "pdc"];
-    document.getElementById("categoryBody").innerHTML = categories.map(key => `
+    $("#categoryBody").html(categories.map(key => `
       <tr>
         <td><span class="admin-cell-icon">${icon(LISTS[key].icon)}</span>${escapeHtml(LISTS[key].title)}</td>
         <td class="admin-col-amount"><a class="admin-count-link" href="${listUrl(key)}">${countFor(key, charge.id)}</a></td>
         <td class="admin-col-actions"><a class="admin-action-btn admin-action-btn--edit" href="${listUrl(key)}">${icon("i-eye")} View</a></td>
-      </tr>`).join("");
+      </tr>`).join(""));
 
     const inbox = ApplicationStore.inbox(charge.id);
     const services = [...new Set(inbox.map(a => a.service.name))].sort();
@@ -100,23 +100,23 @@
       const n = listApplications(key, charge.id).filter(a => a.service.name === svc).length;
       return n ? `<a class="admin-count-link" href="${listUrl(key, "&service=" + encodeURIComponent(svc))}">${n}</a>` : `<span class="admin-muted">0</span>`;
     };
-    document.getElementById("serviceBody").innerHTML = services.length ? services.map(svc => `
+    $("#serviceBody").html(services.length ? services.map(svc => `
       <tr>
         <td>${escapeHtml(svc)}</td>
         <td class="admin-col-amount">${cell("received", svc)}</td>
         <td class="admin-col-amount">${cell("my-pending", svc)}</td>
         <td class="admin-col-amount">${cell("on-hold", svc)}</td>
         <td class="admin-col-amount">${cell("due-expired", svc)}</td>
-      </tr>`).join("") : `<tr><td colspan="5" class="admin-muted">No pending files.</td></tr>`;
+      </tr>`).join("") : `<tr><td colspan="5" class="admin-muted">No pending files.</td></tr>`);
   }
 
   /* ---------------- INIT ---------------- */
-  if (document.getElementById("counterGrid")) {
-    document.getElementById("dashSubtitle").textContent =
-      `Applications and files of ${charge.name}. Click any counter to open its list.`;
+  if ($("#counterGrid").length) {
+    $("#dashSubtitle").text(
+      `Applications and files of ${charge.name}. Click any counter to open its list.`);
     renderCounters();
     renderMovements();
     renderDueAlerts();
   }
-  if (document.getElementById("categoryBody")) renderSummary();
-})(window, document);
+  if ($("#categoryBody").length) renderSummary();
+})(window, document, jQuery);

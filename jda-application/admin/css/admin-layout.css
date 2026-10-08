@@ -1,3 +1,9 @@
+/* Bootstrap 5.2.3 — loaded into a low-priority cascade layer.
+   Every admin rule is unlayered, so it always wins over Bootstrap. Bootstrap
+   supplies the component behaviour (.modal, .dropdown-menu, .show …) and only
+   the properties our own CSS does not set. */
+@import url("https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css") layer(bootstrap);
+
 /* =====================================================================
    JDA Admin Panel — admin-layout.css
    Design tokens + page chrome (blue header, dark-blue sidebar, footer,
@@ -57,12 +63,34 @@ body.admin-body {
 .admin-body a:not([class]):hover { text-decoration: underline; }
 .admin-body :focus-visible { outline: none; box-shadow: var(--admin-focus); }
 
+/* ---------------------------------------------------------------------
+   Bootstrap 5.2.3 compatibility
+   Bootstrap's "Reboot" changes a few browser defaults the approved admin
+   design was built on; `revert` puts each one back. :where() keeps these
+   rules at element-level specificity, so every .admin-* rule still wins.
+   --------------------------------------------------------------------- */
+:where(.admin-body) :where(h1, h2, h3, h4, h5, h6) { font-weight: revert; line-height: revert; }
+:where(.admin-body) :where(dt) { font-weight: revert; }
+:where(.admin-body) :where(a) { color: revert; }
+:where(.admin-body) :where(small) { font-size: revert; }
+:where(.admin-body) :where(svg) { vertical-align: revert; }
+:where(.admin-body) :where(label) { display: revert; }
+:where(.admin-body) :where(caption) { padding: revert; color: revert; text-align: revert; caption-side: revert; }
+:where(.admin-body) :where(input, button, select, optgroup, option, textarea) { margin: revert; font-family: revert; font-size: revert; line-height: revert; }
+:where(.admin-body) :where(button, [type="button"], [type="submit"], [type="search"]) { appearance: revert; }
+:where(.admin-body) :where(textarea) { resize: revert; }
+:where(.admin-body) :where(select:disabled) { opacity: revert; }   /* Reboot: 1 — keep the dimmed disabled select */
+:where(.admin-body) ::-webkit-datetime-edit-fields-wrapper, :where(.admin-body) ::-webkit-datetime-edit-text,
+:where(.admin-body) ::-webkit-datetime-edit-day-field, :where(.admin-body) ::-webkit-datetime-edit-month-field,
+:where(.admin-body) ::-webkit-datetime-edit-year-field { padding: revert; }   /* Reboot: 0 inside date inputs */
+.admin-body { -webkit-text-size-adjust: revert; -webkit-tap-highlight-color: revert; }
+
 /* Avoid a flash of un-laid-out content before admin-layout.js runs */
 body.admin-body:not(.admin-ready) #adminMain { visibility: hidden; }
 
 .admin-ic { width: 1.1em; height: 1.1em; flex-shrink: 0; display: inline-block; vertical-align: -0.18em; }
 
-.admin-modal-open, .admin-nav-locked { overflow: hidden; }
+.admin-nav-locked { overflow: hidden; }
 
 /* ---------- Brand mark ---------- */
 .admin-brand-mark {
@@ -282,7 +310,7 @@ body.admin-body:not(.admin-ready) #adminMain { visibility: hidden; }
   text-align: left;
   max-width: 380px;
 }
-.admin-user-btn:hover, .admin-dropdown.is-open .admin-user-btn { background: rgba(255, 255, 255, .18); }
+.admin-user-btn:hover, .admin-user-btn.show { background: rgba(255, 255, 255, .18); }
 
 .admin-avatar {
   display: inline-grid;
@@ -301,13 +329,17 @@ body.admin-body:not(.admin-ready) #adminMain { visibility: hidden; }
 .admin-user-name { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .admin-user-role { font-size: 12px; color: #DCEBFA; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .admin-user-caret { transition: transform .2s ease; }
-.admin-dropdown.is-open .admin-user-caret { transform: rotate(180deg); }
+.admin-user-btn.show .admin-user-caret { transform: rotate(180deg); }
 
 /* ---------- Dropdowns ---------- */
 .admin-dropdown { position: relative; }
 .admin-dropdown-menu {
+  display: block;      /* Bootstrap sets display: none — hidden via visibility so it can fade */
   position: absolute;
   right: 0;
+  left: auto;          /* Bootstrap sets left: 0 */
+  margin: 0;
+  font-size: inherit;
   top: calc(100% + 10px);
   min-width: 260px;
   background: var(--admin-white);
@@ -322,7 +354,9 @@ body.admin-body:not(.admin-ready) #adminMain { visibility: hidden; }
   transition: opacity .15s ease, transform .15s ease, visibility .15s;
   z-index: 50;
 }
-.admin-dropdown.is-open .admin-dropdown-menu { opacity: 1; visibility: visible; transform: none; }
+/* Bootstrap Dropdown adds .show. Visibility switches on at once (no transition)
+   so the first menu item can take focus immediately; opacity still fades in. */
+.admin-dropdown-menu.show { opacity: 1; visibility: visible; transform: none; transition: opacity .15s ease, transform .15s ease; }
 
 .admin-user-menu { width: 300px; }
 .admin-user-menu-head {

@@ -4,18 +4,18 @@
    (the user must pick one of their charges before the sidebar appears).
    ===================================================================== */
 
-(function (window, document) {
+(function (window, document, $) {
   "use strict";
 
   const { AdminData, AdminAuth, AdminForm, AdminModal, AdminUtil } = window;
 
-  const form        = document.getElementById("loginForm");
-  const idInput     = document.getElementById("employeeId");
-  const pwInput     = document.getElementById("password");
-  const remember    = document.getElementById("rememberMe");
-  const loginBtn    = document.getElementById("loginBtn");
-  const alertBox    = document.getElementById("loginAlert");
-  const togglePwBtn = document.getElementById("togglePassword");
+  const $form     = $("#loginForm");
+  const $id       = $("#employeeId");
+  const $pw       = $("#password");
+  const $remember = $("#rememberMe");
+  const $loginBtn = $("#loginBtn");
+  const $alert    = $("#loginAlert");
+  const $togglePw = $("#togglePassword");
 
   /* After login the user always selects a charge first. A ?next= page
      (session expired mid-work) is honoured only for local admin pages. */
@@ -26,23 +26,23 @@
 
   function showAlert(type, message) {
     const iconId = type === "error" ? "i-alert" : type === "success" ? "i-check-circle" : "i-info";
-    alertBox.className = `admin-alert admin-alert--${type}`;
-    alertBox.innerHTML = AdminUtil.icon(iconId) + `<span>${AdminUtil.escapeHtml(message)}</span>`;
-    alertBox.hidden = false;
+    $alert.attr("class", `admin-alert admin-alert--${type}`)
+      .html(AdminUtil.icon(iconId) + `<span>${AdminUtil.escapeHtml(message)}</span>`)
+      .prop("hidden", false);
   }
 
-  function hideAlert() { alertBox.hidden = true; }
+  function hideAlert() { $alert.prop("hidden", true); }
 
   function validate() {
     let ok = true;
-    const id = idInput.value.trim();
-    const pw = pwInput.value;
+    const id = $id.val().trim();
+    const pw = $pw.val();
 
-    if (!id) { AdminForm.setError(idInput, "Employee ID is required."); ok = false; }
-    else if (!/^[A-Za-z0-9]{4,20}$/.test(id)) { AdminForm.setError(idInput, "Employee ID must be 4–20 letters or digits."); ok = false; }
+    if (!id) { AdminForm.setError($id, "Employee ID is required."); ok = false; }
+    else if (!/^[A-Za-z0-9]{4,20}$/.test(id)) { AdminForm.setError($id, "Employee ID must be 4–20 letters or digits."); ok = false; }
 
-    if (!pw) { AdminForm.setError(pwInput, "Password is required."); ok = false; }
-    else if (pw.length < 6) { AdminForm.setError(pwInput, "Password must be at least 6 characters."); ok = false; }
+    if (!pw) { AdminForm.setError($pw, "Password is required."); ok = false; }
+    else if (pw.length < 6) { AdminForm.setError($pw, "Password must be at least 6 characters."); ok = false; }
 
     return ok;
   }
@@ -50,92 +50,89 @@
   async function handleSubmit(e) {
     e.preventDefault();
     hideAlert();
-    AdminForm.clearAll(form);
-    if (!validate()) { AdminForm.focusFirstError(form); return; }
+    AdminForm.clearAll($form);
+    if (!validate()) { AdminForm.focusFirstError($form); return; }
 
-    AdminUtil.setButtonLoading(loginBtn, true, "Signing in...");
+    AdminUtil.setButtonLoading($loginBtn, true, "Signing in...");
 
     /* BACKEND INTEGRATION:
        Replace this block with the real login request. The server
        validates credentials and returns the user profile / auth cookie. */
     await AdminUtil.delay(900);
-    const user = AdminData.EmployeeStore.getById(idInput.value.trim());
-    const valid = !!user && pwInput.value === AdminData.DEMO_PASSWORD;
+    const user = AdminData.EmployeeStore.getById($id.val().trim());
+    const valid = !!user && $pw.val() === AdminData.DEMO_PASSWORD;
 
     if (!valid) {
-      AdminUtil.setButtonLoading(loginBtn, false);
+      AdminUtil.setButtonLoading($loginBtn, false);
       showAlert("error", "Invalid Employee ID or password. Please check your credentials and try again.");
-      pwInput.value = "";
-      pwInput.focus();
+      $pw.val("").trigger("focus");
       return;
     }
 
-    AdminAuth.startSession(user, remember.checked);
+    AdminAuth.startSession(user, $remember.prop("checked"));
 
     /* Citizen Care Center (HQ) users hold one counselling charge — they go
        straight to the Counselor Dashboard. Everyone else selects a charge. */
     const held = AdminData.ChargeStore.getForEmployee(user.employeeId);
     const direct = held.length === 1 && held[0].kind === "counselling" ? held[0] : null;
     if (direct) AdminData.Session.setCharge(direct);
-    loginBtn.innerHTML = AdminUtil.icon("i-check") + "<span>Login successful — redirecting...</span>";
+    $loginBtn.html(AdminUtil.icon("i-check") + "<span>Login successful — redirecting...</span>");
     showAlert("success", `Welcome, ${user.name}. Loading your charges...`);
     setTimeout(() => { window.location.href = direct ? AdminData.homePage(direct) : nextPage(); }, 600);
   }
 
   function togglePassword() {
-    const show = pwInput.type === "password";
-    pwInput.type = show ? "text" : "password";
-    togglePwBtn.setAttribute("aria-pressed", String(show));
-    togglePwBtn.setAttribute("aria-label", show ? "Hide password" : "Show password");
-    togglePwBtn.innerHTML = AdminUtil.icon(show ? "i-eye-off" : "i-eye");
+    const show = $pw.attr("type") === "password";
+    $pw.attr("type", show ? "text" : "password");
+    $togglePw.attr({ "aria-pressed": String(show), "aria-label": show ? "Hide password" : "Show password" })
+      .html(AdminUtil.icon(show ? "i-eye-off" : "i-eye"));
   }
 
   /* ---------- Forgot password (placeholder flow) ---------- */
   function bindForgotPassword() {
-    const modal   = document.getElementById("forgotModal");
-    const fForm   = document.getElementById("forgotForm");
-    const fInput  = document.getElementById("forgotEmployeeId");
-    const fField  = document.getElementById("forgotField");
-    const fOk     = document.getElementById("forgotSuccess");
-    const fSubmit = document.getElementById("forgotSubmit");
+    const $fForm   = $("#forgotForm");
+    const $fInput  = $("#forgotEmployeeId");
+    const $fField  = $("#forgotField");
+    const $fOk     = $("#forgotSuccess");
+    const $fSubmit = $("#forgotSubmit");
 
-    document.getElementById("forgotPasswordLink").addEventListener("click", e => {
+    $("#forgotPasswordLink").on("click", function (e) {
       e.preventDefault();
-      fForm.reset();
-      AdminForm.clearAll(fForm);
-      fOk.hidden = true;
-      fField.hidden = false;
-      fSubmit.hidden = false;
-      fInput.value = idInput.value.trim();
-      AdminModal.open(modal);
+      $fForm[0].reset();
+      AdminForm.clearAll($fForm);
+      $fOk.prop("hidden", true);
+      $fField.prop("hidden", false);
+      $fSubmit.prop("hidden", false);
+      $fInput.val($id.val().trim());
+      AdminModal.open("forgotModal");
     });
 
-    AdminForm.liveClear(fForm);
-    fForm.addEventListener("submit", async e => {
+    AdminForm.liveClear($fForm);
+    $fForm.on("submit", async function (e) {
       e.preventDefault();
-      if (!fInput.value.trim()) {
-        AdminForm.setError(fInput, "Employee ID is required.");
-        fInput.focus();
+      if (!$fInput.val().trim()) {
+        AdminForm.setError($fInput, "Employee ID is required.");
+        $fInput.trigger("focus");
         return;
       }
-      AdminUtil.setButtonLoading(fSubmit, true, "Sending...");
+      AdminUtil.setButtonLoading($fSubmit, true, "Sending...");
       // BACKEND INTEGRATION: request a password reset email.
       await AdminUtil.delay(800);
-      AdminUtil.setButtonLoading(fSubmit, false);
-      fField.hidden = true;
-      fSubmit.hidden = true;
-      fOk.hidden = false;
+      AdminUtil.setButtonLoading($fSubmit, false);
+      $fField.prop("hidden", true);
+      $fSubmit.prop("hidden", true);
+      $fOk.prop("hidden", false);
     });
   }
 
   /* ---------- Demo account list (PROTOTYPE ONLY — remove with real login) ---------- */
   function renderDemoAccounts() {
-    const box = document.getElementById("demoAccounts");
-    if (!box) return;
+    const $box = $("#demoAccounts");
+    if (!$box.length) return;
     const { escapeHtml } = AdminUtil;
     const charges = AdminData.ChargeStore.getAll().filter(c => c.holder);
     const depts = [...new Set(charges.map(c => c.department))];
-    box.innerHTML = depts.map(d => `
+    $box.html(depts.map(d => `
       <p class="admin-demo-dept">${escapeHtml(d)}</p>
       <ul class="admin-demo-list">
         ${charges.filter(c => c.department === d).map(c => `
@@ -143,16 +140,14 @@
             <code>${c.holderId}</code>
             <span><strong>${escapeHtml(c.holder.name)}</strong>${escapeHtml(AdminData.chargeLabel(c))}</span>
           </button></li>`).join("")}
-      </ul>`).join("");
+      </ul>`).join(""));
 
-    box.addEventListener("click", e => {
-      const b = e.target.closest("[data-demo-id]");
-      if (!b) return;
-      idInput.value = b.dataset.demoId;
-      pwInput.value = AdminData.DEMO_PASSWORD;
-      AdminForm.clearAll(form);
+    $box.on("click", "[data-demo-id]", function () {
+      $id.val($(this).attr("data-demo-id"));
+      $pw.val(AdminData.DEMO_PASSWORD);
+      AdminForm.clearAll($form);
       hideAlert();
-      loginBtn.focus();
+      $loginBtn.trigger("focus");
     });
   }
 
@@ -167,17 +162,17 @@
 
     try {
       const rememberedId = localStorage.getItem(AdminData.KEYS.rememberId);
-      if (rememberedId) { idInput.value = rememberedId; remember.checked = true; }
+      if (rememberedId) { $id.val(rememberedId); $remember.prop("checked", true); }
     } catch (err) { /* ignore */ }
 
-    (idInput.value ? pwInput : idInput).focus();
+    ($id.val() ? $pw : $id).trigger("focus");
 
-    AdminForm.liveClear(form);
-    form.addEventListener("submit", handleSubmit);
-    togglePwBtn.addEventListener("click", togglePassword);
+    AdminForm.liveClear($form);
+    $form.on("submit", handleSubmit);
+    $togglePw.on("click", togglePassword);
     bindForgotPassword();
     renderDemoAccounts();
   }
 
   init();
-})(window, document);
+})(window, document, jQuery);

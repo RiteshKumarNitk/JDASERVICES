@@ -12,7 +12,7 @@
      outbox       → one row per file forwarded by this charge
    ===================================================================== */
 
-(function (window, document) {
+(function (window, document, $) {
   "use strict";
 
   if (!window.AdminLayout.ready) return;
@@ -21,7 +21,6 @@
   const { icon, escapeHtml, formatDate, formatDateTime, statusBadge } = AdminUtil;
   const { LISTS, STATUS, Session, ApplicationStore, MovementStore, ChargeStore, listApplications, daysFromToday } = AdminData;
 
-  const $ = id => document.getElementById(id);
   const params = new URLSearchParams(window.location.search);
   const listKey = LISTS[params.get("list")] ? params.get("list") : "received";
   const def = LISTS[listKey];
@@ -70,9 +69,9 @@
   }
 
   function filteredRows() {
-    const q = $("listSearch").value.trim().toLowerCase();
-    const status = $("statusFilter").value;
-    const service = $("serviceFilter").value;
+    const q = $("#listSearch").val().trim().toLowerCase();
+    const status = $("#statusFilter").val();
+    const service = $("#serviceFilter").val();
     return rows.filter(r => {
       const a = r.app;
       if (status && a.status !== status) return false;
@@ -167,8 +166,8 @@
 
   function renderPager(total, size, from, to) {
     const pages = Math.max(1, Math.ceil(total / size));
-    $("pager").hidden = total === 0;
-    $("pagerInfo").textContent = total ? `Showing ${from} to ${to} of ${total} entries` : "";
+    $("#pager").prop("hidden", total === 0);
+    $("#pagerInfo").text(total ? `Showing ${from} to ${to} of ${total} entries` : "");
     const btn = (p, label, disabled, current) =>
       `<li><button type="button" class="admin-page-btn${current ? " is-current" : ""}" data-page="${p}" ${disabled ? "disabled" : ""} ${current ? 'aria-current="page"' : ""}>${label}</button></li>`;
     let html = btn(page - 1, "Previous", page === 1);
@@ -180,43 +179,43 @@
       html += btn(p, p, false, p === page);
     }
     html += btn(page + 1, "Next", page === pages);
-    $("pagerLinks").innerHTML = html;
+    $("#pagerLinks").html(html);
   }
 
   function render() {
     const list = filteredRows();
-    const size = Number($("pageSize").value);
+    const size = Number($("#pageSize").val());
     const pages = Math.max(1, Math.ceil(list.length / size));
     page = Math.min(page, pages);
     const start = (page - 1) * size;
     const slice = list.slice(start, start + size);
 
-    $("tableWrap").hidden = list.length === 0;
-    $("listEmpty").hidden = list.length !== 0;
-    const filtering = $("listSearch").value.trim() || $("statusFilter").value || $("serviceFilter").value;
-    $("clearFilters").hidden = !filtering;
-    $("listEmptyTitle").textContent = filtering ? "No matching applications" : `No ${def.title.toLowerCase()}`;
-    $("listEmptyText").textContent = filtering
+    $("#tableWrap").prop("hidden", list.length === 0);
+    $("#listEmpty").prop("hidden", list.length !== 0);
+    const filtering = $("#listSearch").val().trim() || $("#statusFilter").val() || $("#serviceFilter").val();
+    $("#clearFilters").prop("hidden", !filtering);
+    $("#listEmptyTitle").text(filtering ? "No matching applications" : `No ${def.title.toLowerCase()}`);
+    $("#listEmptyText").text(filtering
       ? "No application matches the current search or filters."
       : mode === "outbox" ? "You have not forwarded any file from this charge yet."
-      : "There are no files in this list for your charge right now.";
+      : "There are no files in this list for your charge right now.");
 
-    $("tableBody").innerHTML = slice.map((r, i) => rowHtml(r, start + i + 1)).join("");
+    $("#tableBody").html(slice.map((r, i) => rowHtml(r, start + i + 1)).join(""));
     renderPager(list.length, size, start + 1, start + slice.length);
   }
 
   function renderSkeleton() {
-    $("tableBody").innerHTML = Array.from({ length: 5 }, () =>
-      `<tr aria-hidden="true"><td colspan="12"><div class="admin-skeleton admin-skel-line"></div></td></tr>`).join("");
+    $("#tableBody").html(Array.from({ length: 5 }, () =>
+      `<tr aria-hidden="true"><td colspan="12"><div class="admin-skeleton admin-skel-line"></div></td></tr>`).join(""));
   }
 
   function fillFilters() {
     const statuses = mode === "find" ? Object.values(STATUS) : Object.values(STATUS).filter(s => s !== STATUS.DISPOSED);
-    $("statusFilter").insertAdjacentHTML("beforeend", statuses.map(s => `<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`).join(""));
+    $("#statusFilter").append(statuses.map(s => `<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`).join(""));
     const services = [...new Set(rows.map(r => r.app.service.name))].sort();
-    $("serviceFilter").insertAdjacentHTML("beforeend", services.map(s => `<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`).join(""));
-    if (params.get("service")) $("serviceFilter").value = params.get("service");
-    if (params.get("q")) $("listSearch").value = params.get("q");
+    $("#serviceFilter").append(services.map(s => `<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`).join(""));
+    if (params.get("service")) $("#serviceFilter").val(params.get("service"));
+    if (params.get("q")) $("#listSearch").val(params.get("q"));
   }
 
   /* ===================================================================
@@ -224,47 +223,44 @@
      =================================================================== */
   function init() {
     document.title = `${def.title} — JDA Admin Panel`;
-    $("crumbTitle").textContent = def.title;
-    $("listTitle").textContent = def.title;
-    $("listDescription").textContent = `${def.description} Charge: ${charge.name}.`;
-    $("tableCaption").textContent = `${def.title} — ${charge.name}`;
-    $("tableHead").innerHTML = headHtml();
-    $("appTable").classList.toggle("admin-app-table--outbox", mode === "outbox");
-    if (mode === "find") $("listSearch").placeholder = "Enter Application No., applicant name or property no.";
+    $("#crumbTitle").text(def.title);
+    $("#listTitle").text(def.title);
+    $("#listDescription").text(`${def.description} Charge: ${charge.name}.`);
+    $("#tableCaption").text(`${def.title} — ${charge.name}`);
+    $("#tableHead").html(headHtml());
+    $("#appTable").toggleClass("admin-app-table--outbox", mode === "outbox");
+    if (mode === "find") $("#listSearch").attr("placeholder", "Enter Application No., applicant name or property no.");
 
     renderSkeleton();
     setTimeout(() => {
       loadRows();
       fillFilters();
       render();
-      if (mode === "find") $("listSearch").focus();
+      if (mode === "find") $("#listSearch").trigger("focus");
     }, 250);
 
     const rerender = () => { page = 1; render(); };
-    $("listSearch").addEventListener("input", AdminUtil.debounce(rerender, 150));
-    $("statusFilter").addEventListener("change", rerender);
-    $("serviceFilter").addEventListener("change", rerender);
-    $("pageSize").addEventListener("change", rerender);
-    $("clearFilters").addEventListener("click", () => {
-      $("listSearch").value = ""; $("statusFilter").value = ""; $("serviceFilter").value = "";
+    $("#listSearch").on("input", AdminUtil.debounce(rerender, 150));
+    $("#statusFilter").on("change", rerender);
+    $("#serviceFilter").on("change", rerender);
+    $("#pageSize").on("change", rerender);
+    $("#clearFilters").on("click", () => {
+      $("#listSearch").val(""); $("#statusFilter").val(""); $("#serviceFilter").val("");
       rerender();
-      $("listSearch").focus();
+      $("#listSearch").trigger("focus");
     });
-    $("pagerLinks").addEventListener("click", e => {
-      const b = e.target.closest("[data-page]");
-      if (!b || b.disabled) return;
-      page = Number(b.dataset.page);
+    $("#pagerLinks").on("click", "[data-page]", function () {
+      if (this.disabled) return;
+      page = Number($(this).attr("data-page"));
       render();
-      $("tableWrap").scrollIntoView({ block: "nearest" });
+      $("#tableWrap")[0].scrollIntoView({ block: "nearest" });
     });
     // Remember the selected application before leaving the list.
-    $("tableBody").addEventListener("click", e => {
-      const link = e.target.closest("[data-open-app]");
-      if (!link) return;
-      const app = ApplicationStore.get(link.dataset.openApp);
+    $("#tableBody").on("click", "[data-open-app]", function () {
+      const app = ApplicationStore.get($(this).attr("data-open-app"));
       if (app) Session.setApplication(app);
     });
   }
 
   init();
-})(window, document);
+})(window, document, jQuery);

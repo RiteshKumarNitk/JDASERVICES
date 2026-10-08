@@ -4,7 +4,7 @@
    The selected charge decides the sidebar, counters and inbox.
    ===================================================================== */
 
-(function (window, document) {
+(function (window, document, $) {
   "use strict";
 
   if (!window.AdminLayout.ready) return;
@@ -13,8 +13,8 @@
   const { icon, escapeHtml, formatNumber } = AdminUtil;
   const { ChargeStore, Session, countFor } = AdminData;
 
-  const grid = document.getElementById("chargeGrid");
-  const empty = document.getElementById("noCharges");
+  const $grid = $("#chargeGrid");
+  const $empty = $("#noCharges");
 
   function cardHtml(c, selectedId) {
     const selected = c.id === selectedId;
@@ -57,27 +57,25 @@
     const charges = ChargeStore.getForEmployee(user.employeeId);
     const current = Session.getCharge();
 
-    document.getElementById("chargeIntro").textContent = charges.length > 1
+    $("#chargeIntro").text(charges.length > 1
       ? `You hold ${charges.length} charges. Select the charge you want to work in — the menu, dashboard and applications will be shown for that charge.`
-      : "Select your charge to continue. The menu, dashboard and applications will be shown for that charge.";
+      : "Select your charge to continue. The menu, dashboard and applications will be shown for that charge.");
 
-    empty.hidden = charges.length > 0;
-    grid.hidden = charges.length === 0;
-    grid.innerHTML = charges.map(c => cardHtml(c, current && current.id)).join("");
-    grid.setAttribute("aria-busy", "false");
+    $empty.prop("hidden", charges.length > 0);
+    $grid.prop("hidden", charges.length === 0)
+      .html(charges.map(c => cardHtml(c, current && current.id)).join(""))
+      .attr("aria-busy", "false");
   }
 
-  grid.addEventListener("click", e => {
-    const btn = e.target.closest("[data-select-charge]");
-    if (!btn) return;
-    const c = ChargeStore.getById(btn.dataset.selectCharge);
+  $grid.on("click", "[data-select-charge]", function () {
+    const c = ChargeStore.getById($(this).attr("data-select-charge"));
     if (!c) return;
     Session.setCharge(c);
-    grid.querySelectorAll(".admin-charge-card").forEach(card => card.classList.remove("is-selected"));
-    btn.closest(".admin-charge-card").classList.add("is-selected");
-    AdminUtil.setButtonLoading(btn, true, "Opening dashboard...");
+    $grid.find(".admin-charge-card").removeClass("is-selected");
+    $(this).closest(".admin-charge-card").addClass("is-selected");
+    AdminUtil.setButtonLoading(this, true, "Opening dashboard...");
     setTimeout(() => { window.location.href = AdminData.homePage(c); }, 300);
   });
 
   render();
-})(window, document);
+})(window, document, jQuery);

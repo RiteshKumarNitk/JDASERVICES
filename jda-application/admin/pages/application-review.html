@@ -217,152 +217,158 @@
   </main>
 
   <!-- REJECT (section or document) — remark required -->
-  <div class="admin-modal" id="rejectModal" hidden role="dialog" aria-modal="true" aria-labelledby="rejectTitle">
-    <div class="admin-modal-backdrop" data-modal-close></div>
-    <div class="admin-modal-dialog admin-modal-dialog--sm">
-      <div class="admin-modal-head">
-        <div><h2 class="admin-modal-title" id="rejectTitle">Reject</h2><p class="admin-modal-subtitle" id="rejectSubtitle"></p></div>
-        <button type="button" class="admin-modal-close" data-modal-close aria-label="Close"><svg class="admin-ic" aria-hidden="true"><use href="#i-x"/></svg></button>
-      </div>
-      <form id="rejectForm" novalidate>
-        <div class="admin-modal-body">
-          <div class="admin-field">
-            <label for="rejectRemark">Rejection Remark <span class="admin-req">*</span></label>
-            <textarea id="rejectRemark" class="admin-textarea" rows="3" maxlength="300" data-autofocus
-                      placeholder="e.g. Affidavit is not notarised."></textarea>
-            <p class="admin-hint">The applicant will see this remark.</p>
-            <p class="admin-field-error"></p>
+  <div class="modal admin-modal admin-modal--sm" id="rejectModal" tabindex="-1" role="dialog" aria-labelledby="rejectTitle">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content admin-modal-dialog">
+        <div class="admin-modal-head">
+          <div><h2 class="admin-modal-title" id="rejectTitle">Reject</h2><p class="admin-modal-subtitle" id="rejectSubtitle"></p></div>
+          <button type="button" class="admin-modal-close" data-bs-dismiss="modal" aria-label="Close"><svg class="admin-ic" aria-hidden="true"><use href="#i-x"/></svg></button>
+        </div>
+        <form id="rejectForm" novalidate>
+          <div class="admin-modal-body">
+            <div class="admin-field">
+              <label for="rejectRemark">Rejection Remark <span class="admin-req">*</span></label>
+              <textarea id="rejectRemark" class="admin-textarea" rows="3" maxlength="300" data-autofocus
+                        placeholder="e.g. Affidavit is not notarised."></textarea>
+              <p class="admin-hint">The applicant will see this remark.</p>
+              <p class="admin-field-error"></p>
+            </div>
           </div>
-        </div>
-        <div class="admin-modal-foot">
-          <button type="button" class="admin-btn admin-btn-outline" data-modal-close>Cancel</button>
-          <button type="submit" class="admin-btn admin-btn-danger" id="rejectSubmit">Reject</button>
-        </div>
-      </form>
+          <div class="admin-modal-foot">
+            <button type="button" class="admin-btn admin-btn-outline" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="admin-btn admin-btn-danger" id="rejectSubmit">Reject</button>
+          </div>
+        </form>
+      </div>
     </div>
   </div>
 
   <!-- DOCUMENT PREVIEW — opening it does NOT approve the document -->
-  <div class="admin-modal" id="previewModal" hidden role="dialog" aria-modal="true" aria-labelledby="previewTitle">
-    <div class="admin-modal-backdrop" data-modal-close></div>
-    <div class="admin-modal-dialog admin-modal-dialog--lg">
-      <div class="admin-modal-head">
-        <div><h2 class="admin-modal-title" id="previewTitle">Document Preview</h2><p class="admin-modal-subtitle" id="previewMeta"></p></div>
-        <button type="button" class="admin-modal-close" data-modal-close aria-label="Close"><svg class="admin-ic" aria-hidden="true"><use href="#i-x"/></svg></button>
-      </div>
-      <div class="admin-modal-body admin-preview-body">
-        <!-- BACKEND INTEGRATION: replace this placeholder with an <iframe>/<img> pointing to the document URL -->
-        <div class="admin-paper" id="previewPaper"></div>
-      </div>
-      <div class="admin-modal-foot admin-preview-foot">
-        <div class="admin-preview-nav">
-          <button type="button" class="admin-btn admin-btn-ghost admin-btn-sm" id="previewPrev"><svg class="admin-ic" aria-hidden="true"><use href="#i-chev-left"/></svg> Previous</button>
-          <span id="previewPos" class="admin-muted"></span>
-          <button type="button" class="admin-btn admin-btn-ghost admin-btn-sm" id="previewNext">Next <svg class="admin-ic" aria-hidden="true"><use href="#i-chev-right"/></svg></button>
+  <div class="modal admin-modal admin-modal--lg" id="previewModal" tabindex="-1" role="dialog" aria-labelledby="previewTitle">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content admin-modal-dialog">
+        <div class="admin-modal-head">
+          <div><h2 class="admin-modal-title" id="previewTitle">Document Preview</h2><p class="admin-modal-subtitle" id="previewMeta"></p></div>
+          <button type="button" class="admin-modal-close" data-bs-dismiss="modal" aria-label="Close"><svg class="admin-ic" aria-hidden="true"><use href="#i-x"/></svg></button>
         </div>
-        <span id="previewStatus"></span>
-        <button type="button" class="admin-btn admin-btn-danger-outline" id="previewReject">Reject</button>
-        <button type="button" class="admin-btn admin-btn-primary" id="previewApprove"><svg class="admin-ic" aria-hidden="true"><use href="#i-check"/></svg> Approve</button>
+        <div class="admin-modal-body admin-preview-body">
+          <!-- BACKEND INTEGRATION: replace this placeholder with an <iframe>/<img> pointing to the document URL -->
+          <div class="admin-paper" id="previewPaper"></div>
+        </div>
+        <div class="admin-modal-foot admin-preview-foot">
+          <div class="admin-preview-nav">
+            <button type="button" class="admin-btn admin-btn-ghost admin-btn-sm" id="previewPrev"><svg class="admin-ic" aria-hidden="true"><use href="#i-chev-left"/></svg> Previous</button>
+            <span id="previewPos" class="admin-muted"></span>
+            <button type="button" class="admin-btn admin-btn-ghost admin-btn-sm" id="previewNext">Next <svg class="admin-ic" aria-hidden="true"><use href="#i-chev-right"/></svg></button>
+          </div>
+          <span id="previewStatus"></span>
+          <button type="button" class="admin-btn admin-btn-danger-outline" id="previewReject">Reject</button>
+          <button type="button" class="admin-btn admin-btn-primary" id="previewApprove"><svg class="admin-ic" aria-hidden="true"><use href="#i-check"/></svg> Approve</button>
+        </div>
       </div>
     </div>
   </div>
 
   <!-- FORWARD TO ZONE (forward-to-zone.js) -->
-  <div class="admin-modal" id="forwardModal" hidden role="dialog" aria-modal="true" aria-labelledby="forwardTitle">
-    <div class="admin-modal-backdrop" data-modal-close></div>
-    <div class="admin-modal-dialog">
-      <div class="admin-modal-head">
-        <div><h2 class="admin-modal-title" id="forwardTitle">Forward to Zone</h2><p class="admin-modal-subtitle" id="forwardAppLabel"></p></div>
-        <button type="button" class="admin-modal-close" data-modal-close aria-label="Close"><svg class="admin-ic" aria-hidden="true"><use href="#i-x"/></svg></button>
-      </div>
-
-      <form id="forwardForm" novalidate>
-        <div id="forwardFormView">
-          <div class="admin-modal-body admin-stack">
-            <div class="admin-field">
-              <label for="fzTo">Forward To</label>
-              <input type="text" id="fzTo" class="admin-input" readonly aria-readonly="true" tabindex="-1">
-              <p class="admin-hint">Decided by the zone of the selected property.</p>
-            </div>
-
-            <div class="admin-field">
-              <label for="fzOriginal">Original Documents Received <span class="admin-req">*</span></label>
-              <select id="fzOriginal" class="admin-select" data-autofocus>
-                <option value="">Select</option>
-                <option value="No">No</option>
-                <option value="Yes">Yes</option>
-              </select>
-              <p class="admin-field-error"></p>
-            </div>
-
-            <!-- Shown only when Original Documents Received = Yes -->
-            <div class="admin-field" id="fzOriginalBox" hidden>
-              <span class="admin-field-label">Mark Original Documents <span class="admin-req">*</span></span>
-              <div class="admin-table-wrap admin-originals-wrap">
-                <table class="admin-table admin-table--compact">
-                  <thead><tr><th scope="col">Document</th><th scope="col" class="admin-col-center">Received</th><th scope="col" class="admin-col-center">Verified</th></tr></thead>
-                  <tbody id="fzOriginalBody"></tbody>
-                </table>
+  <div class="modal admin-modal" id="forwardModal" tabindex="-1" role="dialog" aria-labelledby="forwardTitle">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content admin-modal-dialog">
+        <div class="admin-modal-head">
+          <div><h2 class="admin-modal-title" id="forwardTitle">Forward to Zone</h2><p class="admin-modal-subtitle" id="forwardAppLabel"></p></div>
+          <button type="button" class="admin-modal-close" data-bs-dismiss="modal" aria-label="Close"><svg class="admin-ic" aria-hidden="true"><use href="#i-x"/></svg></button>
+        </div>
+  
+        <form id="forwardForm" novalidate>
+          <div id="forwardFormView">
+            <div class="admin-modal-body admin-stack">
+              <div class="admin-field">
+                <label for="fzTo">Forward To</label>
+                <input type="text" id="fzTo" class="admin-input" readonly aria-readonly="true" tabindex="-1">
+                <p class="admin-hint">Decided by the zone of the selected property.</p>
               </div>
-              <input type="hidden" id="fzOriginalCheck" class="admin-input">
-              <p class="admin-field-error"></p>
+  
+              <div class="admin-field">
+                <label for="fzOriginal">Original Documents Received <span class="admin-req">*</span></label>
+                <select id="fzOriginal" class="admin-select" data-autofocus>
+                  <option value="">Select</option>
+                  <option value="No">No</option>
+                  <option value="Yes">Yes</option>
+                </select>
+                <p class="admin-field-error"></p>
+              </div>
+  
+              <!-- Shown only when Original Documents Received = Yes -->
+              <div class="admin-field" id="fzOriginalBox" hidden>
+                <span class="admin-field-label">Mark Original Documents <span class="admin-req">*</span></span>
+                <div class="admin-table-wrap admin-originals-wrap">
+                  <table class="admin-table admin-table--compact">
+                    <thead><tr><th scope="col">Document</th><th scope="col" class="admin-col-center">Received</th><th scope="col" class="admin-col-center">Verified</th></tr></thead>
+                    <tbody id="fzOriginalBody"></tbody>
+                  </table>
+                </div>
+                <input type="hidden" id="fzOriginalCheck" class="admin-input">
+                <p class="admin-field-error"></p>
+              </div>
+  
+              <div class="admin-field">
+                <label for="fzStatus">Current Status <span class="admin-req">*</span></label>
+                <select id="fzStatus" class="admin-select"><option value="">Select Current Status</option></select>
+                <p class="admin-field-error"></p>
+              </div>
+  
+              <div class="admin-field">
+                <label for="fzRemark">Remark <span class="admin-req">*</span></label>
+                <textarea id="fzRemark" class="admin-textarea" rows="3" maxlength="500"
+                          placeholder="e.g. Documents verified. Original documents received and application forwarded to concerned zone."></textarea>
+                <p class="admin-field-error"></p>
+              </div>
             </div>
-
-            <div class="admin-field">
-              <label for="fzStatus">Current Status <span class="admin-req">*</span></label>
-              <select id="fzStatus" class="admin-select"><option value="">Select Current Status</option></select>
-              <p class="admin-field-error"></p>
-            </div>
-
-            <div class="admin-field">
-              <label for="fzRemark">Remark <span class="admin-req">*</span></label>
-              <textarea id="fzRemark" class="admin-textarea" rows="3" maxlength="500"
-                        placeholder="e.g. Documents verified. Original documents received and application forwarded to concerned zone."></textarea>
-              <p class="admin-field-error"></p>
+            <div class="admin-modal-foot">
+              <button type="button" class="admin-btn admin-btn-outline" data-bs-dismiss="modal">Cancel</button>
+              <button type="submit" class="admin-btn admin-btn-primary" id="fzSubmit">
+                <svg class="admin-ic" aria-hidden="true"><use href="#i-send"/></svg> Forward to Zone
+              </button>
             </div>
           </div>
-          <div class="admin-modal-foot">
-            <button type="button" class="admin-btn admin-btn-outline" data-modal-close>Cancel</button>
-            <button type="submit" class="admin-btn admin-btn-primary" id="fzSubmit">
-              <svg class="admin-ic" aria-hidden="true"><use href="#i-send"/></svg> Forward to Zone
-            </button>
+  
+          <!-- After the file has moved -->
+          <div id="forwardDoneView" hidden>
+            <div class="admin-modal-body admin-done">
+              <span class="admin-done-icon"><svg class="admin-ic" aria-hidden="true"><use href="#i-check-circle"/></svg></span>
+              <h3>Forwarded to DC</h3>
+              <p id="fzDoneText"></p>
+              <p class="admin-muted">The file has left the counselling queue. The DC continues with the normal file-movement workflow.</p>
+            </div>
+            <div class="admin-modal-foot admin-modal-foot--wrap">
+              <a class="admin-btn admin-btn-ghost" href="forward-without-counselling.html" id="fzBackList">Back to list</a>
+              <button type="button" class="admin-btn admin-btn-outline" id="fzSwitch"></button>
+              <button type="button" class="admin-btn admin-btn-primary" data-bs-dismiss="modal">View file history</button>
+            </div>
           </div>
-        </div>
-
-        <!-- After the file has moved -->
-        <div id="forwardDoneView" hidden>
-          <div class="admin-modal-body admin-done">
-            <span class="admin-done-icon"><svg class="admin-ic" aria-hidden="true"><use href="#i-check-circle"/></svg></span>
-            <h3>Forwarded to DC</h3>
-            <p id="fzDoneText"></p>
-            <p class="admin-muted">The file has left the counselling queue. The DC continues with the normal file-movement workflow.</p>
-          </div>
-          <div class="admin-modal-foot admin-modal-foot--wrap">
-            <a class="admin-btn admin-btn-ghost" href="forward-without-counselling.html" id="fzBackList">Back to list</a>
-            <button type="button" class="admin-btn admin-btn-outline" id="fzSwitch"></button>
-            <button type="button" class="admin-btn admin-btn-primary" data-modal-close>View file history</button>
-          </div>
-        </div>
-      </form>
+        </form>
+      </div>
     </div>
   </div>
 
   <!-- CONFIRM FORWARD -->
-  <div class="admin-modal" id="forwardConfirm" hidden role="alertdialog" aria-modal="true" aria-labelledby="fcTitle" aria-describedby="fcText">
-    <div class="admin-modal-backdrop" data-modal-close></div>
-    <div class="admin-modal-dialog admin-modal-dialog--sm">
-      <div class="admin-confirm">
-        <span class="admin-confirm-icon admin-confirm-icon--info"><svg class="admin-ic" aria-hidden="true"><use href="#i-send"/></svg></span>
-        <h2 id="fcTitle">Forward Application?</h2>
-        <p id="fcText"></p>
-      </div>
-      <div class="admin-modal-foot admin-modal-foot--center">
-        <button type="button" class="admin-btn admin-btn-outline" data-modal-close data-autofocus>Cancel</button>
-        <button type="button" class="admin-btn admin-btn-primary" id="fcSubmit">Confirm &amp; Forward</button>
+  <div class="modal admin-modal admin-modal--sm" id="forwardConfirm" tabindex="-1" role="alertdialog" aria-labelledby="fcTitle" aria-describedby="fcText">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content admin-modal-dialog">
+        <div class="admin-confirm">
+          <span class="admin-confirm-icon admin-confirm-icon--info"><svg class="admin-ic" aria-hidden="true"><use href="#i-send"/></svg></span>
+          <h2 id="fcTitle">Forward Application?</h2>
+          <p id="fcText"></p>
+        </div>
+        <div class="admin-modal-foot admin-modal-foot--center">
+          <button type="button" class="admin-btn admin-btn-outline" data-bs-dismiss="modal" data-autofocus>Cancel</button>
+          <button type="button" class="admin-btn admin-btn-primary" id="fcSubmit">Confirm &amp; Forward</button>
+        </div>
       </div>
     </div>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/jquery@4.0.0/dist/jquery.min.js" integrity="sha384-fgGyf7Mo7DURSOMnOy7ed+dkq5Job205Gnzu6QIg0BOHKaqt4D76Dt8VlDCzcMHV" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
   <script src="../js/admin-data.js"></script>
   <script src="../js/admin-common.js"></script>
   <script src="../js/admin-layout.js"></script>

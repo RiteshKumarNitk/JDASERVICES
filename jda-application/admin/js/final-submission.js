@@ -9,14 +9,13 @@
               "Verification Completed", then opens Forward to Zone.
    ===================================================================== */
 
-(function (window, document) {
+(function (window, document, $) {
   "use strict";
 
   const { AdminData, AdminForm, AdminToast, AdminUtil, AdminFileMovement } = window;
   const { icon, escapeHtml, formatDateTime, statusBadge } = AdminUtil;
   const { VERIFY, CASE_STATUS, STAGE, FINAL_STATUS_OPTIONS, MovementStore, Session, ChargeStore, Verification, statusLabel } = AdminData;
 
-  const $ = id => document.getElementById(id);
   let ctx = null;
 
   function summaryRows(app) {
@@ -96,43 +95,41 @@
     const app = ctx.getApp();
     const ready = Verification.canFinalSubmit(app);
     const state = app.finalSubmission ? "Submitted" : ready ? "Ready" : "Locked";
-    document.querySelector('[data-status-for="final"]').innerHTML = statusBadge(state);
-    $("sec-final").dataset.state = app.finalSubmission ? VERIFY.APPROVED : ready ? "READY" : "LOCKED";
-    $("finalBody").innerHTML = app.finalSubmission ? doneHtml(app) : ready ? readyHtml(app) : lockedHtml(app);
+    $('[data-status-for="final"]').html(statusBadge(state));
+    $("#sec-final").attr("data-state", app.finalSubmission ? VERIFY.APPROVED : ready ? "READY" : "LOCKED");
+    $("#finalBody").html(app.finalSubmission ? doneHtml(app) : ready ? readyHtml(app) : lockedHtml(app));
 
-    const form = $("finalForm");
-    if (form) {
-      AdminForm.liveClear(form);
-      form.addEventListener("submit", submit);
+    // The form is re-created on every render, so its handlers are bound again here.
+    const $form = $("#finalForm");
+    if ($form.length) {
+      AdminForm.liveClear($form);
+      $form.on("submit", submit);
     }
   }
 
   /* Spec rule: every condition is checked again at submit time. */
   function validate(app) {
-    const form = $("finalForm");
-    AdminForm.clearAll(form);
+    AdminForm.clearAll("#finalForm");
     const errors = Verification.blockers(app);
     let ok = errors.length === 0;
-    if (!$("finalStatus").value) { AdminForm.setError($("finalStatus"), "Please select the Current Status."); ok = false; }
-    if ($("finalRemark").value.trim().length < 10) { AdminForm.setError($("finalRemark"), "Please enter a remark (at least 10 characters)."); ok = false; }
-    $("finalAlert").hidden = errors.length === 0;
-    $("finalAlert").innerHTML = errors.length ? icon("i-alert") + `<span>${errors.map(escapeHtml).join("<br>")}</span>` : "";
+    if (!$("#finalStatus").val()) { AdminForm.setError("#finalStatus", "Please select the Current Status."); ok = false; }
+    if ($("#finalRemark").val().trim().length < 10) { AdminForm.setError("#finalRemark", "Please enter a remark (at least 10 characters)."); ok = false; }
+    $("#finalAlert").prop("hidden", errors.length === 0).html(errors.length ? icon("i-alert") + `<span>${errors.map(escapeHtml).join("<br>")}</span>` : "");
     return ok;
   }
 
   async function submit(e) {
     e.preventDefault();
     const app = ctx.getApp();
-    if (!validate(app)) { AdminForm.focusFirstError($("finalForm")); return; }
+    if (!validate(app)) { AdminForm.focusFirstError("#finalForm"); return; }
 
-    const btn = $("finalSubmit");
-    AdminUtil.setButtonLoading(btn, true, "Submitting...");
+    AdminUtil.setButtonLoading("#finalSubmit", true, "Submitting...");
     await AdminUtil.delay(700);
 
     const me = ChargeStore.getById(Session.getCharge().id);
     const finalSubmission = {
-      caseStatus: $("finalStatus").value,
-      remark: $("finalRemark").value.trim(),
+      caseStatus: $("#finalStatus").val(),
+      remark: $("#finalRemark").val().trim(),
       at: AdminData.nowIso(),
       by: me && me.holder ? me.holder.name : ""
     };
@@ -153,4 +150,4 @@
   function init(context) { ctx = context; }
 
   window.AdminFinalSubmission = { init, render };
-})(window, document);
+})(window, document, jQuery);

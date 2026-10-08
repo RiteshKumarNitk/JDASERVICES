@@ -370,27 +370,30 @@
 .admin-detail-grid dt { font-size: 12px; color: var(--admin-muted); margin-bottom: 2px; }
 .admin-detail-grid dd { margin: 0; font-size: 14px; font-weight: 600; color: var(--admin-text); overflow-wrap: anywhere; }
 
-/* ---------- Modal ---------- */
-.admin-modal { position: fixed; inset: 0; z-index: 100; display: flex; align-items: center; justify-content: center; padding: 20px; }
-.admin-modal-backdrop { position: absolute; inset: 0; background: rgba(15, 30, 45, .55); opacity: 0; transition: opacity .18s ease; }
+/* ---------- Modal (Bootstrap 5.2.3) ----------
+   <div class="modal admin-modal [admin-modal--sm|--lg]">
+     <div class="modal-dialog modal-dialog-centered">
+       <div class="modal-content admin-modal-dialog"> head · body · foot </div>
+   Bootstrap shows / hides it; these rules give it the admin look. */
+.admin-modal { --bs-modal-width: 560px; --bs-modal-margin: 20px; }
+.admin-modal--lg { --bs-modal-width: 920px; }
+.admin-modal--sm { --bs-modal-width: 440px; }
+.admin-modal .modal-dialog {
+  max-width: none;
+  margin: var(--bs-modal-margin) max(var(--bs-modal-margin), calc((100% - var(--bs-modal-width)) / 2));
+}
+.modal-backdrop { --bs-backdrop-bg: rgb(15, 30, 45); --bs-backdrop-opacity: .55; }
 .admin-modal-dialog {
   position: relative;
   width: 100%;
-  max-width: 560px;
   max-height: calc(100vh - 40px);
   display: flex;
   flex-direction: column;
   background: var(--admin-white);
+  border: 0;
   border-radius: 14px;
   box-shadow: var(--admin-shadow-lg);
-  opacity: 0;
-  transform: translateY(8px);
-  transition: opacity .18s ease, transform .18s ease;
 }
-.admin-modal-dialog--lg { max-width: 920px; }
-.admin-modal-dialog--sm { max-width: 440px; }
-.admin-modal.is-open .admin-modal-backdrop { opacity: 1; }
-.admin-modal.is-open .admin-modal-dialog { opacity: 1; transform: none; }
 
 .admin-modal-head {
   display: flex;

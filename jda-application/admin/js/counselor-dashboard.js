@@ -4,7 +4,7 @@
    of the queue, and files recently forwarded to the zones.
    ===================================================================== */
 
-(function (window, document) {
+(function (window, document, $) {
   "use strict";
 
   if (!window.AdminLayout.ready) return;
@@ -18,7 +18,7 @@
 
   /* BACKEND INTEGRATION: replace counts with the counselling-summary API. */
   function renderCards() {
-    document.getElementById("counsellingCards").innerHTML = Object.keys(COUNSELLING_LISTS).map(key => {
+    $("#counsellingCards").html(Object.keys(COUNSELLING_LISTS).map(key => {
       const def = COUNSELLING_LISTS[key];
       return `
         <a class="admin-counter admin-counter--${def.tone}" href="${listUrl(key)}">
@@ -29,7 +29,7 @@
           </span>
           <span class="admin-counter-link">Open list ${icon("i-arrow-right")}</span>
         </a>`;
-    }).join("");
+    }).join(""));
   }
 
   /* How many queued files are at each verification status. */
@@ -40,7 +40,7 @@
       { code: CASE_STATUS.INCOMPLETE_DOCUMENTS, icon: "i-doc-alert",    tone: "danger",  text: "At least one mandatory document is rejected — final submission is locked." },
       { code: CASE_STATUS.CASE_FOUND_OK,        icon: "i-check-circle", tone: "in",      text: "Verified — waiting for Forward to Zone." }
     ];
-    document.getElementById("queueStatus").innerHTML = rows.map(r => {
+    $("#queueStatus").html(rows.map(r => {
       const n = queue.filter(a => Verification.caseStatus(a) === r.code).length;
       return `
         <li class="admin-activity-item">
@@ -51,12 +51,12 @@
           </div>
           ${n ? `<a class="admin-action-btn admin-action-btn--edit" href="${listUrl("forward-without-counselling", "&status=" + r.code)}">${icon("i-eye")} View</a>` : ""}
         </li>`;
-    }).join("");
+    }).join(""));
   }
 
   function renderForwarded() {
     const list = MovementStore.outbox(charge.id).slice(0, 6);
-    document.getElementById("forwardedList").innerHTML = list.length ? list.map(m => `
+    $("#forwardedList").html(list.length ? list.map(m => `
       <li class="admin-activity-item">
         <span class="admin-activity-icon admin-activity-icon--in">${icon("i-send")}</span>
         <div>
@@ -69,10 +69,10 @@
             <time datetime="${m.at}">${formatDateTime(m.at)}</time>
           </p>
         </div>
-      </li>`).join("") : `<li class="admin-empty-inline">No file has been forwarded to a zone yet.</li>`;
+      </li>`).join("") : `<li class="admin-empty-inline">No file has been forwarded to a zone yet.</li>`);
   }
 
   renderCards();
   renderQueueStatus();
   renderForwarded();
-})(window, document);
+})(window, document, jQuery);

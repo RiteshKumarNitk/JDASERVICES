@@ -180,251 +180,260 @@
        PROCEED APPLICATION (file movement) — wired by file-movement.js
        Role ▸ Employee (filtered by role) ▸ Remarks ▸ Submit
        =============================================================== -->
-  <div class="admin-modal" id="proceedModal" hidden role="dialog" aria-modal="true" aria-labelledby="proceedTitle">
-    <div class="admin-modal-backdrop" data-modal-close></div>
-    <div class="admin-modal-dialog">
-      <div class="admin-modal-head">
-        <div>
-          <h2 class="admin-modal-title" id="proceedTitle">Proceed Application</h2>
-          <p class="admin-modal-subtitle" id="proceedAppLabel"></p>
+  <div class="modal admin-modal" id="proceedModal" tabindex="-1" role="dialog" aria-labelledby="proceedTitle">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content admin-modal-dialog">
+        <div class="admin-modal-head">
+          <div>
+            <h2 class="admin-modal-title" id="proceedTitle">Proceed Application</h2>
+            <p class="admin-modal-subtitle" id="proceedAppLabel"></p>
+          </div>
+          <button type="button" class="admin-modal-close" data-bs-dismiss="modal" aria-label="Close">
+            <svg class="admin-ic" aria-hidden="true"><use href="#i-x"/></svg>
+          </button>
         </div>
-        <button type="button" class="admin-modal-close" data-modal-close aria-label="Close">
-          <svg class="admin-ic" aria-hidden="true"><use href="#i-x"/></svg>
-        </button>
+  
+        <form id="proceedForm" novalidate>
+          <div id="proceedFormView">
+            <div class="admin-modal-body">
+              <div class="admin-form-grid">
+                <div class="admin-field">
+                  <label for="proceedRole">Role <span class="admin-req">*</span></label>
+                  <select id="proceedRole" class="admin-select" data-autofocus></select>
+                  <p class="admin-field-error"></p>
+                </div>
+                <div class="admin-field">
+                  <label for="proceedEmployee">Employee <span class="admin-req">*</span></label>
+                  <select id="proceedEmployee" class="admin-select" disabled></select>
+                  <p class="admin-field-error"></p>
+                </div>
+                <div class="admin-route admin-field--full" id="proceedRoute" hidden></div>
+                <div class="admin-field admin-field--full">
+                  <div class="admin-field-row">
+                    <label for="proceedRemarks">Remarks / Instructions <span class="admin-req">*</span></label>
+                    <span class="admin-desc-count" id="proceedRemarksCount">0 / 500</span>
+                  </div>
+                  <textarea id="proceedRemarks" class="admin-textarea" rows="4" maxlength="500"
+                            placeholder="e.g. Please verify documents and site, and put up report."></textarea>
+                  <p class="admin-field-error"></p>
+                </div>
+              </div>
+            </div>
+            <div class="admin-modal-foot">
+              <button type="button" class="admin-btn admin-btn-outline" data-bs-dismiss="modal">Cancel</button>
+              <button type="submit" class="admin-btn admin-btn-primary" id="proceedSubmit">
+                <svg class="admin-ic" aria-hidden="true"><use href="#i-send"/></svg> Submit / Proceed
+              </button>
+            </div>
+          </div>
+  
+          <!-- Shown after a successful move -->
+          <div id="proceedDoneView" hidden>
+            <div class="admin-modal-body admin-done">
+              <span class="admin-done-icon"><svg class="admin-ic" aria-hidden="true"><use href="#i-check-circle"/></svg></span>
+              <h3>File moved successfully</h3>
+              <p id="proceedDoneText"></p>
+              <p class="admin-muted">It has left your inbox, is listed in your Outbox, and now appears in the receiving officer's Received Applications.</p>
+            </div>
+            <div class="admin-modal-foot admin-modal-foot--wrap">
+              <button type="button" class="admin-btn admin-btn-ghost" data-bs-dismiss="modal">Stay on this file</button>
+              <button type="button" class="admin-btn admin-btn-outline" id="proceedSwitchBtn"></button>
+              <a class="admin-btn admin-btn-primary" href="application-list.html?list=outbox" id="proceedOutboxBtn">
+                <svg class="admin-ic" aria-hidden="true"><use href="#i-send"/></svg> Go to Outbox
+              </a>
+            </div>
+          </div>
+        </form>
       </div>
+    </div>
+  </div>
 
-      <form id="proceedForm" novalidate>
-        <div id="proceedFormView">
+  <!-- EDIT DETAIL -->
+  <div class="modal admin-modal" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editTitle">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content admin-modal-dialog">
+        <div class="admin-modal-head">
+          <div><h2 class="admin-modal-title" id="editTitle">Edit Detail</h2><p class="admin-modal-subtitle">Only the fields below are editable by the office.</p></div>
+          <button type="button" class="admin-modal-close" data-bs-dismiss="modal" aria-label="Close"><svg class="admin-ic" aria-hidden="true"><use href="#i-x"/></svg></button>
+        </div>
+        <form id="editForm" novalidate>
           <div class="admin-modal-body">
             <div class="admin-form-grid">
               <div class="admin-field">
-                <label for="proceedRole">Role <span class="admin-req">*</span></label>
-                <select id="proceedRole" class="admin-select" data-autofocus></select>
+                <label for="editName">Applicant Name</label>
+                <input type="text" id="editName" class="admin-input" readonly aria-readonly="true" tabindex="-1">
+                <p class="admin-hint">Read-only</p>
+              </div>
+              <div class="admin-field">
+                <label for="editMobile">Mobile Number <span class="admin-req">*</span></label>
+                <input type="tel" id="editMobile" class="admin-input" maxlength="10" inputmode="numeric" data-autofocus>
                 <p class="admin-field-error"></p>
               </div>
               <div class="admin-field">
-                <label for="proceedEmployee">Employee <span class="admin-req">*</span></label>
-                <select id="proceedEmployee" class="admin-select" disabled></select>
+                <label for="editEmail">Email ID <span class="admin-req">*</span></label>
+                <input type="email" id="editEmail" class="admin-input" maxlength="100">
                 <p class="admin-field-error"></p>
               </div>
-              <div class="admin-route admin-field--full" id="proceedRoute" hidden></div>
+              <div class="admin-field">
+                <label for="editOriginalDoc">Original Document Received <span class="admin-req">*</span></label>
+                <select id="editOriginalDoc" class="admin-select"><option>Yes</option><option>No</option></select>
+              </div>
               <div class="admin-field admin-field--full">
-                <div class="admin-field-row">
-                  <label for="proceedRemarks">Remarks / Instructions <span class="admin-req">*</span></label>
-                  <span class="admin-desc-count" id="proceedRemarksCount">0 / 500</span>
-                </div>
-                <textarea id="proceedRemarks" class="admin-textarea" rows="4" maxlength="500"
-                          placeholder="e.g. Please verify documents and site, and put up report."></textarea>
+                <label for="editBarcode">File Barcode No. <span class="admin-req">*</span></label>
+                <input type="text" id="editBarcode" class="admin-input" maxlength="20">
                 <p class="admin-field-error"></p>
               </div>
             </div>
           </div>
           <div class="admin-modal-foot">
-            <button type="button" class="admin-btn admin-btn-outline" data-modal-close>Cancel</button>
-            <button type="submit" class="admin-btn admin-btn-primary" id="proceedSubmit">
-              <svg class="admin-ic" aria-hidden="true"><use href="#i-send"/></svg> Submit / Proceed
-            </button>
+            <button type="button" class="admin-btn admin-btn-outline" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="admin-btn admin-btn-primary" id="editSubmit">Save Changes</button>
           </div>
-        </div>
-
-        <!-- Shown after a successful move -->
-        <div id="proceedDoneView" hidden>
-          <div class="admin-modal-body admin-done">
-            <span class="admin-done-icon"><svg class="admin-ic" aria-hidden="true"><use href="#i-check-circle"/></svg></span>
-            <h3>File moved successfully</h3>
-            <p id="proceedDoneText"></p>
-            <p class="admin-muted">It has left your inbox, is listed in your Outbox, and now appears in the receiving officer's Received Applications.</p>
-          </div>
-          <div class="admin-modal-foot admin-modal-foot--wrap">
-            <button type="button" class="admin-btn admin-btn-ghost" data-modal-close>Stay on this file</button>
-            <button type="button" class="admin-btn admin-btn-outline" id="proceedSwitchBtn"></button>
-            <a class="admin-btn admin-btn-primary" href="application-list.html?list=outbox" id="proceedOutboxBtn">
-              <svg class="admin-ic" aria-hidden="true"><use href="#i-send"/></svg> Go to Outbox
-            </a>
-          </div>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- EDIT DETAIL -->
-  <div class="admin-modal" id="editModal" hidden role="dialog" aria-modal="true" aria-labelledby="editTitle">
-    <div class="admin-modal-backdrop" data-modal-close></div>
-    <div class="admin-modal-dialog">
-      <div class="admin-modal-head">
-        <div><h2 class="admin-modal-title" id="editTitle">Edit Detail</h2><p class="admin-modal-subtitle">Only the fields below are editable by the office.</p></div>
-        <button type="button" class="admin-modal-close" data-modal-close aria-label="Close"><svg class="admin-ic" aria-hidden="true"><use href="#i-x"/></svg></button>
+        </form>
       </div>
-      <form id="editForm" novalidate>
-        <div class="admin-modal-body">
-          <div class="admin-form-grid">
-            <div class="admin-field">
-              <label for="editName">Applicant Name</label>
-              <input type="text" id="editName" class="admin-input" readonly aria-readonly="true" tabindex="-1">
-              <p class="admin-hint">Read-only</p>
-            </div>
-            <div class="admin-field">
-              <label for="editMobile">Mobile Number <span class="admin-req">*</span></label>
-              <input type="tel" id="editMobile" class="admin-input" maxlength="10" inputmode="numeric" data-autofocus>
-              <p class="admin-field-error"></p>
-            </div>
-            <div class="admin-field">
-              <label for="editEmail">Email ID <span class="admin-req">*</span></label>
-              <input type="email" id="editEmail" class="admin-input" maxlength="100">
-              <p class="admin-field-error"></p>
-            </div>
-            <div class="admin-field">
-              <label for="editOriginalDoc">Original Document Received <span class="admin-req">*</span></label>
-              <select id="editOriginalDoc" class="admin-select"><option>Yes</option><option>No</option></select>
-            </div>
-            <div class="admin-field admin-field--full">
-              <label for="editBarcode">File Barcode No. <span class="admin-req">*</span></label>
-              <input type="text" id="editBarcode" class="admin-input" maxlength="20">
-              <p class="admin-field-error"></p>
-            </div>
-          </div>
-        </div>
-        <div class="admin-modal-foot">
-          <button type="button" class="admin-btn admin-btn-outline" data-modal-close>Cancel</button>
-          <button type="submit" class="admin-btn admin-btn-primary" id="editSubmit">Save Changes</button>
-        </div>
-      </form>
     </div>
   </div>
 
   <!-- CASE ON HOLD / RELEASE HOLD -->
-  <div class="admin-modal" id="holdModal" hidden role="dialog" aria-modal="true" aria-labelledby="holdTitle">
-    <div class="admin-modal-backdrop" data-modal-close></div>
-    <div class="admin-modal-dialog admin-modal-dialog--sm">
-      <div class="admin-modal-head">
-        <div><h2 class="admin-modal-title" id="holdTitle">Case On Hold</h2><p class="admin-modal-subtitle" id="holdSubtitle"></p></div>
-        <button type="button" class="admin-modal-close" data-modal-close aria-label="Close"><svg class="admin-ic" aria-hidden="true"><use href="#i-x"/></svg></button>
-      </div>
-      <form id="holdForm" novalidate>
-        <div class="admin-modal-body">
-          <div class="admin-field">
-            <label for="holdReason">Reason <span class="admin-req">*</span></label>
-            <textarea id="holdReason" class="admin-textarea" rows="3" maxlength="300" data-autofocus></textarea>
-            <p class="admin-field-error"></p>
+  <div class="modal admin-modal admin-modal--sm" id="holdModal" tabindex="-1" role="dialog" aria-labelledby="holdTitle">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content admin-modal-dialog">
+        <div class="admin-modal-head">
+          <div><h2 class="admin-modal-title" id="holdTitle">Case On Hold</h2><p class="admin-modal-subtitle" id="holdSubtitle"></p></div>
+          <button type="button" class="admin-modal-close" data-bs-dismiss="modal" aria-label="Close"><svg class="admin-ic" aria-hidden="true"><use href="#i-x"/></svg></button>
+        </div>
+        <form id="holdForm" novalidate>
+          <div class="admin-modal-body">
+            <div class="admin-field">
+              <label for="holdReason">Reason <span class="admin-req">*</span></label>
+              <textarea id="holdReason" class="admin-textarea" rows="3" maxlength="300" data-autofocus></textarea>
+              <p class="admin-field-error"></p>
+            </div>
           </div>
-        </div>
-        <div class="admin-modal-foot">
-          <button type="button" class="admin-btn admin-btn-outline" data-modal-close>Cancel</button>
-          <button type="submit" class="admin-btn admin-btn-primary" id="holdSubmit">Put On Hold</button>
-        </div>
-      </form>
+          <div class="admin-modal-foot">
+            <button type="button" class="admin-btn admin-btn-outline" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="admin-btn admin-btn-primary" id="holdSubmit">Put On Hold</button>
+          </div>
+        </form>
+      </div>
     </div>
   </div>
 
   <!-- CHANGE PROPERTY -->
-  <div class="admin-modal" id="propertyModal" hidden role="dialog" aria-modal="true" aria-labelledby="propertyTitle">
-    <div class="admin-modal-backdrop" data-modal-close></div>
-    <div class="admin-modal-dialog admin-modal-dialog--sm">
-      <div class="admin-modal-head">
-        <div><h2 class="admin-modal-title" id="propertyTitle">Change Property</h2><p class="admin-modal-subtitle">Link this application to a different property (Service No.).</p></div>
-        <button type="button" class="admin-modal-close" data-modal-close aria-label="Close"><svg class="admin-ic" aria-hidden="true"><use href="#i-x"/></svg></button>
+  <div class="modal admin-modal admin-modal--sm" id="propertyModal" tabindex="-1" role="dialog" aria-labelledby="propertyTitle">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content admin-modal-dialog">
+        <div class="admin-modal-head">
+          <div><h2 class="admin-modal-title" id="propertyTitle">Change Property</h2><p class="admin-modal-subtitle">Link this application to a different property (Service No.).</p></div>
+          <button type="button" class="admin-modal-close" data-bs-dismiss="modal" aria-label="Close"><svg class="admin-ic" aria-hidden="true"><use href="#i-x"/></svg></button>
+        </div>
+        <form id="propertyForm" novalidate>
+          <div class="admin-modal-body admin-stack">
+            <div class="admin-field">
+              <label for="propCurrent">Current Service No.</label>
+              <input type="text" id="propCurrent" class="admin-input" readonly aria-readonly="true" tabindex="-1">
+            </div>
+            <div class="admin-field">
+              <label for="propNew">New Service No. <span class="admin-req">*</span></label>
+              <input type="text" id="propNew" class="admin-input" maxlength="10" inputmode="numeric" data-autofocus>
+              <p class="admin-hint">6–10 digits.</p>
+              <p class="admin-field-error"></p>
+            </div>
+            <div class="admin-field">
+              <label for="propReason">Reason <span class="admin-req">*</span></label>
+              <textarea id="propReason" class="admin-textarea" rows="3" maxlength="300"></textarea>
+              <p class="admin-field-error"></p>
+            </div>
+          </div>
+          <div class="admin-modal-foot">
+            <button type="button" class="admin-btn admin-btn-outline" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="admin-btn admin-btn-primary" id="propSubmit">Change Property</button>
+          </div>
+        </form>
       </div>
-      <form id="propertyForm" novalidate>
-        <div class="admin-modal-body admin-stack">
-          <div class="admin-field">
-            <label for="propCurrent">Current Service No.</label>
-            <input type="text" id="propCurrent" class="admin-input" readonly aria-readonly="true" tabindex="-1">
-          </div>
-          <div class="admin-field">
-            <label for="propNew">New Service No. <span class="admin-req">*</span></label>
-            <input type="text" id="propNew" class="admin-input" maxlength="10" inputmode="numeric" data-autofocus>
-            <p class="admin-hint">6–10 digits.</p>
-            <p class="admin-field-error"></p>
-          </div>
-          <div class="admin-field">
-            <label for="propReason">Reason <span class="admin-req">*</span></label>
-            <textarea id="propReason" class="admin-textarea" rows="3" maxlength="300"></textarea>
-            <p class="admin-field-error"></p>
-          </div>
-        </div>
-        <div class="admin-modal-foot">
-          <button type="button" class="admin-btn admin-btn-outline" data-modal-close>Cancel</button>
-          <button type="submit" class="admin-btn admin-btn-primary" id="propSubmit">Change Property</button>
-        </div>
-      </form>
     </div>
   </div>
 
   <!-- QUERY FROM OTHER DEPARTMENT -->
-  <div class="admin-modal" id="queryModal" hidden role="dialog" aria-modal="true" aria-labelledby="queryTitle">
-    <div class="admin-modal-backdrop" data-modal-close></div>
-    <div class="admin-modal-dialog admin-modal-dialog--sm">
-      <div class="admin-modal-head">
-        <div><h2 class="admin-modal-title" id="queryTitle">Query from Other Department</h2><p class="admin-modal-subtitle">The file stays with you; status becomes “Query - Other Department”.</p></div>
-        <button type="button" class="admin-modal-close" data-modal-close aria-label="Close"><svg class="admin-ic" aria-hidden="true"><use href="#i-x"/></svg></button>
+  <div class="modal admin-modal admin-modal--sm" id="queryModal" tabindex="-1" role="dialog" aria-labelledby="queryTitle">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content admin-modal-dialog">
+        <div class="admin-modal-head">
+          <div><h2 class="admin-modal-title" id="queryTitle">Query from Other Department</h2><p class="admin-modal-subtitle">The file stays with you; status becomes “Query - Other Department”.</p></div>
+          <button type="button" class="admin-modal-close" data-bs-dismiss="modal" aria-label="Close"><svg class="admin-ic" aria-hidden="true"><use href="#i-x"/></svg></button>
+        </div>
+        <form id="queryForm" novalidate>
+          <div class="admin-modal-body admin-stack">
+            <div class="admin-field">
+              <label for="queryDept">Department <span class="admin-req">*</span></label>
+              <select id="queryDept" class="admin-select" data-autofocus><option value="">Select Department</option></select>
+              <p class="admin-field-error"></p>
+            </div>
+            <div class="admin-field">
+              <label for="queryText">Query <span class="admin-req">*</span></label>
+              <textarea id="queryText" class="admin-textarea" rows="3" maxlength="500"></textarea>
+              <p class="admin-field-error"></p>
+            </div>
+          </div>
+          <div class="admin-modal-foot">
+            <button type="button" class="admin-btn admin-btn-outline" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="admin-btn admin-btn-primary" id="querySubmit">Send Query</button>
+          </div>
+        </form>
       </div>
-      <form id="queryForm" novalidate>
-        <div class="admin-modal-body admin-stack">
-          <div class="admin-field">
-            <label for="queryDept">Department <span class="admin-req">*</span></label>
-            <select id="queryDept" class="admin-select" data-autofocus><option value="">Select Department</option></select>
-            <p class="admin-field-error"></p>
-          </div>
-          <div class="admin-field">
-            <label for="queryText">Query <span class="admin-req">*</span></label>
-            <textarea id="queryText" class="admin-textarea" rows="3" maxlength="500"></textarea>
-            <p class="admin-field-error"></p>
-          </div>
-        </div>
-        <div class="admin-modal-foot">
-          <button type="button" class="admin-btn admin-btn-outline" data-modal-close>Cancel</button>
-          <button type="submit" class="admin-btn admin-btn-primary" id="querySubmit">Send Query</button>
-        </div>
-      </form>
     </div>
   </div>
 
   <!-- DISPOSE TICKET (destructive — confirmation) -->
-  <div class="admin-modal" id="disposeModal" hidden role="alertdialog" aria-modal="true" aria-labelledby="disposeTitle" aria-describedby="disposeText">
-    <div class="admin-modal-backdrop" data-modal-close></div>
-    <div class="admin-modal-dialog admin-modal-dialog--sm">
-      <form id="disposeForm" novalidate>
-        <div class="admin-confirm">
-          <span class="admin-confirm-icon"><svg class="admin-ic" aria-hidden="true"><use href="#i-ban"/></svg></span>
-          <h2 id="disposeTitle">Dispose Ticket?</h2>
-          <p id="disposeText">Application <strong id="disposeAppNo"></strong> will be closed and removed from every pending list. This cannot be undone.</p>
-        </div>
-        <div class="admin-modal-body">
-          <div class="admin-field">
-            <label for="disposeRemarks">Disposal Remarks <span class="admin-req">*</span></label>
-            <textarea id="disposeRemarks" class="admin-textarea" rows="3" maxlength="300" data-autofocus></textarea>
-            <p class="admin-field-error"></p>
+  <div class="modal admin-modal admin-modal--sm" id="disposeModal" tabindex="-1" role="alertdialog" aria-labelledby="disposeTitle" aria-describedby="disposeText">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content admin-modal-dialog">
+        <form id="disposeForm" novalidate>
+          <div class="admin-confirm">
+            <span class="admin-confirm-icon"><svg class="admin-ic" aria-hidden="true"><use href="#i-ban"/></svg></span>
+            <h2 id="disposeTitle">Dispose Ticket?</h2>
+            <p id="disposeText">Application <strong id="disposeAppNo"></strong> will be closed and removed from every pending list. This cannot be undone.</p>
           </div>
-        </div>
-        <div class="admin-modal-foot admin-modal-foot--center">
-          <button type="button" class="admin-btn admin-btn-outline" data-modal-close>Cancel</button>
-          <button type="submit" class="admin-btn admin-btn-danger" id="disposeSubmit">
-            <svg class="admin-ic" aria-hidden="true"><use href="#i-ban"/></svg> Dispose Ticket
-          </button>
-        </div>
-      </form>
+          <div class="admin-modal-body">
+            <div class="admin-field">
+              <label for="disposeRemarks">Disposal Remarks <span class="admin-req">*</span></label>
+              <textarea id="disposeRemarks" class="admin-textarea" rows="3" maxlength="300" data-autofocus></textarea>
+              <p class="admin-field-error"></p>
+            </div>
+          </div>
+          <div class="admin-modal-foot admin-modal-foot--center">
+            <button type="button" class="admin-btn admin-btn-outline" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="admin-btn admin-btn-danger" id="disposeSubmit">
+              <svg class="admin-ic" aria-hidden="true"><use href="#i-ban"/></svg> Dispose Ticket
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   </div>
 
   <!-- DOCUMENT VIEWER (placeholder — backend serves the real file) -->
-  <div class="admin-modal" id="docModal" hidden role="dialog" aria-modal="true" aria-labelledby="docTitle">
-    <div class="admin-modal-backdrop" data-modal-close></div>
-    <div class="admin-modal-dialog admin-modal-dialog--lg">
-      <div class="admin-modal-head">
-        <div><h2 class="admin-modal-title" id="docTitle">Document</h2><p class="admin-modal-subtitle" id="docMeta"></p></div>
-        <button type="button" class="admin-modal-close" data-modal-close aria-label="Close"><svg class="admin-ic" aria-hidden="true"><use href="#i-x"/></svg></button>
-      </div>
-      <div class="admin-modal-body">
-        <div class="admin-doc-preview">
-          <svg class="admin-ic" aria-hidden="true"><use href="#i-files"/></svg>
-          <p><strong>Document preview</strong></p>
-          <p class="admin-muted">In the live system this area shows the PDF / image served by the application (e.g. an &lt;iframe&gt; or &lt;img&gt; pointing to the document URL).</p>
+  <div class="modal admin-modal admin-modal--lg" id="docModal" tabindex="-1" role="dialog" aria-labelledby="docTitle">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content admin-modal-dialog">
+        <div class="admin-modal-head">
+          <div><h2 class="admin-modal-title" id="docTitle">Document</h2><p class="admin-modal-subtitle" id="docMeta"></p></div>
+          <button type="button" class="admin-modal-close" data-bs-dismiss="modal" aria-label="Close"><svg class="admin-ic" aria-hidden="true"><use href="#i-x"/></svg></button>
         </div>
+        <div class="admin-modal-body">
+          <div class="admin-doc-preview">
+            <svg class="admin-ic" aria-hidden="true"><use href="#i-files"/></svg>
+            <p><strong>Document preview</strong></p>
+            <p class="admin-muted">In the live system this area shows the PDF / image served by the application (e.g. an &lt;iframe&gt; or &lt;img&gt; pointing to the document URL).</p>
+          </div>
+        </div>
+        <div class="admin-modal-foot"><button type="button" class="admin-btn admin-btn-outline" data-bs-dismiss="modal">Close</button></div>
       </div>
-      <div class="admin-modal-foot"><button type="button" class="admin-btn admin-btn-outline" data-modal-close>Close</button></div>
     </div>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/jquery@4.0.0/dist/jquery.min.js" integrity="sha384-fgGyf7Mo7DURSOMnOy7ed+dkq5Job205Gnzu6QIg0BOHKaqt4D76Dt8VlDCzcMHV" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
   <script src="../js/admin-data.js"></script>
   <script src="../js/admin-common.js"></script>
   <script src="../js/admin-layout.js"></script>

@@ -17,7 +17,7 @@
    There is NO fixed route: any role/employee of the department can be chosen.
    ===================================================================== */
 
-(function (window, document) {
+(function (window, document, $) {
   "use strict";
 
   const { AdminData, AdminModal, AdminForm, AdminUtil } = window;
@@ -164,101 +164,96 @@
        options.onMoved(result)   → page re-renders after the move
        --------------------------------------------------------------- */
     initProceedModal(options) {
-      const modal   = document.getElementById("proceedModal");
-      const form    = document.getElementById("proceedForm");
-      const formBox = document.getElementById("proceedFormView");
-      const doneBox = document.getElementById("proceedDoneView");
-      const roleSel = document.getElementById("proceedRole");
-      const empSel  = document.getElementById("proceedEmployee");
-      const remarks = document.getElementById("proceedRemarks");
-      const count   = document.getElementById("proceedRemarksCount");
-      const route   = document.getElementById("proceedRoute");
-      const submit  = document.getElementById("proceedSubmit");
-      const appLbl  = document.getElementById("proceedAppLabel");
-      const self    = this;
+      const $modal   = $("#proceedModal");
+      const $form    = $("#proceedForm");
+      const $formBox = $("#proceedFormView");
+      const $doneBox = $("#proceedDoneView");
+      const $role    = $("#proceedRole");
+      const $emp     = $("#proceedEmployee");
+      const $remarks = $("#proceedRemarks");
+      const $count   = $("#proceedRemarksCount");
+      const $route   = $("#proceedRoute");
+      const $submit  = $("#proceedSubmit");
+      const self     = this;
 
       function fillEmployees() {
         const app = options.getApp();
-        const role = roleSel.value;
-        empSel.innerHTML = `<option value="">${role ? "Select " + escapeHtml(role) : "Select Role first"}</option>` +
+        const role = $role.val();
+        $emp.html(`<option value="">${role ? "Select " + escapeHtml(role) : "Select Role first"}</option>` +
           (role ? self.officersForRole(app.zoneId, role).map(c =>
-            `<option value="${c.id}">${escapeHtml(c.holder.name)} (${escapeHtml(c.holderId)}) — ${escapeHtml(c.name)}</option>`).join("") : "");
-        empSel.disabled = !role;
+            `<option value="${c.id}">${escapeHtml(c.holder.name)} (${escapeHtml(c.holderId)}) — ${escapeHtml(c.name)}</option>`).join("") : ""))
+          .prop("disabled", !role);
         // Auto-pick when the role has exactly one officer.
-        if (role && empSel.options.length === 2) empSel.selectedIndex = 1;
+        if (role && $emp.find("option").length === 2) $emp.prop("selectedIndex", 1);
         updateRoute();
       }
 
       function updateRoute() {
         const me = Session.getCharge();
-        const target = empSel.value && ChargeStore.getById(empSel.value);
-        route.hidden = !target;
+        const target = $emp.val() && ChargeStore.getById($emp.val());
+        $route.prop("hidden", !target);
         if (target) {
-          route.innerHTML =
+          $route.html(
             `<span><small>From</small><strong>${escapeHtml(me.role)}</strong>${escapeHtml(AdminData.Session.getUser().name)}</span>` +
             icon("i-arrow-right", "admin-route-arrow") +
-            `<span><small>To</small><strong>${escapeHtml(target.role)}</strong>${escapeHtml(target.holder.name)}</span>`;
+            `<span><small>To</small><strong>${escapeHtml(target.role)}</strong>${escapeHtml(target.holder.name)}</span>`);
         }
       }
 
       function open(presetChargeId) {
         const app = options.getApp();
-        form.reset();
-        AdminForm.clearAll(form);
-        formBox.hidden = false;
-        doneBox.hidden = true;
-        appLbl.textContent = `Application No. ${app.appNo} · ${app.service.name}`;
-        roleSel.innerHTML = `<option value="">Select Role</option>` +
-          self.rolesForZone(app.zoneId).map(r => `<option value="${escapeHtml(r)}">${escapeHtml(r)}</option>`).join("");
-        if (presetChargeId) {
-          const c = ChargeStore.getById(presetChargeId);
-          if (c) { roleSel.value = c.role; fillEmployees(); empSel.value = c.id; updateRoute(); }
-        } else {
-          fillEmployees();
-        }
-        count.textContent = "0 / 500";
-        AdminModal.open(modal);
+        $form[0].reset();
+        AdminForm.clearAll($form);
+        $formBox.prop("hidden", false);
+        $doneBox.prop("hidden", true);
+        $("#proceedAppLabel").text(`Application No. ${app.appNo} · ${app.service.name}`);
+        $role.html(`<option value="">Select Role</option>` +
+          self.rolesForZone(app.zoneId).map(r => `<option value="${escapeHtml(r)}">${escapeHtml(r)}</option>`).join(""));
+        const preset = presetChargeId && ChargeStore.getById(presetChargeId);
+        if (preset) { $role.val(preset.role); fillEmployees(); $emp.val(preset.id); updateRoute(); }
+        else fillEmployees();
+        $count.text("0 / 500");
+        AdminModal.open($modal);
       }
 
-      roleSel.addEventListener("change", () => { AdminForm.clearError(empSel); fillEmployees(); });
-      empSel.addEventListener("change", updateRoute);
-      remarks.addEventListener("input", () => { count.textContent = `${remarks.value.length} / 500`; });
-      AdminForm.liveClear(form);
+      $role.on("change", function () { AdminForm.clearError($emp); fillEmployees(); });
+      $emp.on("change", updateRoute);
+      $remarks.on("input", function () { $count.text(`${$remarks.val().length} / 500`); });
+      AdminForm.liveClear($form);
 
-      form.addEventListener("submit", async e => {
+      $form.on("submit", async function (e) {
         e.preventDefault();
-        AdminForm.clearAll(form);
+        AdminForm.clearAll($form);
         let ok = true;
-        if (!roleSel.value) { AdminForm.setError(roleSel, "Please select a role."); ok = false; }
-        if (!empSel.value)  { AdminForm.setError(empSel, "Please select an employee."); ok = false; }
-        if (remarks.value.trim().length < 5) { AdminForm.setError(remarks, "Please enter remarks / instructions (at least 5 characters)."); ok = false; }
-        if (!ok) { AdminForm.focusFirstError(form); return; }
+        if (!$role.val()) { AdminForm.setError($role, "Please select a role."); ok = false; }
+        if (!$emp.val())  { AdminForm.setError($emp, "Please select an employee."); ok = false; }
+        if ($remarks.val().trim().length < 5) { AdminForm.setError($remarks, "Please enter remarks / instructions (at least 5 characters)."); ok = false; }
+        if (!ok) { AdminForm.focusFirstError($form); return; }
 
         const app = options.getApp();
-        modal.classList.add("is-busy");
-        AdminUtil.setButtonLoading(submit, true, "Forwarding...");
+        $modal.addClass("is-busy");
+        AdminUtil.setButtonLoading($submit, true, "Forwarding...");
         await AdminUtil.delay(800);
-        const result = self.forward(app.appNo, empSel.value, remarks.value.trim(), "Forwarded");
-        modal.classList.remove("is-busy");
-        AdminUtil.setButtonLoading(submit, false);
+        const result = self.forward(app.appNo, $emp.val(), $remarks.val().trim(), "Forwarded");
+        $modal.removeClass("is-busy");
+        AdminUtil.setButtonLoading($submit, false);
 
         // Success view inside the modal
         const target = ChargeStore.getById(result.to.chargeId);
-        document.getElementById("proceedDoneText").innerHTML =
+        $("#proceedDoneText").html(
           `Application <strong>${escapeHtml(app.appNo)}</strong> has been forwarded to ` +
-          `<strong>${escapeHtml(result.to.name)}</strong> (${escapeHtml(target.name)}).`;
-        document.getElementById("proceedSwitchBtn").innerHTML =
-          `${icon("i-user")} Continue as ${escapeHtml(result.to.name)} <small>(demo)</small>`;
-        document.getElementById("proceedSwitchBtn").dataset.chargeId = target.id;
-        formBox.hidden = true;
-        doneBox.hidden = false;
-        document.getElementById("proceedOutboxBtn").focus();
+          `<strong>${escapeHtml(result.to.name)}</strong> (${escapeHtml(target.name)}).`);
+        $("#proceedSwitchBtn").html(`${icon("i-user")} Continue as ${escapeHtml(result.to.name)} <small>(demo)</small>`)
+          .attr("data-charge-id", target.id);
+        $formBox.prop("hidden", true);
+        $doneBox.prop("hidden", false);
+        $("#proceedOutboxBtn").trigger("focus");
 
         if (options.onMoved) options.onMoved(result);
       });
 
-      document.getElementById("proceedSwitchBtn").addEventListener("click", e => {
-        window.AdminAuth.switchToOfficer(e.currentTarget.dataset.chargeId);
+      $("#proceedSwitchBtn").on("click", function () {
+        window.AdminAuth.switchToOfficer($(this).attr("data-charge-id"));
       });
 
       return { open };
@@ -266,4 +261,4 @@
   };
 
   window.AdminFileMovement = AdminFileMovement;
-})(window, document);
+})(window, document, jQuery);

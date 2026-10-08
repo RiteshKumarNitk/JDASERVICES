@@ -11,14 +11,13 @@
    "Incomplete Documents" and Final Submission stays locked.
    ===================================================================== */
 
-(function (window, document) {
+(function (window, document, $) {
   "use strict";
 
   const { AdminData, AdminModal, AdminUtil } = window;
   const { icon, escapeHtml, formatDate, formatDateTime, statusBadge } = AdminUtil;
   const { VERIFY, Verification, statusLabel } = AdminData;
 
-  const $ = id => document.getElementById(id);
   let ctx = null;
   let previewIndex = 0;
 
@@ -105,31 +104,30 @@
     const app = ctx.getApp();
     const s = Verification.docSummary(app);
     const badge = s.complete ? "Approved" : s.rejected.length ? "Incomplete Documents" : "Pending";
-    document.querySelector('[data-status-for="documents"]').innerHTML =
-      statusBadge(badge) + `<span class="admin-vsec-count">${s.approved}/${s.mandatory} mandatory</span>`;
-    $("sec-documents").dataset.state = s.complete ? VERIFY.APPROVED : s.rejected.length ? VERIFY.REJECTED : VERIFY.PENDING;
-    $("docSummary").innerHTML = summaryHtml(app);
-    $("docBody").innerHTML = app.documents.map((d, i) => rowHtml(d, i, ctx.editable())).join("");
-    if (!$("previewModal").hidden) renderPreview();
+    $('[data-status-for="documents"]').html(
+      statusBadge(badge) + `<span class="admin-vsec-count">${s.approved}/${s.mandatory} mandatory</span>`);
+    $("#sec-documents").attr("data-state", s.complete ? VERIFY.APPROVED : s.rejected.length ? VERIFY.REJECTED : VERIFY.PENDING);
+    $("#docSummary").html(summaryHtml(app));
+    $("#docBody").html(app.documents.map((d, i) => rowHtml(d, i, ctx.editable())).join(""));
+    if ($("#previewModal").hasClass("show")) renderPreview();   // keep an open preview in sync
   }
 
   /* ---------------- preview modal ---------------- */
   function renderPreview() {
     const app = ctx.getApp();
     const d = app.documents[previewIndex];
-    $("previewTitle").textContent = d.name;
-    $("previewMeta").textContent = `${d.fileName} · ${d.fileType} · ${d.sizeKb} KB · uploaded ${formatDateTime(d.uploadedOn)}`;
-    $("previewPos").textContent = `${previewIndex + 1} of ${app.documents.length}`;
-    $("previewPrev").disabled = previewIndex === 0;
-    $("previewNext").disabled = previewIndex === app.documents.length - 1;
-    $("previewStatus").innerHTML = statusBadge(statusLabel(d.status));
+    $("#previewTitle").text(d.name);
+    $("#previewMeta").text(`${d.fileName} · ${d.fileType} · ${d.sizeKb} KB · uploaded ${formatDateTime(d.uploadedOn)}`);
+    $("#previewPos").text(`${previewIndex + 1} of ${app.documents.length}`);
+    $("#previewPrev").prop("disabled", previewIndex === 0);
+    $("#previewNext").prop("disabled", previewIndex === app.documents.length - 1);
+    $("#previewStatus").html(statusBadge(statusLabel(d.status)));
     const canDecide = ctx.editable();
-    $("previewApprove").hidden = !canDecide || d.status === VERIFY.APPROVED;
-    $("previewReject").hidden = !canDecide || d.status === VERIFY.REJECTED;
+    $("#previewApprove").prop("hidden", !canDecide || d.status === VERIFY.APPROVED);
+    $("#previewReject").prop("hidden", !canDecide || d.status === VERIFY.REJECTED);
 
     // Placeholder "scan" of the document — the backend will show the real file here.
-    $("previewPaper").className = `admin-paper${d.fileType === "JPG" ? " admin-paper--image" : ""}`;
-    $("previewPaper").innerHTML = `
+    $("#previewPaper").attr("class", `admin-paper${d.fileType === "JPG" ? " admin-paper--image" : ""}`).html(`
       <div class="admin-paper-head">
         <span class="admin-brand-mark admin-brand-mark--sm" aria-hidden="true">JDA</span>
         <div><strong>Jaipur Development Authority</strong><small>Government of Rajasthan</small></div>
@@ -143,7 +141,7 @@
       </dl>
       <div class="admin-paper-lines" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
       <p class="admin-paper-note">Prototype preview — the uploaded ${escapeHtml(d.fileType)} file is shown here in the live system.</p>
-      <span class="admin-paper-stamp" aria-hidden="true">Uploaded copy</span>`;
+      <span class="admin-paper-stamp" aria-hidden="true">Uploaded copy</span>`);
   }
 
   function preview(index) {
@@ -156,26 +154,20 @@
   function init(context) {
     ctx = context;
 
-    $("docBody").addEventListener("click", e => {
-      const app = ctx.getApp();
-      const find = id => app.documents.find(d => d.id === id);
-      const pv = e.target.closest("[data-doc-preview]");
-      if (pv) return preview(Number(pv.dataset.docPreview));
-      const ap = e.target.closest("[data-doc-approve]");
-      if (ap) return approve(find(ap.dataset.docApprove));
-      const rj = e.target.closest("[data-doc-reject]");
-      if (rj) return reject(find(rj.dataset.docReject));
-      const rs = e.target.closest("[data-doc-reset]");
-      if (rs) setDocStatus(rs.dataset.docReset, VERIFY.PENDING);
-    });
+    const find = id => ctx.getApp().documents.find(d => d.id === id);
+    $("#docBody")
+      .on("click", "[data-doc-preview]", function () { preview(Number($(this).attr("data-doc-preview"))); })
+      .on("click", "[data-doc-approve]", function () { approve(find($(this).attr("data-doc-approve"))); })
+      .on("click", "[data-doc-reject]",  function () { reject(find($(this).attr("data-doc-reject"))); })
+      .on("click", "[data-doc-reset]",   function () { setDocStatus($(this).attr("data-doc-reset"), VERIFY.PENDING); });
 
-    $("previewPrev").addEventListener("click", () => { if (previewIndex > 0) { previewIndex--; renderPreview(); } });
-    $("previewNext").addEventListener("click", () => {
+    $("#previewPrev").on("click", () => { if (previewIndex > 0) { previewIndex--; renderPreview(); } });
+    $("#previewNext").on("click", () => {
       if (previewIndex < ctx.getApp().documents.length - 1) { previewIndex++; renderPreview(); }
     });
-    $("previewApprove").addEventListener("click", () => approve(ctx.getApp().documents[previewIndex]));
-    $("previewReject").addEventListener("click", () => reject(ctx.getApp().documents[previewIndex]));
+    $("#previewApprove").on("click", () => approve(ctx.getApp().documents[previewIndex]));
+    $("#previewReject").on("click", () => reject(ctx.getApp().documents[previewIndex]));
   }
 
   window.AdminDocVerification = { init, render, preview };
-})(window, document);
+})(window, document, jQuery);

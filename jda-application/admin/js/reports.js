@@ -3,7 +3,7 @@
    Service-wise status report for the zone of the selected charge.
    ===================================================================== */
 
-(function (window, document) {
+(function (window, document, $) {
   "use strict";
 
   if (!window.AdminLayout.ready) return;
@@ -12,8 +12,8 @@
   const { escapeHtml } = AdminUtil;
   const { Session, ApplicationStore, STATUS, daysFromToday } = AdminData;
 
-  const $ = id => document.getElementById(id);
   const charge = Session.getCharge();
+  const $filters = $("#reportFilters");
   const COLS = [
     ["Total",                a => true],
     ["Pending",              a => a.status === STATUS.PENDING],
@@ -27,8 +27,8 @@
 
   /* BACKEND INTEGRATION: replace with the report API (zone + filters). */
   function build() {
-    const from = $("rFrom").value, to = $("rTo").value;
-    const svc = $("rService").value, st = $("rStatus").value;
+    const from = $("#rFrom").val(), to = $("#rTo").val();
+    const svc = $("#rService").val(), st = $("#rStatus").val();
     const apps = ApplicationStore.byZone(charge.zoneId).filter(a => {
       const d = a.startDate.slice(0, 10);
       return (!from || d >= from) && (!to || d <= to) && (!svc || a.service.name === svc) && (!st || a.status === st);
@@ -40,12 +40,12 @@
 
   function render() {
     const total = build();
-    $("reportEmpty").hidden = total > 0;
-    $("reportTable").closest(".admin-table-wrap").hidden = total === 0;
-    $("reportBody").innerHTML = table.map(r => `<tr><td>${escapeHtml(r[0])}</td>${r.slice(1).map(n => `<td class="admin-col-amount">${n}</td>`).join("")}</tr>`).join("");
+    $("#reportEmpty").prop("hidden", total > 0);
+    $("#reportTable").closest(".admin-table-wrap").prop("hidden", total === 0);
+    $("#reportBody").html(table.map(r => `<tr><td>${escapeHtml(r[0])}</td>${r.slice(1).map(n => `<td class="admin-col-amount">${n}</td>`).join("")}</tr>`).join(""));
     const sums = COLS.map((_, i) => table.reduce((s, r) => s + r[i + 1], 0));
-    $("reportFoot").innerHTML = `<tr><th scope="row">Total</th>${sums.map(n => `<td class="admin-col-amount"><strong>${n}</strong></td>`).join("")}</tr>`;
-    $("reportMeta").textContent = `${total} application${total === 1 ? "" : "s"} · generated ${AdminUtil.formatDateTime(AdminData.nowIso())}`;
+    $("#reportFoot").html(`<tr><th scope="row">Total</th>${sums.map(n => `<td class="admin-col-amount"><strong>${n}</strong></td>`).join("")}</tr>`);
+    $("#reportMeta").text(`${total} application${total === 1 ? "" : "s"} · generated ${AdminUtil.formatDateTime(AdminData.nowIso())}`);
   }
 
   function exportCsv() {
@@ -53,35 +53,34 @@
     const lines = [["Service Name", ...COLS.map(c => c[0])].map(q).join(",")]
       .concat(table.map(r => r.map(q).join(",")));
     const blob = new Blob(["﻿" + lines.join("\r\n")], { type: "text/csv;charset=utf-8" });
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = `jda-service-report-${charge.zone}.csv`;
-    document.body.appendChild(a);
-    a.click();
-    setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 0);
+    const url = URL.createObjectURL(blob);
+    const $a = $("<a>").attr({ href: url, download: `jda-service-report-${charge.zone}.csv` }).appendTo("body");
+    $a[0].click();
+    setTimeout(() => { URL.revokeObjectURL(url); $a.remove(); }, 0);
   }
 
-  $("reportSubtitle").textContent = `Service-wise application status report for ${charge.department} (${charge.zone}).`;
+  $("#reportSubtitle").text(`Service-wise application status report for ${charge.department} (${charge.zone}).`);
   const services = [...new Set(ApplicationStore.byZone(charge.zoneId).map(a => a.service.name))].sort();
-  $("rService").insertAdjacentHTML("beforeend", services.map(s => `<option>${escapeHtml(s)}</option>`).join(""));
-  $("rStatus").insertAdjacentHTML("beforeend", Object.values(STATUS).map(s => `<option>${escapeHtml(s)}</option>`).join(""));
-  AdminForm.liveClear($("reportFilters"));
+  $("#rService").append(services.map(s => `<option>${escapeHtml(s)}</option>`).join(""));
+  $("#rStatus").append(Object.values(STATUS).map(s => `<option>${escapeHtml(s)}</option>`).join(""));
+  AdminForm.liveClear($filters);
 
-  $("reportFilters").addEventListener("submit", e => {
+  $filters.on("submit", function (e) {
     e.preventDefault();
-    AdminForm.clearAll(e.target);
-    if ($("rFrom").value && $("rTo").value && $("rTo").value < $("rFrom").value) {
-      AdminForm.setError($("rTo"), "To Date cannot be before From Date.");
-      $("rTo").focus();
+    AdminForm.clearAll($filters);
+    const from = $("#rFrom").val(), to = $("#rTo").val();
+    if (from && to && to < from) {
+      AdminForm.setError("#rTo", "To Date cannot be before From Date.");
+      $("#rTo").trigger("focus");
       return;
     }
     render();
   });
-  $("rReset").addEventListener("click", () => { $("reportFilters").reset(); AdminForm.clearAll($("reportFilters")); render(); });
-  $("exportCsv").addEventListener("click", exportCsv);
-  $("exportExcel").addEventListener("click", () =>
+  $("#rReset").on("click", function () { $filters[0].reset(); AdminForm.clearAll($filters); render(); });
+  $("#exportCsv").on("click", exportCsv);
+  $("#exportExcel").on("click", () =>
     AdminToast.show("Excel files will be generated by the server. Use Export CSV in this prototype.", "info", "Export Excel"));
-  $("printReport").addEventListener("click", () => window.print());
+  $("#printReport").on("click", () => window.print());
 
   render();
-})(window, document);
+})(window, document, jQuery);

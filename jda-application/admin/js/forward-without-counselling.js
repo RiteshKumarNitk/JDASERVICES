@@ -8,7 +8,7 @@
      [Proceed] → application-review.html?app=<no>&from=<key>
    ===================================================================== */
 
-(function (window, document) {
+(function (window, document, $) {
   "use strict";
 
   if (!window.AdminLayout.ready) return;
@@ -17,7 +17,6 @@
   const { icon, escapeHtml, formatDate, statusBadge } = AdminUtil;
   const { COUNSELLING_LISTS, CASE_STATUS, Session, Verification, listApplications, statusLabel } = AdminData;
 
-  const $ = id => document.getElementById(id);
   const params = new URLSearchParams(window.location.search);
   const listKey = COUNSELLING_LISTS[params.get("list")] ? params.get("list") : "forward-without-counselling";
   const def = COUNSELLING_LISTS[listKey];
@@ -35,8 +34,8 @@
   }
 
   function filtered() {
-    const q = $("clSearch").value.trim().toLowerCase();
-    const st = $("clStatus").value;
+    const q = $("#clSearch").val().trim().toLowerCase();
+    const st = $("#clStatus").val();
     return rows.filter(a =>
       (!st || Verification.caseStatus(a) === st) &&
       (!q || `${a.appNo} ${a.applicant.name} ${a.service.name}`.toLowerCase().includes(q)));
@@ -72,61 +71,60 @@
 
   function renderPager(total, size, from, to) {
     const pages = Math.max(1, Math.ceil(total / size));
-    $("clPager").hidden = total === 0;
-    $("clPagerInfo").textContent = total ? `Showing ${from} to ${to} of ${total} entries` : "";
+    $("#clPager").prop("hidden", total === 0);
+    $("#clPagerInfo").text(total ? `Showing ${from} to ${to} of ${total} entries` : "");
     const btn = (p, label, disabled, current) =>
       `<li><button type="button" class="admin-page-btn${current ? " is-current" : ""}" data-page="${p}" ${disabled ? "disabled" : ""} ${current ? 'aria-current="page"' : ""}>${label}</button></li>`;
     let html = btn(page - 1, "Previous", page === 1);
     for (let p = 1; p <= pages; p++) html += btn(p, p, false, p === page);
-    $("clPagerLinks").innerHTML = html + btn(page + 1, "Next", page === pages);
+    $("#clPagerLinks").html(html + btn(page + 1, "Next", page === pages));
   }
 
   function render() {
     const list = filtered();
-    const size = Number($("pageSize").value);
+    const size = Number($("#pageSize").val());
     page = Math.min(page, Math.max(1, Math.ceil(list.length / size)));
     const start = (page - 1) * size;
     const slice = list.slice(start, start + size);
-    const filtering = $("clSearch").value.trim() || $("clStatus").value;
+    const filtering = $("#clSearch").val().trim() || $("#clStatus").val();
 
-    $("clTableWrap").hidden = !list.length;
-    $("clEmpty").hidden = !!list.length;
-    $("clClear").hidden = !filtering;
-    $("clEmptyTitle").textContent = filtering ? "No matching application" : `No applications in ${def.title}`;
-    $("clEmptyText").textContent = filtering
+    $("#clTableWrap").prop("hidden", !list.length);
+    $("#clEmpty").prop("hidden", !!list.length);
+    $("#clClear").prop("hidden", !filtering);
+    $("#clEmptyTitle").text(filtering ? "No matching application" : `No applications in ${def.title}`);
+    $("#clEmptyText").text(filtering
       ? "No application matches this Application No., applicant name, service or status."
-      : "There are no applications in this counselling queue right now.";
-    $("clBody").innerHTML = slice.map((a, i) => rowHtml(a, start + i + 1)).join("");
+      : "There are no applications in this counselling queue right now.");
+    $("#clBody").html(slice.map((a, i) => rowHtml(a, start + i + 1)).join(""));
     renderPager(list.length, size, start + 1, start + slice.length);
   }
 
   function init() {
     document.title = `${def.title} — JDA Admin Panel`;
-    $("crumbTitle").textContent = def.title;
-    $("listTitle").textContent = def.title;
-    $("listDescription").textContent = def.description;
-    $("clCaption").textContent = def.title;
-    $("clStatus").insertAdjacentHTML("beforeend",
+    $("#crumbTitle").text(def.title);
+    $("#listTitle").text(def.title);
+    $("#listDescription").text(def.description);
+    $("#clCaption").text(def.title);
+    $("#clStatus").append(
       [CASE_STATUS.PENDING_VERIFICATION, CASE_STATUS.INCOMPLETE_DOCUMENTS, CASE_STATUS.CASE_FOUND_OK]
         .map(c => `<option value="${c}">${escapeHtml(statusLabel(c))}</option>`).join(""));
-    if (params.get("q")) $("clSearch").value = params.get("q");
-    if (params.get("status")) $("clStatus").value = params.get("status");
+    if (params.get("q")) $("#clSearch").val(params.get("q"));
+    if (params.get("status")) $("#clStatus").val(params.get("status"));
 
     load();
     render();
 
     const rerender = () => { page = 1; render(); };
-    $("clSearch").addEventListener("input", AdminUtil.debounce(rerender, 150));
-    $("clStatus").addEventListener("change", rerender);
-    $("pageSize").addEventListener("change", rerender);
-    $("clClear").addEventListener("click", () => { $("clSearch").value = ""; $("clStatus").value = ""; rerender(); $("clSearch").focus(); });
-    $("clPagerLinks").addEventListener("click", e => {
-      const b = e.target.closest("[data-page]");
-      if (!b || b.disabled) return;
-      page = Number(b.dataset.page);
+    $("#clSearch").on("input", AdminUtil.debounce(rerender, 150));
+    $("#clStatus").on("change", rerender);
+    $("#pageSize").on("change", rerender);
+    $("#clClear").on("click", () => { $("#clSearch").val(""); $("#clStatus").val(""); rerender(); $("#clSearch").trigger("focus"); });
+    $("#clPagerLinks").on("click", "[data-page]", function () {
+      if (this.disabled) return;
+      page = Number($(this).attr("data-page"));
       render();
     });
   }
 
   init();
-})(window, document);
+})(window, document, jQuery);

@@ -7,10 +7,12 @@
      AdminForm    – field-level validation display
      AdminModal   – accessible modal open / close
      AdminToast   – success / error notifications
-   Load order on every page:  admin-data.js → admin-common.js → (layout) → page js
+   Load order on every page:
+     jQuery 4.0.0 → Bootstrap 5.2.3 bundle → admin-data.js → admin-common.js
+     → admin-layout.js → page js
    ===================================================================== */
 
-(function (window, document) {
+(function (window, document, $) {
   "use strict";
 
   /* ===================================================================
@@ -80,13 +82,11 @@
   };
 
   function injectIconSprite() {
-    if (document.getElementById("admin-icon-sprite")) return;
+    if ($("#admin-icon-sprite").length) return;
     const symbols = Object.keys(ICON_PATHS).map(id =>
       `<symbol id="${id}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ICON_PATHS[id]}</symbol>`
     ).join("");
-    const holder = document.createElement("div");
-    holder.innerHTML = `<svg id="admin-icon-sprite" xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">${symbols}</svg>`;
-    document.body.insertBefore(holder.firstChild, document.body.firstChild);
+    $("body").prepend(`<svg id="admin-icon-sprite" xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">${symbols}</svg>`);
   }
 
   function icon(id, extraClass) {
@@ -216,20 +216,17 @@
       return new Promise(resolve => setTimeout(resolve, ms));
     },
 
-    /* Toggles a button's loading state (spinner + label). */
+    /* Toggles a button's loading state (spinner + label). btn = element or jQuery. */
     setButtonLoading(btn, loading, loadingText) {
-      if (!btn) return;
+      const $btn = $(btn);
+      if (!$btn.length) return;
       if (loading) {
-        btn.dataset.originalHtml = btn.innerHTML;
-        btn.disabled = true;
-        btn.classList.add("is-loading");
-        btn.setAttribute("aria-busy", "true");
-        btn.innerHTML = `<span class="admin-spinner" aria-hidden="true"></span><span>${loadingText || "Please wait..."}</span>`;
+        $btn.data("originalHtml", $btn.html())
+          .prop("disabled", true).addClass("is-loading").attr("aria-busy", "true")
+          .html(`<span class="admin-spinner" aria-hidden="true"></span><span>${AdminUtil.escapeHtml(loadingText || "Please wait...")}</span>`);
       } else {
-        btn.disabled = false;
-        btn.classList.remove("is-loading");
-        btn.removeAttribute("aria-busy");
-        if (btn.dataset.originalHtml) btn.innerHTML = btn.dataset.originalHtml;
+        $btn.prop("disabled", false).removeClass("is-loading").removeAttr("aria-busy");
+        if ($btn.data("originalHtml")) $btn.html($btn.data("originalHtml"));
       }
     },
 
@@ -253,122 +250,127 @@
   };
 
   /* ===================================================================
-     FORM — shows / clears field errors.
+     FORM — shows / clears field errors (input = element or jQuery).
      Expected markup:
        <div class="admin-field">
          <label for="x">Label <span class="admin-req">*</span></label>
-         <input id="x" class="admin-input" aria-describedby="x-error">
-         <p class="admin-field-error" id="x-error"></p>
+         <input id="x" class="admin-input">
+         <p class="admin-field-error"></p>
        </div>
      =================================================================== */
   const AdminForm = {
     setError(input, message) {
-      const field = input.closest(".admin-field");
-      if (!field) return;
-      field.classList.add("is-invalid");
-      input.setAttribute("aria-invalid", "true");
-      const err = field.querySelector(".admin-field-error");
-      if (err) err.innerHTML = icon("i-alert") + "<span>" + AdminUtil.escapeHtml(message) + "</span>";
+      const $input = $(input);
+      const $field = $input.closest(".admin-field");
+      if (!$field.length) return;
+      $field.addClass("is-invalid");
+      $input.attr("aria-invalid", "true");
+      $field.find(".admin-field-error").html(icon("i-alert") + "<span>" + AdminUtil.escapeHtml(message) + "</span>");
     },
 
     clearError(input) {
-      const field = input.closest(".admin-field");
-      if (!field) return;
-      field.classList.remove("is-invalid");
-      input.removeAttribute("aria-invalid");
-      const err = field.querySelector(".admin-field-error");
-      if (err) err.textContent = "";
+      const $input = $(input);
+      $input.closest(".admin-field").removeClass("is-invalid").find(".admin-field-error").text("");
+      $input.removeAttr("aria-invalid");
     },
 
     clearAll(form) {
-      form.querySelectorAll(".admin-field.is-invalid [aria-invalid]").forEach(el => this.clearError(el));
-      form.querySelectorAll(".admin-field.is-invalid").forEach(f => f.classList.remove("is-invalid"));
+      const $form = $(form);
+      $form.find("[aria-invalid]").removeAttr("aria-invalid");
+      $form.find(".admin-field.is-invalid").removeClass("is-invalid").find(".admin-field-error").text("");
     },
 
     /* Clears a field's error as soon as the user edits it. */
     liveClear(form) {
-      form.addEventListener("input", e => {
-        if (e.target.matches(".admin-input, .admin-select, .admin-textarea")) this.clearError(e.target);
-      });
-      form.addEventListener("change", e => {
-        if (e.target.matches("input[type=radio]")) {
-          const first = e.target.closest(".admin-field").querySelector("input");
-          this.clearError(first);
-        }
-      });
+      $(form)
+        .on("input", ".admin-input, .admin-select, .admin-textarea", function () { AdminForm.clearError(this); })
+        .on("change", "input[type=radio]", function () {
+          AdminForm.clearError($(this).closest(".admin-field").find("input").first());
+        });
     },
 
     focusFirstError(form) {
-      const bad = form.querySelector("[aria-invalid='true']");
-      if (bad) bad.focus();
+      $(form).find("[aria-invalid='true']").first().trigger("focus");
     }
   };
 
   /* ===================================================================
-     MODAL
-     Markup:
-       <div class="admin-modal" id="chargeModal" hidden role="dialog"
-            aria-modal="true" aria-labelledby="chargeModalTitle">
-         <div class="admin-modal-backdrop" data-modal-close></div>
-         <div class="admin-modal-dialog"> ... <button data-modal-close> ... </div>
-       </div>
+     MODAL — Bootstrap 5.2.3 Modal.
+     Markup (see any page):
+       <div class="modal admin-modal" id="proceedModal" tabindex="-1">
+         <div class="modal-dialog modal-dialog-centered">
+           <div class="modal-content admin-modal-dialog">
+             … <button data-bs-dismiss="modal">Cancel</button> …
+     AdminModal.open("proceedModal", { onClose: fn })   AdminModal.close("proceedModal")
+     A modal with class "is-busy" (saving) cannot be closed.
      =================================================================== */
   const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
-  const openStack = [];
+  const modalOf = m => $(typeof m === "string" ? "#" + m : m);
 
   const AdminModal = {
     open(modalOrId, options) {
-      const modal = typeof modalOrId === "string" ? document.getElementById(modalOrId) : modalOrId;
-      if (!modal) return;
-      modal._returnFocus = document.activeElement;
-      modal._onClose = options && options.onClose;
-      modal.hidden = false;
-      document.body.classList.add("admin-modal-open");
-      openStack.push(modal);
-      requestAnimationFrame(() => {
-        modal.classList.add("is-open");
-        const target = modal.querySelector("[data-autofocus]") || modal.querySelector(".admin-modal-dialog " + FOCUSABLE);
-        if (target) target.focus();
+      const $modal = modalOf(modalOrId);
+      if (!$modal.length) return;
+      const returnFocus = document.activeElement;
+      $modal.one("hidden.bs.modal", function () {
+        if (options && typeof options.onClose === "function") options.onClose();
+        if (returnFocus && document.contains(returnFocus)) returnFocus.focus();
       });
+      // focus:false — stacked modals (e.g. Reject over Preview) would fight over focus;
+      // focus is handled below instead.
+      bootstrap.Modal.getOrCreateInstance($modal[0], { focus: false }).show();
     },
 
     close(modalOrId) {
-      const modal = typeof modalOrId === "string" ? document.getElementById(modalOrId) : modalOrId;
-      if (!modal || modal.hidden) return;
-      modal.classList.remove("is-open");
-      modal.hidden = true;
-      const idx = openStack.indexOf(modal);
-      if (idx > -1) openStack.splice(idx, 1);
-      if (!openStack.length) document.body.classList.remove("admin-modal-open");
-      if (typeof modal._onClose === "function") modal._onClose();
-      if (modal._returnFocus && document.contains(modal._returnFocus)) modal._returnFocus.focus();
+      const $modal = modalOf(modalOrId);
+      const instance = $modal.length ? bootstrap.Modal.getInstance($modal[0]) : null;
+      if (instance) instance.hide();
     },
 
     top() {
-      return openStack[openStack.length - 1] || null;
+      return $(".admin-modal.show").last()[0] || null;
     }
   };
 
-  document.addEventListener("click", e => {
-    const closer = e.target.closest("[data-modal-close]");
-    if (closer) {
-      const modal = closer.closest(".admin-modal");
-      if (modal && !modal.classList.contains("is-busy")) AdminModal.close(modal);
-    }
+  // While saving (class is-busy) Esc, backdrop click and Cancel do nothing.
+  $(document).on("hide.bs.modal", ".admin-modal", function (e) {
+    if ($(this).hasClass("is-busy")) e.preventDefault();
   });
 
-  document.addEventListener("keydown", e => {
+  // Focus the [data-autofocus] field (or the first control) when a modal opens.
+  $(document).on("shown.bs.modal", ".admin-modal", function () {
+    const $target = $(this).find("[data-autofocus]").first();
+    ($target.length ? $target : $(this).find(".admin-modal-dialog " + FOCUSABLE).first()).trigger("focus");
+  });
+
+  // A second modal opened over the first: put it (and its backdrop) on top.
+  $(document).on("show.bs.modal", ".admin-modal", function () {
+    const depth = $(".admin-modal.show").length;
+    $(this).css("z-index", 1055 + depth * 20);
+    setTimeout(() => $(".modal-backdrop").last().css("z-index", 1054 + depth * 20));
+  });
+
+  // Closing the top modal keeps the page locked while another one is still open.
+  $(document).on("hidden.bs.modal", ".admin-modal", function () {
+    if ($(".admin-modal.show").length) $("body").addClass("modal-open").css("overflow", "hidden");
+  });
+
+  // Esc closes the top-most modal even when focus has left it (e.g. the
+  // focused button was hidden by a re-render). Inside the modal Bootstrap handles Esc.
+  $(document).on("keydown", function (e) {
     const modal = AdminModal.top();
-    if (!modal) return;
-    if (e.key === "Escape" && !modal.classList.contains("is-busy")) {
-      AdminModal.close(modal);
-    } else if (e.key === "Tab") {
-      const items = Array.from(modal.querySelectorAll(".admin-modal-dialog " + FOCUSABLE)).filter(el => el.offsetParent !== null);
-      if (!items.length) return;
-      const first = items[0], last = items[items.length - 1];
-      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
-      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
-    }
+    if (modal && e.key === "Escape" && !modal.contains(document.activeElement)) AdminModal.close(modal);
+  });
+
+  // Keep Tab inside the top-most modal.
+  $(document).on("keydown", function (e) {
+    const modal = AdminModal.top();
+    if (!modal || e.key !== "Tab") return;
+    const $items = $(modal).find(".admin-modal-dialog " + FOCUSABLE).filter(":visible");
+    if (!$items.length) return;
+    const first = $items[0], last = $items[$items.length - 1];
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
   });
 
   /* ===================================================================
@@ -378,34 +380,25 @@
      =================================================================== */
   const AdminToast = {
     show(message, type, title) {
-      let region = document.getElementById("adminToastRegion");
-      if (!region) {
-        region = document.createElement("div");
-        region.id = "adminToastRegion";
-        region.className = "admin-toast-region";
-        region.setAttribute("role", "status");
-        region.setAttribute("aria-live", "polite");
-        document.body.appendChild(region);
+      let $region = $("#adminToastRegion");
+      if (!$region.length) {
+        $region = $('<div id="adminToastRegion" class="admin-toast-region" role="status" aria-live="polite"></div>').appendTo("body");
       }
       const kind = type || "success";
       const iconId = kind === "error" ? "i-alert" : kind === "info" ? "i-info" : "i-check-circle";
       const heading = title || (kind === "error" ? "Something went wrong" : kind === "info" ? "Note" : "Success");
-      const toast = document.createElement("div");
-      toast.className = `admin-toast admin-toast--${kind}`;
-      toast.innerHTML =
+      const $toast = $(`<div class="admin-toast admin-toast--${kind}">` +
         `<span class="admin-toast-icon">${icon(iconId)}</span>` +
         `<div class="admin-toast-body"><strong>${AdminUtil.escapeHtml(heading)}</strong><p>${AdminUtil.escapeHtml(message)}</p></div>` +
-        `<button type="button" class="admin-toast-close" aria-label="Dismiss">${icon("i-x")}</button>`;
-      region.appendChild(toast);
-      const remove = () => { toast.classList.add("is-leaving"); setTimeout(() => toast.remove(), 200); };
-      toast.querySelector(".admin-toast-close").addEventListener("click", remove);
+        `<button type="button" class="admin-toast-close" aria-label="Dismiss">${icon("i-x")}</button></div>`).appendTo($region);
+      const remove = () => { $toast.addClass("is-leaving"); setTimeout(() => $toast.remove(), 200); };
+      $toast.find(".admin-toast-close").on("click", remove);
       setTimeout(remove, 4200);
     }
   };
 
-  /* Sprite must exist before any <use href="#i-..."> renders. */
-  if (document.body) injectIconSprite();
-  else document.addEventListener("DOMContentLoaded", injectIconSprite);
+  /* Scripts load at the end of <body>, so the sprite exists before any <use href="#i-…"> renders. */
+  injectIconSprite();
 
   window.AdminIcons = { inject: injectIconSprite, icon };
   window.AdminAuth = AdminAuth;
@@ -413,4 +406,4 @@
   window.AdminForm = AdminForm;
   window.AdminModal = AdminModal;
   window.AdminToast = AdminToast;
-})(window, document);
+})(window, document, jQuery);
