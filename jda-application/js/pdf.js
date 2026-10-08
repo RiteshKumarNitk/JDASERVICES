@@ -4,7 +4,8 @@
    A4 government-style application copy directly from the same flow-store
    data the Review / Final Submission screen already shows — no separate
    Review page, no screenshot, no hardcoded sample data.
-   Loaded only by final-submission.html, after jsPDF + jspdf-autotable.
+   Loaded only by final-submission.html, after jsPDF + jspdf-autotable
+   (and jQuery).
    ===================================================================== */
 'use strict';
 
@@ -36,13 +37,11 @@ function pdfSectionRows(section) {
 // skips buttons/selects, so the PDF can never drift from what's shown.
 function pdfPaymentRows() {
   const rows = [];
-  $$('.fs-tbl tbody tr').forEach((tr) => {
-    $$('td', tr).forEach((td) => {
-      const bits = $$('.fs-cell-title, .fs-amount, .req-badge', td)
-        .map((el) => el.textContent.trim())
-        .filter(Boolean);
-      if (bits.length) rows.push([bits[0], bits.slice(1).join(' — ')]);
-    });
+  $('.fs-tbl tbody td').each(function () {
+    const bits = $(this).find('.fs-cell-title, .fs-amount, .req-badge')
+      .map(function () { return $(this).text().trim(); }).get()
+      .filter(Boolean);
+    if (bits.length) rows.push([bits[0], bits.slice(1).join(' — ')]);
   });
   return rows;
 }
@@ -81,7 +80,7 @@ function addPdfSection(doc, y, title, rows, pageWidth, margin) {
 function buildApplicationPdf() {
   const jsPDFCtor = window.jspdf && window.jspdf.jsPDF;
   if (!jsPDFCtor) {
-    toast('PDF generator could not load — check your connection and try again.');
+    showToast('PDF generator could not load — check your connection and try again.');
     return;
   }
 
@@ -129,7 +128,7 @@ function buildApplicationPdf() {
     ['Service', pdfClean(flow.service)],
     ['Sub Service', pdfClean(flow.subService)],
     ['Based On', pdfClean(flow.basedOn)],
-    ['Applicant Type', pdfClean(TYPE_LABELS[flow.applicantType])]
+    ['Applicant Type', pdfClean(APPLICANT_TYPE_LABELS[flow.applicantType])]
   ], pageWidth, margin);
 
   // ---- Applicant Details (only the sections actually filled) -----------
@@ -191,10 +190,8 @@ function buildApplicationPdf() {
   y = addPdfSection(doc, y, 'PAYMENT & AFFIDAVIT DETAILS', pdfPaymentRows(), pageWidth, margin);
 
   // ---- Declaration ---------------------------------------------------------
-  const declEl = $('#declarationBox .cb-label');
-  const declText = declEl
-    ? declEl.textContent.trim()
-    : 'I hereby declare that the above information is correct to the best of my knowledge.';
+  const declText = $('#declarationBox .cb-label').text().trim() ||
+    'I hereby declare that the above information is correct to the best of my knowledge.';
   addPdfSection(doc, y, 'DECLARATION', [
     ['Declaration', declText],
     ['Status', flow.submitted ? 'Submitted' : 'Not submitted'],
@@ -220,8 +217,6 @@ function buildApplicationPdf() {
   doc.save('JDA-Application-' + fileTag + '.pdf');
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-  if (document.body.dataset.page !== 'final') return;
-  const btn = $('#downloadPdf');
-  if (btn) btn.addEventListener('click', buildApplicationPdf);
+$(function () {
+  $('#downloadPdf').on('click', buildApplicationPdf);
 });

@@ -1,159 +1,103 @@
 /* =====================================================================
-   JDA Property Services — service.js
-   Choose Service page: Service -> Sub Service -> Based On cascade with
-   inline validation; the chosen options are stored for later pages.
-   ===================================================================== */
-'use strict';
+   JDA Property Services — service.js   (choose-service.html)
 
-// Main services (Select Service) with their Developer Type / Based On lists.
-const BASED_ON = [
+   Step 1 · Select Service
+     Select Service  →  Developer Type  →  Applicable Provision
+   Each list is filled from the one before it.
+   Proceed: all three are required → saved → applicant-profile.html
+   ===================================================================== */
+
+// Applicable Provision options (same for every developer type).
+var BASED_ON_OPTIONS = [
   'Purchased from Original Allottee Through Sale Deed',
   'On the basis of Death Certificate',
   'On the basis of Gift Deed'
 ];
 
-// Developer Type is unchanged — same three options under every service.
-const DEVELOPER_TYPES = [
-  { label: 'JDA Scheme', basedOn: BASED_ON },
-  { label: 'Co-Operative', basedOn: BASED_ON },
-  { label: 'Niji Khatedar', basedOn: BASED_ON }
+// Developer Type options (same for every service).
+var DEVELOPER_TYPES = ['JDA Scheme', 'Co-Operative', 'Niji Khatedar'];
+
+// BACKEND INTEGRATION: replace with the service master (service → developer types → provisions).
+var SERVICE_OPTIONS = [
+  'Lease Hold E-Patta',
+  'Free Hold E-Patta',
+  'Free Hold E-Patta in lieu of already issued Patta (Lease Deed)'
 ];
 
-const SERVICES = [
-  { label: 'Lease Hold E-Patta', subServices: DEVELOPER_TYPES },
-  { label: 'Free Hold E-Patta', subServices: DEVELOPER_TYPES },
-  { label: 'Free Hold E-Patta in lieu of already issued Patta (Lease Deed)', subServices: DEVELOPER_TYPES }
-];
+$(function () {
+  var $service = $('#serviceSelect');
+  var $developer = $('#subServiceSelect');
+  var $provision = $('#basedOnSelect');
 
-const SERVICE_FIELD = {
-  service: 'Please select a Service.',
-  subService: 'Please select a Sub Service.',
-  basedOn: 'Please select Applicable Provision.'
-};
+  // Fill "Developer Type" when a service is chosen; "Applicable Provision" is reset.
+  function onServiceChange() {
+    setSelectValue($provision, '', true);
+    setSelectOptions($provision, []);
+    setSelectDisabled($provision, true);
 
-function initChoosePage() {
-  const service = $('#serviceSelect')._ss;
-  const sub = $('#subServiceSelect')._ss;
-  const based = $('#basedOnSelect')._ss;
-
-  service.setOptions(SERVICES.map((s) => s.label));
-  sub.disable();
-  based.disable();
-
-  $('#serviceSelect').addEventListener('change', () => {
-    clearFieldError($('#fld-service'));
-    handleServiceChange();
-  });
-  $('#subServiceSelect').addEventListener('change', () => {
-    clearFieldError($('#fld-subservice'));
-    handleSubServiceChange();
-  });
-  $('#basedOnSelect').addEventListener('change', () => clearFieldError($('#fld-basedon')));
-
-  const continueBtn = $('#continueChoose');
-  if (continueBtn) {
-    continueBtn.addEventListener('click', () => {
-      if (!validateChoose()) return;
-      setFlow({
-        service: $('#serviceSelect').value,
-        subService: $('#subServiceSelect').value,
-        basedOn: $('#basedOnSelect').value
-      });
-      window.location.href = 'applicant-profile.html';
-    });
-  }
-
-  // restore a previously chosen selection when coming back
-  restore();
-}
-
-/* Hide the optional “Package with Services” panel once step 1 is complete. */
-function hidePackageWhenDone() {
-  const pkg = $('.package-panel');
-  if (!pkg) return;
-  const flow = getFlow();
-  pkg.hidden = !!(flow.service && flow.subService && flow.basedOn);
-}
-
-function currentService() {
-  return SERVICES.find((s) => s.label === $('#serviceSelect').value);
-}
-
-function currentSubService() {
-  const svc = currentService();
-  if (!svc) return null;
-  return svc.subServices.find((s) => s.label === $('#subServiceSelect').value);
-}
-
-function handleServiceChange() {
-  const svc = currentService();
-  const sub = $('#subServiceSelect')._ss;
-  const based = $('#basedOnSelect')._ss;
-
-  sub.setValue('', true);
-  based.setOptions([]);
-  based.disable();
-
-  if (!svc) { sub.setOptions([]); sub.disable(); return; }
-  sub.enable();
-  sub.setOptions(svc.subServices.map((s) => s.label));
-}
-
-function handleSubServiceChange() {
-  const subObj = currentSubService();
-  const based = $('#basedOnSelect')._ss;
-  based.setValue('', true);
-
-  if (!subObj) { based.setOptions([]); based.disable(); return; }
-  based.enable();
-  based.setOptions(subObj.basedOn.map((b) => ({ value: b, label: b })));
-}
-
-function validateChoose() {
-  clearErrorsIn('#chooseFields');
-  const service = $('#serviceSelect');
-  const sub = $('#subServiceSelect');
-  const based = $('#basedOnSelect');
-
-  const checks = [
-    [service, 'service'],
-    [sub, 'subService'],
-    [based, 'basedOn']
-  ];
-
-  for (const [ctrl, key] of checks) {
-    if (!ctrl.value) {
-      markError(ctrl, SERVICE_FIELD[key]);
-      scrollToControl(ctrl);
-      return false;
+    if (!$service.val()) {
+      setSelectOptions($developer, []);
+      setSelectDisabled($developer, true);
+      return;
     }
+    setSelectValue($developer, '', true);
+    setSelectOptions($developer, DEVELOPER_TYPES);
+    setSelectDisabled($developer, false);
   }
-  return true;
-}
 
-/* Restore selections from the flow store (e.g. after Back) */
-function restore() {
-  hidePackageWhenDone();
-
-  const flow = getFlow();
-  if (!flow.service) return;
-  const svc = SERVICES.find((s) => s.label === flow.service);
-  if (!svc) return;
-
-  const service = $('#serviceSelect')._ss;
-  service.setValue(flow.service, true);
-  handleServiceChange();
-
-  const sub = svc.subServices.find((s) => s.label === flow.subService);
-  if (!sub) return;
-  $('#subServiceSelect')._ss.setValue(flow.subService, true);
-  handleSubServiceChange();
-
-  if (sub.basedOn.indexOf(flow.basedOn) !== -1) {
-    $('#basedOnSelect')._ss.setValue(flow.basedOn, true);
+  // Fill "Applicable Provision" when a developer type is chosen.
+  function onDeveloperChange() {
+    setSelectValue($provision, '', true);
+    if (!$developer.val()) {
+      setSelectOptions($provision, []);
+      setSelectDisabled($provision, true);
+      return;
+    }
+    setSelectOptions($provision, BASED_ON_OPTIONS);
+    setSelectDisabled($provision, false);
   }
-}
 
-document.addEventListener('DOMContentLoaded', () => {
-  if (document.body.dataset.page === 'choose') initChoosePage();
+  function validateChooseService() {
+    var checks = [
+      [$service, 'Please select a Service.'],
+      [$developer, 'Please select a Sub Service.'],
+      [$provision, 'Please select Applicable Provision.']
+    ];
+    clearErrors($('#chooseFields'));
+    for (var i = 0; i < checks.length; i++) {
+      if (!checks[i][0].val()) {
+        markFieldError(checks[i][0], checks[i][1]);
+        scrollToControl(checks[i][0]);
+        return false;
+      }
+    }
+    return true;
+  }
+
+  // Coming back to this page: show what was chosen before.
+  function restoreChoice() {
+    var flow = getFlow();
+    if (!flow.service || SERVICE_OPTIONS.indexOf(flow.service) === -1) return;
+    setSelectValue($service, flow.service, true);
+    onServiceChange();
+    if (DEVELOPER_TYPES.indexOf(flow.subService) === -1) return;
+    setSelectValue($developer, flow.subService, true);
+    onDeveloperChange();
+    if (BASED_ON_OPTIONS.indexOf(flow.basedOn) !== -1) setSelectValue($provision, flow.basedOn, true);
+  }
+
+  setSelectOptions($service, SERVICE_OPTIONS);
+  setSelectDisabled($developer, true);
+  setSelectDisabled($provision, true);
+
+  $service.on('change', onServiceChange);
+  $developer.on('change', onDeveloperChange);
+
+  $('#continueChoose').on('click', function () {
+    if (!validateChooseService()) return;
+    setFlow({ service: $service.val(), subService: $developer.val(), basedOn: $provision.val() });
+    window.location.href = 'applicant-profile.html';
+  });
+
+  restoreChoice();
 });

@@ -7,9 +7,6 @@
   <link rel="stylesheet" href="../css/main.css" />
   <link rel="stylesheet" href="../css/forms.css" />
   <link rel="stylesheet" href="../css/responsive.css" />
-  <script src="../js/navigation.js" defer></script>
-  <script src="../js/main.js" defer></script>
-  <script src="../js/applicant.js" defer></script>
 </head>
 <body data-page="applicant-profile" data-step="1">
 
@@ -34,10 +31,24 @@
   </svg>
 
   <div class="page">
+    <!-- Progress: is-done = finished step, is-current = this page -->
     <nav class="stepper-card" aria-label="Application progress">
-      <ol class="stepper" id="stepper"></ol>
+      <ol class="stepper">
+        <li class="step is-done"><span class="step-badge">SS</span><span class="step-txt"><b>Select</b><span>Service</span></span></li>
+        <li class="step-sep" aria-hidden="true">&gt;&gt;</li>
+        <li class="step is-current"><span class="step-badge">AP</span><span class="step-txt"><b>Applicant</b><span>Profile</span></span></li>
+        <li class="step-sep" aria-hidden="true">&gt;&gt;</li>
+        <li class="step"><span class="step-badge">WP</span><span class="step-txt"><b>Witness</b><span> Profile</span></span></li>
+        <li class="step-sep" aria-hidden="true">&gt;&gt;</li>
+        <li class="step"><span class="step-badge">PP</span><span class="step-txt"><b>Property</b><span>Profile</span></span></li>
+        <li class="step-sep" aria-hidden="true">&gt;&gt;</li>
+        <li class="step"><span class="step-badge">UD</span><span class="step-txt"><b>Upload</b><span>Documents</span></span></li>
+        <li class="step-sep" aria-hidden="true">&gt;&gt;</li>
+        <li class="step"><span class="step-badge">FS</span><span class="step-txt"><b>Final</b><span>Submission</span></span></li>
+      </ol>
     </nav>
 
+    <div class="page-layout">
     <main>
       <div class="form-card">
         <div class="page-hero">
@@ -116,8 +127,33 @@
         </div>
       </div>
     </main>
+
+      <aside class="app-aside" aria-label="Application help">
+        <!-- Shown once a service is chosen; main.js fills it from REQUIRED_DOCUMENTS -->
+        <section class="aside-card" id="requiredDocsCard" hidden>
+          <h3>Required Documents</h3>
+          <ul class="aside-docs" id="asideDocs"></ul>
+        </section>
+        <section class="aside-card">
+          <h3>Need Help?</h3>
+          <div class="aside-help">
+            <p><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg><b> +91 141 2569696</b></p>
+            <p class="as-muted">Toll Free: 10:00 AM to 6:00 PM</p>
+            <p><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="22,6 12,13 2,6"/></svg><a href="mailto:jda@rajasthan.gov.in">jda@rajasthan.gov.in</a></p>
+          </div>
+        </section>
+      </aside>
+    </div>
   </div>
 
-  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+  <div class="app-toast" id="toast" role="status" aria-live="polite" hidden></div>
+  <!-- Libraries: jQuery 4.0.0 + Bootstrap 5.2.3 JS (Bootstrap CSS is imported at the top of css/main.css) -->
+  <script src="https://code.jquery.com/jquery-4.0.0.min.js" integrity="sha384-fgGyf7Mo7DURSOMnOy7ed+dkq5Job205Gnzu6QIg0BOHKaqt4D76Dt8VlDCzcMHV" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
+  <!-- Page scripts -->
+  <script src="../js/main.js"></script>
+  <script src="../js/select.js"></script>
+  <script src="../js/person-form.js"></script>
+  <script src="../js/applicant.js"></script>
 </body>
 </html>

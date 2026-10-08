@@ -1,3 +1,10 @@
+/* Bootstrap 5.2.3 — loaded into a low-priority cascade layer.
+   Every rule in the JDA stylesheets is unlayered, so it always wins over
+   Bootstrap (whatever the selector specificity). Bootstrap only supplies
+   behaviour classes (.collapse, .modal, .fade, .show, .tab-pane …) and the
+   properties our own CSS does not set. */
+@import url("https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css") layer(bootstrap);
+
 /* =====================================================================
    JDA Property Services — main.css
    Theme tokens + layout chrome + shared components.
@@ -44,6 +51,37 @@
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ---------------------------------------------------------------------
+   Bootstrap 5.2.3 compatibility
+   Bootstrap's "Reboot" changes a few browser defaults that the approved
+   JDA design was built on. `revert` puts each one back to the browser
+   default. (Everything else is already overridden by the rules below,
+   because they are outside the Bootstrap cascade layer.)
+   --------------------------------------------------------------------- */
+dt { font-weight: revert; }                              /* Reboot: bold        */
+h1, h2, h3, h4, h5, h6 { line-height: revert; }         /* Reboot: 1.2         */
+svg { vertical-align: revert; }                          /* Reboot: middle      */
+label { display: revert; }                               /* Reboot: inline-block*/
+fieldset { min-width: revert; }                          /* Reboot: 0           */
+legend { float: revert; width: revert; font-size: revert; line-height: revert; }
+input, button, select, optgroup, option, textarea {     /* Reboot: inherit     */
+  font-family: revert; font-size: revert; line-height: revert;
+}
+textarea { resize: revert; }                             /* Reboot: vertical    */
+button, [type="button"], [type="reset"], [type="submit"] { appearance: revert; }
+body { -webkit-text-size-adjust: revert; -webkit-tap-highlight-color: revert; }
+
+/* Bootstrap's .btn base rule: keep the JDA button metrics and focus look */
+.btn {
+  vertical-align: revert; text-align: revert; line-height: revert; user-select: revert;
+  --bs-btn-focus-box-shadow: none;
+}
+.btn:focus-visible { outline: revert; }
+.btn:disabled { pointer-events: revert; }
+
+/* Bootstrap's .input-group: the JDA input group never wraps */
+.input-group { position: revert; flex-wrap: revert; }
 
 [hidden] { display: none !important; }
 
@@ -318,6 +356,7 @@ a { text-decoration: none; color: inherit; }
 .block-card:last-child { margin-bottom: 0; }
 
 .block-bar {
+  cursor: default;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -395,8 +434,8 @@ a { text-decoration: none; color: inherit; }
 }
 .tab-btn .ic { font-size: 14px; color: var(--blue-600); }
 .tab-btn:hover { border-color: var(--blue-300); }
-.tab-btn.is-active { background: var(--blue-600); border-color: var(--blue-600); color: #fff; }
-.tab-btn.is-active .ic { color: #fff; }
+.tab-btn.active { background: var(--blue-600); border-color: var(--blue-600); color: #fff; }
+.tab-btn.active .ic { color: #fff; }
 
 .find-box {
   background: #fff;
@@ -416,7 +455,7 @@ a { text-decoration: none; color: inherit; }
 .find-row .btn { flex: none; }
 
 .tab-panel { display: none; }
-.tab-panel.is-active { display: block; }
+.tab-panel.active { display: block; }     /* Bootstrap Tab adds "active" */
 
 /* =====================================================================
    Data tables
@@ -627,7 +666,7 @@ a { text-decoration: none; color: inherit; }
 /* =====================================================================
    Toast
    ===================================================================== */
-.toast {
+.app-toast {
   position: fixed;
   left: 50%;
   bottom: 26px;
@@ -646,9 +685,9 @@ a { text-decoration: none; color: inherit; }
   max-width: min(560px, calc(100vw - 40px));
   animation: toast-in .25s ease;
 }
-.toast .ic { font-size: 16px; color: #7dd3fc; flex: none; }
-.toast.is-ok { background: #0f3d2e; }
-.toast.is-ok .ic { color: #4ade80; }
+.app-toast .ic { font-size: 16px; color: #7dd3fc; flex: none; }
+.app-toast.is-ok { background: #0f3d2e; }
+.app-toast.is-ok .ic { color: #4ade80; }
 
 @keyframes toast-in { from { opacity: 0; transform: translate(-50%, 12px); } to { opacity: 1; transform: translate(-50%, 0); } }
 
@@ -1152,20 +1191,19 @@ a { text-decoration: none; color: inherit; }
 /* =====================================================================
    Read-only detail modal (e.g. Property Details) — reusable
    ===================================================================== */
-body.modal-open { overflow: hidden; }
-
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(15, 23, 42, .5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-  z-index: 1000;
+/* Bootstrap 5.2.3 Modal (.modal.jda-modal > .modal-dialog > .modal-content.modal-panel)
+   with the JDA look: dark-blue backdrop, 560px panel, 20px from the edges. */
+.jda-modal { --bs-modal-width: 560px; --bs-modal-margin: 20px; }
+/* the JDA reset (* { margin: 0 }) beats Bootstrap's auto margins, so centre the dialog here */
+.jda-modal .modal-dialog {
+  max-width: none;
+  margin: var(--bs-modal-margin) max(var(--bs-modal-margin), calc((100% - var(--bs-modal-width)) / 2));
 }
+.modal-backdrop { --bs-backdrop-bg: #0f172a; --bs-backdrop-opacity: .5; }
+
 .modal-panel {
   background: #fff;
+  border: 0;
   border-radius: 14px;
   width: 100%;
   max-width: 560px;
@@ -1202,7 +1240,7 @@ body.modal-open { overflow: hidden; }
   justify-content: center;
 }
 .modal-close:hover { background: rgba(255, 255, 255, .3); }
-.modal-body { overflow-y: auto; }
+.modal-body { overflow-y: auto; padding: 0; }
 .modal-body .summary-grid { gap: 0; }
 .modal-foot {
   flex: none;
@@ -1222,8 +1260,8 @@ body.modal-open { overflow: hidden; }
   .stepper-card,
   .card-foot,
   .package-note,
-  .toast,
-  .modal-overlay { display: none !important; }
+  .app-toast,
+  .jda-modal, .modal-backdrop { display: none !important; }
   .form-card { border: 0; box-shadow: none; }
   .card-head, .page-hero { border-bottom: 1px solid #cbd5e1; }
   .summary-card { break-inside: avoid; box-shadow: none; }
